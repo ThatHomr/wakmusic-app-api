@@ -1,4 +1,4 @@
-import { IsArray, IsOptional } from 'class-validator';
+import { IsArray } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class PlaylistEditBodyDto {

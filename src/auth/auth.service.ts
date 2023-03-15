@@ -20,9 +20,7 @@ export class AuthService {
 
     const payload: JwtPayload = { id: user.id };
 
-    const token = this.getToken(payload);
-
-    return token;
+    return this.getToken(payload);
   }
 
   private getToken(payload: JwtPayload) {

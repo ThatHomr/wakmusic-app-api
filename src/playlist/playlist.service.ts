@@ -86,7 +86,7 @@ export class PlaylistService {
       select: ['id', 'title', 'public'],
     });
 
-    const result = await Promise.all(
+    return await Promise.all(
       playlists.map(async (playlist) => {
         const version =
           await this.imageService.getRecommendedPlaylistImageVersion(
@@ -99,8 +99,6 @@ export class PlaylistService {
         };
       }),
     );
-
-    return result;
   }
 
   async findPlaylistRecommended(

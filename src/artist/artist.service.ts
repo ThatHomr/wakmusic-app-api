@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MainArtistsEntity } from '../entitys/main/artists.entity';
 import { Repository } from 'typeorm';
@@ -26,7 +26,7 @@ export class ArtistService {
       where: {},
     });
 
-    const results = await Promise.all(
+    return await Promise.all(
       artists.map<Promise<FindAllResponseDto>>(async (artist) => {
         const image_version = await this.imageService.getArtistImageVersion(
           artist.id,
@@ -40,8 +40,6 @@ export class ArtistService {
         };
       }),
     );
-
-    return results;
   }
 
   async findByGroup(group: string): Promise<Array<MainArtistsEntity>> {

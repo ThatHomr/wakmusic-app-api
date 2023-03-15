@@ -141,9 +141,7 @@ export class SongsService {
     }
     songsQueryBuilder.orderBy(sort, order ? 'DESC' : 'ASC');
 
-    const songs = await songsQueryBuilder.getMany();
-
-    return songs;
+    return await songsQueryBuilder.getMany();
   }
 
   async findSongsByLyrics(): Promise<Array<FindSongsByLyricsResponseDto>> {
@@ -163,12 +161,7 @@ export class SongsService {
 
   async checkLyrics(query: CheckLyricsQueryDto): Promise<boolean> {
     try {
-      const checkFile = fs.existsSync(`${lyricsPath}/${query.id}.vtt`);
-      if (checkFile) {
-        return true;
-      } else {
-        return false;
-      }
+      return fs.existsSync(`${lyricsPath}/${query.id}.vtt`);
     } catch (err) {
       console.log(err);
       return false;

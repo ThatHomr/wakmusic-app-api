@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  Next,
   Post,
   Req,
   Res,
@@ -17,7 +16,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService, JwtPayload } from './auth.service';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { UserService } from '../user/user.service';
 import { NaverAuthGuard } from './guard/naver-auth.guard';
 import { GoogleAuthGuard } from './guard/google-auth.guard';
@@ -142,7 +141,7 @@ export class AuthController {
   @ApiCookieAuth('token')
   @Get('/logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Res() res: Response, @Next() next: NextFunction) {
+  async logout(@Res() res: Response) {
     res.cookie('token', '', { maxAge: 0 });
     res.redirect(process.env.DOMAIN);
   }

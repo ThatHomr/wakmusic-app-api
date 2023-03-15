@@ -24,7 +24,6 @@ export class AppService {
   }
 
   async findAllTeams(): Promise<Array<TeamsEntity>> {
-    const teams = await this.teamsRepository.find();
-    return teams;
+    return await this.teamsRepository.find();
   }
 }

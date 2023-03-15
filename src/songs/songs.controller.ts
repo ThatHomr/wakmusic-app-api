@@ -48,9 +48,7 @@ export class SongsController {
   async findNewSongsByGroup(
     @Param() param: FindNewSongsParamDto,
   ): Promise<Array<TotalEntity>> {
-    const newSongs = await this.songsService.findNewSongsByGroup(param.group);
-
-    return newSongs;
+    return await this.songsService.findNewSongsByGroup(param.group);
   }
 
   @ApiOperation({

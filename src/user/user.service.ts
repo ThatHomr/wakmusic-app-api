@@ -17,7 +17,6 @@ import { LikeDto } from '../like/dto/like.dto';
 import { LikeService } from '../like/like.service';
 import { EditUserLikesBodyDto } from './dto/body/edit-user-likes.body.dto';
 import { EditUserPlaylistsBodyDto } from './dto/body/edit-user-playlists.body.dto';
-import { PlaylistEntity } from '../entitys/user/playlist.entity';
 import { Cache } from 'cache-manager';
 import { ImageService } from 'src/image/image.service';
 import { GetUserPlaylistsResponseDto } from './dto/response/get-user-playlists.response.dto';
@@ -81,7 +80,7 @@ export class UserService {
     const categories = await this.categoriesService.findCategoriesByType(
       'profile',
     );
-    const result = await Promise.all(
+    return await Promise.all(
       categories.map(async (category) => {
         return {
           type: category,
@@ -90,8 +89,6 @@ export class UserService {
         };
       }),
     );
-
-    return result;
   }
 
   async setProfile(id: string, image: string): Promise<void> {

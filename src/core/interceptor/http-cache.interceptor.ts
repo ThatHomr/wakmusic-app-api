@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import { Request } from 'express';
-import { Cluster, Redis } from 'ioredis';
+import { Cluster } from 'ioredis';
 import {
   CACHE_DEACTIVATE_METADATA,
   CACHE_EVICT_METADATA,
@@ -62,17 +62,6 @@ export class HttpCacheInterceptor extends CacheInterceptor {
    * @param cacheKeys 삭제할 캐시 키 목록
    */
   private async _clearCaches(cacheKeys: string[]): Promise<boolean> {
-    // const client: Redis = await this.cacheManager.store.getClient();
-
-    // const _keys = await Promise.all(
-    //   cacheKeys.map((cacheKey) => client.keys(`*${cacheKey}*`)),
-    // );
-    // const keys = _keys.flat();
-    // const result = await Promise.all(
-    //   keys.map((key) => !!this.cacheManager.del(key)),
-    // );
-    // return result.flat().every((r) => !!r);
-
     const client: Cluster = await this.cacheManager.store.getClient();
     const redisNodes = client.nodes();
 

@@ -73,7 +73,7 @@ export class ChartsService {
   }
 
   private async _findChartsByTotal(limit: number): Promise<Array<TotalEntity>> {
-    const chart = await this.totalRepository.find({
+    return await this.totalRepository.find({
       order: {
         views: {
           direction: 'DESC',
@@ -81,7 +81,6 @@ export class ChartsService {
       },
       take: limit,
     });
-    return chart;
   }
 
   async findUpdated(): Promise<number> {

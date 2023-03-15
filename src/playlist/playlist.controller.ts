@@ -8,12 +8,8 @@ import {
   Post,
   UseGuards,
   Req,
-  BadRequestException,
   Patch,
   Delete,
-  UseInterceptors,
-  CacheKey,
-  CacheTTL,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
 import { PlaylistEntity } from '../entitys/user/playlist.entity';
@@ -73,9 +69,7 @@ export class PlaylistController {
   async findAllPlaylistRecommended(): Promise<
     Array<FindAllPlaylistRecommendedResponseDto>
   > {
-    const playlists = await this.playlistService.findAllPlaylistRecommended();
-
-    return playlists;
+    return await this.playlistService.findAllPlaylistRecommended();
   }
 
   @ApiOperation({

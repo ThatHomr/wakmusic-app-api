@@ -52,9 +52,6 @@ export class NoticeController {
   })
   @Get('/categories')
   async getAllCategories(): Promise<Array<string>> {
-    const categories = await this.categoriesService.findCategoriesByType(
-      'notice',
-    );
-    return categories;
+    return await this.categoriesService.findCategoriesByType('notice');
   }
 }
