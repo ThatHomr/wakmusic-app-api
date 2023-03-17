@@ -12,6 +12,7 @@ services:
       - ./conf/nginx/conf.d:/etc/nginx/conf.d
       - ./../wakmusic:/home/ubuntu/wakmusic
       - ./../wakmusic-lyrics:/home/ubuntu/wakmusic-lyrics
+      - /etc/letsencrypt/live/eatcocoa.dev:/etc/letsencrypt/live/eatcocoa.dev
     networks:
       - wakmusic-api
     environment:
