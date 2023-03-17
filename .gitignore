@@ -44,3 +44,6 @@ static/*
 
 # env
 .env
+
+# nginx, redis conf files
+conf/*
