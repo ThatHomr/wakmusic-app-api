@@ -10,6 +10,8 @@ const artistExample = {
   name: '우왁굳',
   short: '우왁굳',
   group: 'woowakgood',
+  group_kr: '우왁굳',
+  graduated: false,
   title:
     '언더 출신 갱스터부터 음악의 왕까지\r\n노래 부른 적이 없는데 음반이 나오는 신세계의 신',
   app_title: '노래 부른 적이 없는데 음반이 나오는 신세계의 신',

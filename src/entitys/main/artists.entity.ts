@@ -20,6 +20,14 @@ export class MainArtistsEntity extends BaseEntity {
   @Column()
   group: string;
 
+  @ApiProperty({ description: '소속 그룹(한글)' })
+  @Column()
+  group_kr: string;
+
+  @ApiProperty({ description: '졸업 여부' })
+  @Column({ type: 'boolean', default: 0 })
+  graduated: boolean;
+
   @ApiProperty({ description: '한 줄 소개' })
   @Column()
   title: string;

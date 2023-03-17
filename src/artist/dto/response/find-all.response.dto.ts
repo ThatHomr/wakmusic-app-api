@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsString } from 'class-validator';
 
 export class FindAllResponseDto {
   @ApiProperty({ description: '아티스트 id' })
@@ -17,6 +17,14 @@ export class FindAllResponseDto {
   @ApiProperty({ description: '소속 그룹' })
   @IsString()
   group: string;
+
+  @ApiProperty({ description: '소속 그룹(한글)' })
+  @IsString()
+  group_kr: string;
+
+  @ApiProperty({ description: '졸업 여부' })
+  @IsBoolean()
+  graduated: boolean;
 
   @ApiProperty({ description: '한 줄 소개' })
   @IsString()
