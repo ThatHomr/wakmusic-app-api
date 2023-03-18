@@ -10,9 +10,10 @@ services:
     volumes:
       - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./conf/nginx/conf.d:/etc/nginx/conf.d
+      - /var/log/nginx:/var/log/nginx
       - ./../wakmusic:/home/ubuntu/wakmusic
       - ./../wakmusic-lyrics:/home/ubuntu/wakmusic-lyrics
-      - /etc/letsencrypt/live/eatcocoa.dev:/etc/letsencrypt/live/eatcocoa.dev
+      - /etc/letsencrypt:/etc/letsencrypt
     networks:
       - wakmusic-api
     environment:
