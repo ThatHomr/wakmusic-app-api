@@ -27,11 +27,15 @@ export class SongsService {
   }
 
   async findByIds(ids: Array<string>): Promise<Array<TotalEntity>> {
-    return await this.totalRepository.find({
-      where: {
-        id: In(ids),
-      },
-    });
+    return await Promise.all(
+      ids.map(async (song_id) => {
+        return await this.totalRepository.findOne({
+          where: {
+            id: song_id,
+          },
+        });
+      }),
+    );
   }
 
   async findNewSongs(artist?: string, limit = 10): Promise<Array<TotalEntity>> {
