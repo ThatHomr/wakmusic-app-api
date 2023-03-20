@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlaylistEntity } from '../entitys/user/playlist.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { PlaylistCreateBodyDto } from './dto/body/playlist-create.body.dto';
 import { RecommendPlaylistEntity } from '../entitys/like/playlist.entity';
 import { SongsService } from '../songs/songs.service';
@@ -133,6 +133,18 @@ export class PlaylistService {
       where: {
         key: key,
         creator_id: clientId,
+      },
+    });
+  }
+
+  async findByKeysAndClientId(
+    keys: Array<string>,
+    clientId: string,
+  ): Promise<Array<PlaylistEntity>> {
+    return await this.playlistRepository.find({
+      where: {
+        creator_id: clientId,
+        key: In(keys),
       },
     });
   }
@@ -375,10 +387,8 @@ export class PlaylistService {
     id: string,
     playlists: Array<string>,
   ): Promise<void> {
-    for (const el of playlists) {
-      const playlist = await this.findOneByKeyAndClientId(el, id);
-      if (!playlist)
-        throw new BadRequestException('존재하지 않는 플레이리스트 입니다.');
-    }
+    const user_playlists = await this.findByKeysAndClientId(playlists, id);
+    if (user_playlists.length !== playlists.length)
+      throw new BadRequestException('존재하지 않는 플레이리스트 입니다.');
   }
 }
