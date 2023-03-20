@@ -47,7 +47,16 @@ export class SongsService {
       sorted_songs.set(idx, song);
     }
 
-    return Array.from(new Map([...sorted_songs].sort()).values());
+    return Array.from(
+      new Map([...sorted_songs].sort(this.handleTotalSongsSort)).values(),
+    );
+  }
+
+  private handleTotalSongsSort(
+    a: [number, TotalEntity],
+    b: [number, TotalEntity],
+  ): number {
+    return a[0] - b[0];
   }
 
   async findNewSongs(artist?: string, limit = 10): Promise<Array<TotalEntity>> {
