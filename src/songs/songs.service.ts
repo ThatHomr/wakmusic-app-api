@@ -210,9 +210,17 @@ export class SongsService {
       throw new BadRequestException('songs length not matching');
 
     for (const song of editSongs) {
-      if (!oldSongs.includes(song) || !(await this.findOne(song)))
-        throw new BadRequestException('invalid song');
+      if (!oldSongs.includes(song))
+        throw new BadRequestException('invalid song included');
     }
+
+    const songs = await this.totalRepository.find({
+      where: {
+        id: In(editSongs),
+      },
+    });
+    if (songs.length !== editSongs.length)
+      throw new BadRequestException('invalid song included');
   }
 
   async checkSongs(song_ids: Array<string>): Promise<boolean> {
