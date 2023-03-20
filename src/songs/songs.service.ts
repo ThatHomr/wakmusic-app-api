@@ -224,9 +224,12 @@ export class SongsService {
   }
 
   async checkSongs(song_ids: Array<string>): Promise<boolean> {
-    for (const song_id of song_ids) {
-      if (!(await this.findOne(song_id))) return false;
-    }
+    const songs = await this.totalRepository.find({
+      where: {
+        id: In(song_ids),
+      },
+    });
+    if (songs.length !== song_ids.length) return false;
 
     return true;
   }
