@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { TotalEntity } from '../entitys/chart/total.entity';
 import { moment } from '../utils/moment.utils';
-import { In, Repository } from 'typeorm';
+import { FindOperator, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindSongsQueryDto } from './dto/query/find-songs.query.dto';
 import * as fs from 'fs';
@@ -59,7 +59,10 @@ export class SongsService {
     return a[0] - b[0];
   }
 
-  async findNewSongs(artist?: string, limit = 10): Promise<Array<TotalEntity>> {
+  async findNewSongs(
+    artist?: string | FindOperator<any>,
+    limit = 10,
+  ): Promise<Array<TotalEntity>> {
     return await this.totalRepository.find({
       where: {
         artist: artist || null,
@@ -86,20 +89,16 @@ export class SongsService {
   async findNewSongsByGroup(group: string): Promise<Array<TotalEntity>> {
     if (group == 'all') return await this.findNewSongs();
 
-    const artists = await this.artistService.findByGroup(group);
+    const artists = (await this.artistService.findByGroup(group)).map(
+      (artist) => artist.name,
+    );
 
-    const songs: Array<TotalEntity> = [];
+    const artists_songs = await this.findNewSongs(In(artists));
 
-    for (const artist of artists) {
-      const artistNewSongs = await this.findNewSongs(artist.name);
-      songs.push(...artistNewSongs);
-    }
+    artists_songs.sort(this._sortSongsByDateDesc);
+    if (artists_songs.length < 10) return artists_songs;
 
-    songs.sort(this._sortSongsByDateDesc);
-
-    if (songs.length < 10) return songs;
-
-    return songs.slice(0, 10);
+    return artists_songs.slice(0, 10);
   }
 
   private _sortSongsByDateDesc(a: TotalEntity, b: TotalEntity): number {
