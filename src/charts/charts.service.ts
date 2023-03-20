@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { MonthlyEntity } from '../entitys/chart/monthly.entity';
 import { WeeklyEntity } from '../entitys/chart/weekly.entity';
 import { DailyEntity } from '../entitys/chart/daily.entity';
 import { HourlyEntity } from '../entitys/chart/hourly.entity';
 import { TotalEntity } from '../entitys/chart/total.entity';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { UpdatedEntity } from '../entitys/chart/updated.entity';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
 export const entityByType = {
@@ -56,20 +56,35 @@ export class ChartsService {
       .orderBy(`${type}.increase`, 'DESC')
       .limit(limit);
 
-    const result = await chart.getMany();
+    const chart_ids: Array<string> = (await chart.getMany()).map(
+      (data) => data.id,
+    );
+    console.log(chart_ids);
+    const unsorted_total_chart = await this.totalRepository.find({
+      where: {
+        id: In(chart_ids),
+      },
+    });
+    const sorted_total_chart: Map<number, TotalEntity> = new Map();
 
-    const finalCharts: Array<TotalEntity> = [];
+    for (const chart of unsorted_total_chart) {
+      const idx = chart_ids.indexOf(chart.id);
+      if (idx < 0) throw new InternalServerErrorException();
 
-    for (const i of result) {
-      const totalChart = await this.totalRepository.findOne({
-        where: {
-          id: i.id,
-        },
-      });
-      finalCharts.push(totalChart);
+      console.log(idx, chart.id);
+      sorted_total_chart.set(idx, chart);
     }
 
-    return finalCharts;
+    return Array.from(
+      new Map([...sorted_total_chart].sort(this.handleChartSort)).values(),
+    );
+  }
+
+  private handleChartSort(
+    a: [number, TotalEntity],
+    b: [number, TotalEntity],
+  ): number {
+    return a[0] - b[0];
   }
 
   private async _findChartsByTotal(limit: number): Promise<Array<TotalEntity>> {
