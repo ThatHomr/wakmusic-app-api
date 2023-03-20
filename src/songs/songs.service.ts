@@ -1,4 +1,9 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { TotalEntity } from '../entitys/chart/total.entity';
 import { moment } from '../utils/moment.utils';
 import { In, Repository } from 'typeorm';
@@ -27,15 +32,22 @@ export class SongsService {
   }
 
   async findByIds(ids: Array<string>): Promise<Array<TotalEntity>> {
-    return await Promise.all(
-      ids.map(async (song_id) => {
-        return await this.totalRepository.findOne({
-          where: {
-            id: song_id,
-          },
-        });
-      }),
-    );
+    const unsorted_songs = await this.totalRepository.find({
+      where: {
+        id: In(ids),
+      },
+    });
+
+    const sorted_songs: Map<number, TotalEntity> = new Map();
+
+    for (const song of unsorted_songs) {
+      const idx = ids.indexOf(song.id);
+      if (idx < 0) throw new InternalServerErrorException();
+
+      sorted_songs.set(idx, song);
+    }
+
+    return Array.from(new Map([...sorted_songs].sort()).values());
   }
 
   async findNewSongs(artist?: string, limit = 10): Promise<Array<TotalEntity>> {
