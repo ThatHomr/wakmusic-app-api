@@ -11,6 +11,14 @@ export class PlaylistJobDto {
   new_playlist_key: string;
 
   @ApiProperty()
+  @IsString()
+  playlist_owner_id: string;
+
+  @ApiProperty()
+  @IsString()
+  new_playlist_owner_id: string;
+
+  @ApiProperty()
   @IsNumber()
   datetime: number;
 }

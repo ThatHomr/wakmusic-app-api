@@ -22,12 +22,13 @@ import { Cache } from 'cache-manager';
 import { ImageService } from 'src/image/image.service';
 import { FindAllPlaylistRecommendedResponseDto } from './dto/response/find-all-playlist-recommended.response.dto';
 import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.response.dto';
+import { PlaylistJobDto } from './dto/playlist-job.dto';
 
 @Injectable()
 export class PlaylistService {
   constructor(
     @InjectQueue('playlist')
-    private playlistQueue: Queue,
+    private playlistQueue: Queue<PlaylistJobDto>,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
 
@@ -291,6 +292,8 @@ export class PlaylistService {
       {
         playlist_key: playlist.key,
         new_playlist_key: new_playlist.key,
+        playlist_owner_id: playlist.creator_id,
+        new_playlist_owner_id: creatorId,
         datetime: moment().valueOf(),
       },
       {

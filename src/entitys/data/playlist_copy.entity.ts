@@ -16,6 +16,10 @@ export class PlaylistCopyEntity extends BaseEntity {
   playlist_key: string;
 
   @ApiModelProperty()
+  @Column({ type: 'text' })
+  owner_id: string;
+
+  @ApiModelProperty()
   @Column({ type: 'int' })
   count: number;
 }

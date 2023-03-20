@@ -8,12 +8,24 @@ export class PlaylistCopyLogEntity extends BaseEntity {
   id: number;
 
   @ApiModelProperty()
+  @Column({ type: 'int' })
+  date: number;
+
+  @ApiModelProperty()
   @Column({ type: 'text' })
   playlist_key: string;
 
   @ApiModelProperty()
   @Column({ type: 'text' })
   new_playlist_key: string;
+
+  @ApiModelProperty()
+  @Column({ type: 'text' })
+  playlist_owner_id: string;
+
+  @ApiModelProperty()
+  @Column({ type: 'text' })
+  new_playlist_owner_id: string;
 
   @ApiModelProperty()
   @Column({ type: 'int' })
