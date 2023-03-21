@@ -3,11 +3,12 @@ import {
   CACHE_MANAGER,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LikeEntity } from '../entitys/like/like.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { LikeManagerEntity } from '../entitys/like/manager.entity';
 import { ChartsService } from '../charts/charts.service';
 import { LikeDto } from './dto/like.dto';
@@ -44,6 +45,34 @@ export class LikeService {
     if (!like) like = await this.create(songId);
 
     return like;
+  }
+
+  async findByIds(song_ids: Array<string>): Promise<Array<LikeDto>> {
+    const unsorted_likes = await this.likeRepository.find({
+      where: {
+        song_id: In(song_ids),
+      },
+    });
+    const sorted_songs = await this.songsService.findByIds(song_ids);
+
+    const sorted_likes: Map<number, LikeDto> = new Map();
+
+    for (const like of unsorted_likes) {
+      const idx = song_ids.indexOf(like.song_id);
+      if (idx < 0) throw new InternalServerErrorException();
+
+      const song = sorted_songs[idx];
+
+      sorted_likes.set(idx, {
+        id: like.id,
+        song: song,
+        likes: like.likes,
+      });
+    }
+
+    return Array.from(
+      new Map([...sorted_likes].sort((a, b) => a[0] - b[0])).values(),
+    );
   }
 
   async create(songId: string): Promise<LikeEntity> {

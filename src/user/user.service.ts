@@ -174,13 +174,7 @@ export class UserService {
 
   async getUserLikes(id: string): Promise<Array<LikeDto>> {
     const manager = await this.likeService.getManager(id);
-    const results: Array<LikeDto> = [];
-
-    for (const song of manager.songs) {
-      results.push(await this.likeService.getLike(song));
-    }
-
-    return results;
+    return await this.likeService.findByIds(manager.songs);
   }
 
   async editUserLikes(id: string, body: EditUserLikesBodyDto): Promise<void> {
