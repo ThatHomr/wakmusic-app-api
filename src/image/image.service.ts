@@ -37,6 +37,12 @@ export class ImageService {
     });
   }
 
+  async getAllRecommendedPlaylistImageVersion(): Promise<
+    Array<RecommendedPlaylistVersionEntity>
+  > {
+    return await this.recommendedPlaylistRepository.find({});
+  }
+
   async getPlaylistImageVersion(
     image_id: string,
   ): Promise<PlaylistVersionEntity> {

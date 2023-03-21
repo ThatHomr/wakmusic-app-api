@@ -86,19 +86,25 @@ export class PlaylistService {
       },
       select: ['id', 'title', 'public'],
     });
+    const unsorted_playlist_versions =
+      await this.imageService.getAllRecommendedPlaylistImageVersion();
 
-    return await Promise.all(
-      playlists.map(async (playlist) => {
-        const version =
-          await this.imageService.getRecommendedPlaylistImageVersion(
-            playlist.id,
-          );
+    const sorted_playlists: Map<number, FindAllPlaylistRecommendedResponseDto> =
+      new Map();
 
-        return {
-          ...playlist,
-          image_round_version: version.round,
-        };
-      }),
+    for (const playlist_version of unsorted_playlist_versions) {
+      const playlist_idx = playlists.findIndex(
+        (playlist) => playlist.id === playlist_version.name,
+      );
+
+      sorted_playlists.set(playlist_idx, {
+        ...playlists[playlist_idx],
+        image_round_version: playlist_version.round,
+      });
+    }
+
+    return Array.from(
+      new Map([...sorted_playlists].sort((a, b) => a[0] - b[0])).values(),
     );
   }
 
