@@ -99,15 +99,6 @@ export class UserService {
     return Array.from(
       new Map([...sorted_profile_image].sort((a, b) => a[0] - b[0])).values(),
     );
-    // return await Promise.all(
-    //   categories.map(async (category) => {
-    //     return {
-    //       type: category,
-    //       version: (await this.imageService.getProfileImageVersion(category))
-    //         .version,
-    //     };
-    //   }),
-    // );
   }
 
   async setProfile(id: string, image: string): Promise<void> {
