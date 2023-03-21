@@ -60,4 +60,10 @@ export class ImageService {
 
     return profile_version;
   }
+
+  async getAllPlaylistImageVersion(): Promise<Array<PlaylistVersionEntity>> {
+    return await this.playlistRepository.find({
+      where: {},
+    });
+  }
 }

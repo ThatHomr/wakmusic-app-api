@@ -130,20 +130,54 @@ export class UserService {
     id: string,
   ): Promise<Array<GetUserPlaylistsResponseDto>> {
     const playlists = await this.playlistService.findUserPlaylistsByUserId(id);
-    const results: Array<GetUserPlaylistsResponseDto> = [];
+    const unsorted_playlists_detail =
+      await this.playlistService.findByKeysAndClientId(playlists.playlists, id);
+    const playlist_image_versions = await (
+      await this.imageService.getAllPlaylistImageVersion()
+    )
+      .map((image) => [parseInt(image.type), image.default])
+      .sort((a, b) => a[0] - b[0]);
 
-    for (const playlist_id of playlists.playlists) {
-      const playlist_detail = await this.playlistService.findOne(playlist_id);
-      const image_version = await this.imageService.getPlaylistImageVersion(
-        playlist_detail.image,
-      );
-      results.push({
-        ...playlist_detail,
-        image_version: image_version.default,
+    const sorted_playlists_detail: Map<number, GetUserPlaylistsResponseDto> =
+      new Map();
+
+    for (const playlist of unsorted_playlists_detail) {
+      const idx = playlists.playlists.indexOf(playlist.key);
+      if (idx < 0) throw new InternalServerErrorException();
+
+      sorted_playlists_detail.set(idx, {
+        ...playlist,
+        image_version: playlist_image_versions[parseInt(playlist.image) - 1][1],
       });
     }
 
-    return results;
+    return Array.from(
+      new Map(
+        [...sorted_playlists_detail].sort(this.handleUserPlaylistsSort),
+      ).values(),
+    );
+
+    // const results: Array<GetUserPlaylistsResponseDto> = [];
+
+    // for (const playlist_id of playlists.playlists) {
+    //   const playlist_detail = await this.playlistService.findOne(playlist_id);
+    //   const image_version = await this.imageService.getPlaylistImageVersion(
+    //     playlist_detail.image,
+    //   );
+    //   results.push({
+    //     ...playlist_detail,
+    //     image_version: image_version.default,
+    //   });
+    // }
+
+    // return results;
+  }
+
+  private handleUserPlaylistsSort(
+    a: [number, GetUserPlaylistsResponseDto],
+    b: [number, GetUserPlaylistsResponseDto],
+  ): number {
+    return a[0] - b[0];
   }
 
   async editUserPlaylists(
