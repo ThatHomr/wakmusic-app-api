@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MainArtistsEntity } from '../entitys/main/artists.entity';
 import { Repository } from 'typeorm';
@@ -35,6 +35,7 @@ export class ArtistService {
       const artist_idx = artists.findIndex(
         (artist) => artist.id === image_version.artist,
       );
+      if (artist_idx < 0) throw new InternalServerErrorException();
 
       sorted_artists.set(artist_idx, {
         ...artists[artist_idx],

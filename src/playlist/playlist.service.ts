@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PlaylistEntity } from '../entitys/user/playlist.entity';
@@ -96,6 +97,7 @@ export class PlaylistService {
       const playlist_idx = playlists.findIndex(
         (playlist) => playlist.id === playlist_version.name,
       );
+      if (playlist_idx < 0) throw new InternalServerErrorException();
 
       sorted_playlists.set(playlist_idx, {
         ...playlists[playlist_idx],
