@@ -27,6 +27,10 @@ export class ImageService {
     });
   }
 
+  async getAllArtistImageVersion(): Promise<Array<ArtistVersionEntity>> {
+    return await this.artistRepository.find({});
+  }
+
   async getRecommendedPlaylistImageVersion(
     playlist_id: string,
   ): Promise<RecommendedPlaylistVersionEntity> {

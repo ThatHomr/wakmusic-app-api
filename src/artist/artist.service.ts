@@ -26,19 +26,28 @@ export class ArtistService {
       where: {},
     });
 
-    return await Promise.all(
-      artists.map<Promise<FindAllResponseDto>>(async (artist) => {
-        const image_version = await this.imageService.getArtistImageVersion(
-          artist.id,
-        );
+    const unsorted_aritsts_image_version =
+      await this.imageService.getAllArtistImageVersion();
 
-        return {
-          ...artist,
-          color: artist.color.split(',').map((data) => data.split('|')),
-          image_round_version: image_version.round,
-          image_square_version: image_version.square,
-        };
-      }),
+    const sorted_artists: Map<number, FindAllResponseDto> = new Map();
+
+    for (const image_version of unsorted_aritsts_image_version) {
+      const artist_idx = artists.findIndex(
+        (artist) => artist.id === image_version.artist,
+      );
+
+      sorted_artists.set(artist_idx, {
+        ...artists[artist_idx],
+        color: artists[artist_idx].color
+          .split(',')
+          .map((data) => data.split('|')),
+        image_round_version: image_version.round,
+        image_square_version: image_version.square,
+      });
+    }
+
+    return Array.from(
+      new Map([...sorted_artists].sort((a, b) => a[0] - b[0])).values(),
     );
   }
 
