@@ -80,15 +80,34 @@ export class UserService {
     const categories = await this.categoriesService.findCategoriesByType(
       'profile',
     );
-    return await Promise.all(
-      categories.map(async (category) => {
-        return {
-          type: category,
-          version: (await this.imageService.getProfileImageVersion(category))
-            .version,
-        };
-      }),
+    const unsorted_profile_versions =
+      await this.imageService.getAllProfileImageVersion();
+
+    const sorted_profile_image: Map<number, GetProfileImagesResponseDto> =
+      new Map();
+
+    for (const profile of unsorted_profile_versions) {
+      const idx = categories.indexOf(profile.type);
+      if (idx < 0) throw new InternalServerErrorException();
+
+      sorted_profile_image.set(idx, {
+        type: profile.type,
+        version: profile.version,
+      });
+    }
+
+    return Array.from(
+      new Map([...sorted_profile_image].sort((a, b) => a[0] - b[0])).values(),
     );
+    // return await Promise.all(
+    //   categories.map(async (category) => {
+    //     return {
+    //       type: category,
+    //       version: (await this.imageService.getProfileImageVersion(category))
+    //         .version,
+    //     };
+    //   }),
+    // );
   }
 
   async setProfile(id: string, image: string): Promise<void> {

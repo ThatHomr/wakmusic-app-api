@@ -47,6 +47,10 @@ export class ImageService {
     });
   }
 
+  async getAllPlaylistImageVersion(): Promise<Array<PlaylistVersionEntity>> {
+    return await this.playlistRepository.find({});
+  }
+
   async getProfileImageVersion(
     profile_type: string,
   ): Promise<ProfileVersionEntity> {
@@ -61,9 +65,7 @@ export class ImageService {
     return profile_version;
   }
 
-  async getAllPlaylistImageVersion(): Promise<Array<PlaylistVersionEntity>> {
-    return await this.playlistRepository.find({
-      where: {},
-    });
+  async getAllProfileImageVersion(): Promise<Array<ProfileVersionEntity>> {
+    return await this.profileRepository.find({});
   }
 }
