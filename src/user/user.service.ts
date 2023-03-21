@@ -156,21 +156,6 @@ export class UserService {
         [...sorted_playlists_detail].sort(this.handleUserPlaylistsSort),
       ).values(),
     );
-
-    // const results: Array<GetUserPlaylistsResponseDto> = [];
-
-    // for (const playlist_id of playlists.playlists) {
-    //   const playlist_detail = await this.playlistService.findOne(playlist_id);
-    //   const image_version = await this.imageService.getPlaylistImageVersion(
-    //     playlist_detail.image,
-    //   );
-    //   results.push({
-    //     ...playlist_detail,
-    //     image_version: image_version.default,
-    //   });
-    // }
-
-    // return results;
   }
 
   private handleUserPlaylistsSort(
