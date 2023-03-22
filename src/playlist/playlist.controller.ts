@@ -173,27 +173,27 @@ export class PlaylistController {
     );
   }
 
-  @ApiOperation({
-    summary: '플레이리스트 노래 삭제',
-    description: '플레이리스트에 있는 노래를 삭제합니다.',
-  })
-  @ApiOkResponse({
-    description: '플레이리스트 노래 삭제',
-    type: () => SuccessDto,
-  })
-  @Patch('/:key/songs/remove')
-  @UseGuards(JwtAuthGuard)
-  async removeSongsToPlaylist(
-    @Req() { user }: { user: JwtPayload },
-    @Param('key') key: string,
-    @Body() body: PlaylistAddSongsBodyDto,
-  ): Promise<SuccessDto> {
-    await this.playlistService.removeSongsToPlaylist(user.id, key, body.songs);
+  // @ApiOperation({
+  //   summary: '플레이리스트 노래 삭제',
+  //   description: '플레이리스트에 있는 노래를 삭제합니다.',
+  // })
+  // @ApiOkResponse({
+  //   description: '플레이리스트 노래 삭제',
+  //   type: () => SuccessDto,
+  // })
+  // @Patch('/:key/songs/remove')
+  // @UseGuards(JwtAuthGuard)
+  // async removeSongsToPlaylist(
+  //   @Req() { user }: { user: JwtPayload },
+  //   @Param('key') key: string,
+  //   @Body() body: PlaylistAddSongsBodyDto,
+  // ): Promise<SuccessDto> {
+  //   await this.playlistService.removeSongsToPlaylist(user.id, key, body.songs);
 
-    return {
-      status: 200,
-    };
-  }
+  //   return {
+  //     status: 200,
+  //   };
+  // }
 
   @ApiOperation({
     summary: '플레이리스트 곡 목록 수정',

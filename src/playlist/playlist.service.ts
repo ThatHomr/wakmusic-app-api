@@ -269,16 +269,16 @@ export class PlaylistService {
     if (body.title) currentPlaylist.title = body.title;
 
     if (body.songs) {
-      await this.songsService.validateSongs(
-        currentPlaylist.songlist,
-        body.songs,
-      );
+      const isValid = await this.songsService.checkSongs(body.songs);
+      if (!isValid) throw new BadRequestException();
+
       currentPlaylist.songlist = body.songs;
     }
 
     const editPlaylist = await this.playlistRepository.save(currentPlaylist);
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
+    await this.cacheManager.del(`(${id}) /api/user/playlists`);
 
     return editPlaylist;
   }
