@@ -1,9 +1,9 @@
-name: wakmusic-api
 version: "3.3"
 services:
   nginx:
     container_name: nginx
     image: nginx
+    restart: always
     ports:
       - 80:80
       - 443:443
@@ -18,14 +18,6 @@ services:
       - wakmusic-api
     environment:
       - TZ=Asia/Seoul
-    depends_on:
-      - nest-node-1
-      - nest-node-2
-      - nest-node-3
-    links:
-      - nest-node-1
-      - nest-node-2
-      - nest-node-3
 
   redis-cluster:
     networks:
@@ -84,10 +76,10 @@ services:
     expose:
       - 6379
   
-  nest-node-1:
+  nest-blue-1:
     networks:
       - wakmusic-api
-    container_name: nest-node-1
+    container_name: nest-blue-1
     build: 
       dockerfile: ./Dockerfile
       context: .
@@ -103,10 +95,10 @@ services:
       - redis-node-1
       - redis-node-2
 
-  nest-node-2:
+  nest-blue-2:
     networks:
       - wakmusic-api
-    container_name: nest-node-2
+    container_name: nest-blue-2
     build: 
       dockerfile: ./Dockerfile
       context: .
@@ -122,10 +114,72 @@ services:
       - redis-node-1
       - redis-node-2
 
-  nest-node-3:
+  nest-blue-3:
     networks:
       - wakmusic-api
-    container_name: nest-node-3
+    container_name: nest-blue-3
+    build: 
+      dockerfile: ./Dockerfile
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - ./../wakmusic/src:/usr/src/wakmusic/src
+    expose:
+      - 8080
+    depends_on:
+      - redis-queue
+      - redis-cluster
+      - redis-node-1
+      - redis-node-2
+    links:
+      - redis-queue
+      - redis-cluster
+      - redis-node-1
+      - redis-node-2
+
+  nest-green-1:
+    networks:
+      - wakmusic-api
+    container_name: nest-green-1
+    build: 
+      dockerfile: ./Dockerfile
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - ./../wakmusic/src:/usr/src/wakmusic/src
+    expose:
+      - 8080
+    links:
+      - redis-queue
+      - redis-cluster
+      - redis-node-1
+      - redis-node-2
+
+  nest-green-2:
+    networks:
+      - wakmusic-api
+    container_name: nest-green-2
+    build: 
+      dockerfile: ./Dockerfile
+      context: .
+    env_file:
+      - .env
+    volumes:
+      - ./../wakmusic/src:/usr/src/wakmusic/src
+    expose:
+      - 8080
+    links:
+      - redis-queue
+      - redis-cluster
+      - redis-node-1
+      - redis-node-2
+
+  nest-green-3:
+    networks:
+      - wakmusic-api
+    container_name: nest-green-3
     build: 
       dockerfile: ./Dockerfile
       context: .
