@@ -1,8 +1,14 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { NewsEntity } from './entitys/main/news.entity';
 import { TeamsEntity } from './entitys/main/teams.entity';
+import { SuccessDto } from './core/dto/success.dto';
 
 @ApiTags('main')
 @Controller()
@@ -35,5 +41,20 @@ export class AppController {
   @Get('/teams')
   async findAllTeams(): Promise<Array<TeamsEntity>> {
     return await this.appService.findAllTeams();
+  }
+
+  @ApiOperation({
+    summary: 'Heart Beat',
+    description: 'api 상태를 받습니다.',
+  })
+  @ApiOkResponse({
+    description: '상태',
+    type: () => SuccessDto,
+  })
+  @Get('/heartbeat')
+  async getHeartBeat(): Promise<SuccessDto> {
+    return {
+      status: 200,
+    };
   }
 }
