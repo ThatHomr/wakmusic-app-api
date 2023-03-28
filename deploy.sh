@@ -2,7 +2,7 @@
 RUNNING_APPLICATION_1=$(docker ps | grep nest-blue-1)
 RUNNING_APPLICATION_2=$(docker ps | grep nest-blue-2)
 RUNNING_APPLICATION_3=$(docker ps | grep nest-blue-3)
-DEFAULT_CONF="conf/nginx/nginx.conf"
+DEFAULT_CONF="conf/nginx/settings/upstream.conf"
 
 if [ -n "$RUNNING_APPLICATION_1"  ] || [ -n "$RUNNING_APPLICATION_1"  ] || [ -n "$RUNNING_APPLICATION_1"  ];then
 	echo "green Deploy..."
