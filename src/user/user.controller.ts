@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Patch,
   Post,
@@ -25,6 +26,7 @@ import { EditUserPlaylistsBodyDto } from './dto/body/edit-user-playlists.body.dt
 import { PlaylistEntity } from '../entitys/user/playlist.entity';
 import { GetUserPlaylistsResponseDto } from './dto/response/get-user-playlists.response.dto';
 import { GetProfileImagesResponseDto } from './dto/response/get-profile-images.response.dto';
+import { DeleteUserPlaylistsBodyDto } from './dto/body/delete-user-playlists.body.dto';
 
 @ApiTags('user')
 @Controller('user')
@@ -119,6 +121,27 @@ export class UserController {
     @Body() body: EditUserPlaylistsBodyDto,
   ): Promise<SuccessDto> {
     await this.userService.editUserPlaylists(user.id, body);
+
+    return {
+      status: 200,
+    };
+  }
+
+  @ApiOperation({
+    summary: '유저의 플레이리스트 목록 삭제',
+    description: '유저의 플레이리스트 목록을 삭제합니다.',
+  })
+  @ApiOkResponse({
+    type: () => SuccessDto,
+  })
+  @ApiCookieAuth('token')
+  @Delete('/playlists/delete')
+  @UseGuards(JwtAuthGuard)
+  async deleteUserPlaylists(
+    @Req() { user }: { user: JwtPayload },
+    @Body() body: DeleteUserPlaylistsBodyDto,
+  ): Promise<SuccessDto> {
+    await this.userService.deleteUserPlaylists(user.id, body);
 
     return {
       status: 200,

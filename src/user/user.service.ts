@@ -22,6 +22,7 @@ import { ImageService } from 'src/image/image.service';
 import { GetUserPlaylistsResponseDto } from './dto/response/get-user-playlists.response.dto';
 import { CategoriesService } from 'src/categories/categories.service';
 import { GetProfileImagesResponseDto } from './dto/response/get-profile-images.response.dto';
+import { DeleteUserPlaylistsBodyDto } from './dto/body/delete-user-playlists.body.dto';
 
 @Injectable()
 export class UserService {
@@ -180,6 +181,16 @@ export class UserService {
     body: EditUserPlaylistsBodyDto,
   ): Promise<void> {
     await this.playlistService.editUserPlaylists(id, body.playlists);
+  }
+
+  async deleteUserPlaylists(
+    id: string,
+    body: DeleteUserPlaylistsBodyDto,
+  ): Promise<void> {
+    await this.playlistService.validateUserPlaylists(id, body.playlists);
+    await this.playlistService.deleteMany(body.playlists);
+
+    await this.cacheManager.del(`(${id}) /api/user/playlists`);
   }
 
   async getUserLikes(id: string): Promise<Array<LikeDto>> {

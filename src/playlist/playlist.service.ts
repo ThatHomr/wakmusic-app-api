@@ -295,6 +295,16 @@ export class PlaylistService {
     return deleted_playlist;
   }
 
+  async deleteMany(keys: Array<string>): Promise<void> {
+    await this.playlistRepository.delete({
+      key: In(keys),
+    });
+
+    for (const key of keys) {
+      await this.cacheManager.del(`/api/playlist/${key}/detail`);
+    }
+  }
+
   async addToMyPlaylist(
     key: string,
     creatorId: string,
@@ -391,7 +401,7 @@ export class PlaylistService {
     await this.cacheManager.del(`(${id}) /api/user/playlists`);
   }
 
-  private async validateUserPlaylists(
+  async validateUserPlaylists(
     id: string,
     playlists: Array<string>,
   ): Promise<void> {
