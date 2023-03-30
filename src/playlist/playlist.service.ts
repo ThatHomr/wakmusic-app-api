@@ -300,9 +300,9 @@ export class PlaylistService {
       key: In(keys),
     });
 
-    for (const key of keys) {
-      await this.cacheManager.del(`/api/playlist/${key}/detail`);
-    }
+    await Promise.all(
+      keys.map((key) => this.cacheManager.del(`/api/playlist/${key}/detail`)),
+    );
   }
 
   async addToMyPlaylist(
