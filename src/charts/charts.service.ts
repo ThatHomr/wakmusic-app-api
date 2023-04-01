@@ -59,7 +59,6 @@ export class ChartsService {
     const chart_ids: Array<string> = (await chart.getMany()).map(
       (data) => data.id,
     );
-    console.log(chart_ids);
     const unsorted_total_chart = await this.totalRepository.find({
       where: {
         id: In(chart_ids),
@@ -70,8 +69,6 @@ export class ChartsService {
     for (const chart of unsorted_total_chart) {
       const idx = chart_ids.indexOf(chart.id);
       if (idx < 0) throw new InternalServerErrorException();
-
-      console.log(idx, chart.id);
       sorted_total_chart.set(idx, chart);
     }
 
