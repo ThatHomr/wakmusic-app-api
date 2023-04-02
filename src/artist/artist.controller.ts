@@ -5,7 +5,7 @@ import { TotalEntity } from '../entitys/chart/total.entity';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindAllResponseDto } from './dto/response/find-all.response.dto';
 
-const artistExample = {
+const ARTIST_EXAMPLE = {
   id: 'woowakgood',
   name: '우왁굳',
   short: '우왁굳',
@@ -40,7 +40,7 @@ export class ArtistController {
   @ApiOkResponse({
     description: '아티스트 목록',
     schema: {
-      example: [artistExample],
+      example: [ARTIST_EXAMPLE],
     },
   })
   @Get('/list')

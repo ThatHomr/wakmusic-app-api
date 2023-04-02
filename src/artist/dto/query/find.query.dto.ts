@@ -7,7 +7,8 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-const sortType = ['popular', 'new', 'old'];
+const SortType = ['popular', 'new', 'old'];
+
 export class FindQueryDto {
   @ApiProperty({ description: '아티스트 id' })
   @IsString()
@@ -17,7 +18,7 @@ export class FindQueryDto {
   @ApiProperty({ description: '정렬 타입' })
   @IsString()
   @IsNotEmpty()
-  @IsIn(sortType)
+  @IsIn(SortType)
   sort: string;
 
   @ApiProperty({ description: '시작점', required: false })

@@ -26,20 +26,20 @@ export class ArtistService {
       where: {},
     });
 
-    const unsorted_aritsts_image_version =
+    const unsortedAritstsImageVersion =
       await this.imageService.getAllArtistImageVersion();
 
-    const sorted_artists: Map<number, FindAllResponseDto> = new Map();
+    const sortedArtists: Map<number, FindAllResponseDto> = new Map();
 
-    for (const image_version of unsorted_aritsts_image_version) {
-      const artist_idx = artists.findIndex(
+    for (const image_version of unsortedAritstsImageVersion) {
+      const artistIdx = artists.findIndex(
         (artist) => artist.id === image_version.artist,
       );
-      if (artist_idx < 0) throw new InternalServerErrorException();
+      if (artistIdx < 0) throw new InternalServerErrorException();
 
-      sorted_artists.set(artist_idx, {
-        ...artists[artist_idx],
-        color: artists[artist_idx].color
+      sortedArtists.set(artistIdx, {
+        ...artists[artistIdx],
+        color: artists[artistIdx].color
           .split(',')
           .map((data) => data.split('|')),
         image_round_version: image_version.round,
@@ -48,7 +48,7 @@ export class ArtistService {
     }
 
     return Array.from(
-      new Map([...sorted_artists].sort((a, b) => a[0] - b[0])).values(),
+      new Map([...sortedArtists].sort((a, b) => a[0] - b[0])).values(),
     );
   }
 
