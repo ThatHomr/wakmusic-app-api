@@ -119,6 +119,7 @@ export class LikeService {
     like.likes += 1;
 
     const newLike = await this.likeRepository.save(like);
+    await this.cacheManager.del(`/api/like/${songId}`);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 
     return newLike;
@@ -141,6 +142,7 @@ export class LikeService {
     like.likes -= 1;
 
     const newLike = await this.likeRepository.save(like);
+    await this.cacheManager.del(`/api/like/${songId}`);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 
     return newLike;
