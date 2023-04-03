@@ -81,6 +81,17 @@ export class LikeService {
     return this.likeRepository.save(like);
   }
 
+  async deleteByIds(songIds: Array<string>): Promise<void> {
+    await this.likeRepository.update(
+      {
+        song_id: In(songIds),
+      },
+      {
+        likes: () => 'likes - 1',
+      },
+    );
+  }
+
   async getLike(songId: string): Promise<LikeDto> {
     const like = await this.findOne(songId);
     const songDetail = await this.songsService.findOne(songId);
@@ -154,7 +165,27 @@ export class LikeService {
     return await this.likeManagerRepository.save(newManager);
   }
 
-  async editManager(userId: string, body: EditUserLikesBodyDto): Promise<void> {
+  async editManager(userId: string, body: EditUserLikesBodyDto): Promise<void>;
+  async editManager(manager: LikeManagerEntity): Promise<void>;
+  async editManager(
+    a: string | LikeManagerEntity,
+    b?: EditUserLikesBodyDto,
+  ): Promise<void> {
+    if (
+      typeof a == 'string' &&
+      b !== undefined &&
+      b instanceof EditUserLikesBodyDto
+    ) {
+      await this.editManagerByUserId(a, b);
+    } else if (a instanceof LikeManagerEntity) {
+      await this.editManagerByManager(a);
+    }
+  }
+
+  private async editManagerByUserId(
+    userId: string,
+    body: EditUserLikesBodyDto,
+  ): Promise<void> {
     const manager = await this.getManager(userId);
 
     await this.songsService.validateSongs(manager.songs, body.songs);
@@ -162,5 +193,15 @@ export class LikeService {
     manager.songs = body.songs;
     await this.likeManagerRepository.save(manager);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
+  }
+
+  private async editManagerByManager(
+    manager: LikeManagerEntity,
+  ): Promise<void> {
+    await this.likeManagerRepository.update(
+      { id: manager.id },
+      { songs: manager.songs },
+    );
+    await this.cacheManager.del(`(${manager.user_id}) /api/user/likes`);
   }
 }

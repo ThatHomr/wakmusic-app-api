@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CACHE_MANAGER,
   Inject,
   Injectable,
@@ -23,6 +24,7 @@ import { GetUserPlaylistsResponseDto } from './dto/response/get-user-playlists.r
 import { CategoriesService } from 'src/categories/categories.service';
 import { GetProfileImagesResponseDto } from './dto/response/get-profile-images.response.dto';
 import { DeleteUserPlaylistsBodyDto } from './dto/body/delete-user-playlists.body.dto';
+import { DeleteUserLikesBodyDto } from './dto/body/delete-user-likes.body.dto';
 
 @Injectable()
 export class UserService {
@@ -200,5 +202,37 @@ export class UserService {
 
   async editUserLikes(id: string, body: EditUserLikesBodyDto): Promise<void> {
     await this.likeService.editManager(id, body);
+  }
+
+  async deleteUserLikes(
+    userId: string,
+    body: DeleteUserLikesBodyDto,
+  ): Promise<void> {
+    const likeManager = await this.likeService.getManager(userId);
+    await this.songsService.validateSongs(likeManager.songs, body.songs);
+
+    await this.likeService.deleteByIds(body.songs);
+
+    for (const song of body.songs) {
+      const songIdx = likeManager.songs.indexOf(song);
+      if (songIdx < 0) throw new InternalServerErrorException();
+
+      likeManager.songs.splice(songIdx, 1);
+    }
+
+    await this.likeService.editManager(likeManager);
+    await Promise.all(
+      body.songs.map((song) => this.cacheManager.del(`/api/like/${song}`)),
+    );
+  }
+
+  async validateUserLikes(
+    currentSongs: Array<string>,
+    deleteSongs: Array<string>,
+  ): Promise<void> {
+    for (const song of deleteSongs) {
+      if (!currentSongs.includes(song))
+        throw new BadRequestException('invaild song included');
+    }
   }
 }
