@@ -17,7 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LikeDto } from './dto/like.dto';
-import { SuccessDto } from '../core/dto/success.dto';
+import { LikeResponseDto } from './dto/response/like.response.dto';
 
 @ApiTags('like')
 @Controller('like')
@@ -33,8 +33,8 @@ export class LikeController {
 
   @ApiOperation({ summary: '좋아요 추가', description: '좋아요를 추가합니다.' })
   @ApiOkResponse({
-    description: '성공 코드',
-    type: () => SuccessDto,
+    description: '성공',
+    type: () => LikeResponseDto,
   })
   @ApiCookieAuth('token')
   @Post('/:songId/addLike')
@@ -42,7 +42,7 @@ export class LikeController {
   async addLike(
     @Req() req,
     @Param('songId') songId: string,
-  ): Promise<SuccessDto> {
+  ): Promise<LikeResponseDto> {
     const like = await this.likeService.addLike(
       songId,
       (req.user as JwtPayload).id,
@@ -51,13 +51,14 @@ export class LikeController {
 
     return {
       status: 200,
+      likes: like.likes,
     };
   }
 
   @ApiOperation({ summary: '좋아요 제거', description: '좋아요를 제거합니다.' })
   @ApiOkResponse({
-    description: '성공 코드',
-    type: () => SuccessDto,
+    description: '성공',
+    type: () => LikeResponseDto,
   })
   @ApiCookieAuth('token')
   @Post('/:songId/removeLike')
@@ -65,7 +66,7 @@ export class LikeController {
   async removeLike(
     @Req() req,
     @Param('songId') songId: string,
-  ): Promise<SuccessDto> {
+  ): Promise<LikeResponseDto> {
     const like = await this.likeService.removeLike(
       songId,
       (req.user as JwtPayload).id,
@@ -74,6 +75,7 @@ export class LikeController {
 
     return {
       status: 200,
+      likes: like.likes,
     };
   }
 }
