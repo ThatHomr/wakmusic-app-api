@@ -107,10 +107,10 @@ export class LikeService {
     const like = await this.findOne(songId);
     like.likes += 1;
 
-    const new_like = await this.likeRepository.save(like);
+    const newLike = await this.likeRepository.save(like);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 
-    return new_like;
+    return newLike;
   }
 
   async removeLike(songId: string, userId: string): Promise<LikeEntity> {
@@ -129,10 +129,10 @@ export class LikeService {
     const like = await this.findOne(songId);
     like.likes -= 1;
 
-    const new_like = await this.likeRepository.save(like);
+    const newLike = await this.likeRepository.save(like);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 
-    return new_like;
+    return newLike;
   }
 
   async getManager(userId: string): Promise<LikeManagerEntity> {
@@ -147,11 +147,11 @@ export class LikeService {
   }
 
   async createManager(userId: string): Promise<LikeManagerEntity> {
-    const new_manager = this.likeManagerRepository.create();
-    new_manager.user_id = userId;
-    new_manager.songs = [];
+    const newManager = this.likeManagerRepository.create();
+    newManager.user_id = userId;
+    newManager.songs = [];
 
-    return await this.likeManagerRepository.save(new_manager);
+    return await this.likeManagerRepository.save(newManager);
   }
 
   async editManager(userId: string, body: EditUserLikesBodyDto): Promise<void> {
