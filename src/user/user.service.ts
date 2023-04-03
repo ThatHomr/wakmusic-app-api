@@ -209,7 +209,7 @@ export class UserService {
     body: DeleteUserLikesBodyDto,
   ): Promise<void> {
     const likeManager = await this.likeService.getManager(userId);
-    await this.songsService.validateSongs(likeManager.songs, body.songs);
+    await this.validateUserLikes(likeManager.songs, body.songs);
 
     await this.likeService.deleteByIds(body.songs);
 
