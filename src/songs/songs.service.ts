@@ -32,23 +32,23 @@ export class SongsService {
   }
 
   async findByIds(ids: Array<string>): Promise<Array<TotalEntity>> {
-    const unsorted_songs = await this.totalRepository.find({
+    const unsortedSongs = await this.totalRepository.find({
       where: {
         id: In(ids),
       },
     });
 
-    const sorted_songs: Map<number, TotalEntity> = new Map();
+    const sortedSongs: Map<number, TotalEntity> = new Map();
 
-    for (const song of unsorted_songs) {
+    for (const song of unsortedSongs) {
       const idx = ids.indexOf(song.id);
       if (idx < 0) throw new InternalServerErrorException();
 
-      sorted_songs.set(idx, song);
+      sortedSongs.set(idx, song);
     }
 
     return Array.from(
-      new Map([...sorted_songs].sort(this.handleTotalSongsSort)).values(),
+      new Map([...sortedSongs].sort(this.handleTotalSongsSort)).values(),
     );
   }
 
@@ -93,12 +93,12 @@ export class SongsService {
       (artist) => artist.name,
     );
 
-    const artists_songs = await this.findNewSongs(In(artists));
+    const artistsSongs = await this.findNewSongs(In(artists));
 
-    artists_songs.sort(this._sortSongsByDateDesc);
-    if (artists_songs.length < 10) return artists_songs;
+    artistsSongs.sort(this._sortSongsByDateDesc);
+    if (artistsSongs.length < 10) return artistsSongs;
 
-    return artists_songs.slice(0, 10);
+    return artistsSongs.slice(0, 10);
   }
 
   private _sortSongsByDateDesc(a: TotalEntity, b: TotalEntity): number {
@@ -223,13 +223,13 @@ export class SongsService {
       throw new BadRequestException('invalid song included');
   }
 
-  async checkSongs(song_ids: Array<string>): Promise<boolean> {
+  async checkSongs(songIds: Array<string>): Promise<boolean> {
     const songs = await this.totalRepository.find({
       where: {
-        id: In(song_ids),
+        id: In(songIds),
       },
     });
-    if (songs.length !== song_ids.length) return false;
+    if (songs.length !== songIds.length) return false;
 
     return true;
   }

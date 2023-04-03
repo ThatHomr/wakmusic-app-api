@@ -67,14 +67,14 @@ export class PlaylistService {
     delete playlist.songlist;
     delete playlist.id;
 
-    const image_version = await this.imageService.getPlaylistImageVersion(
+    const imageVersion = await this.imageService.getPlaylistImageVersion(
       playlist.image,
     );
 
     return {
       ...playlist,
       songs: songs,
-      image_version: image_version.default,
+      image_version: imageVersion.default,
     };
   }
 
@@ -87,26 +87,26 @@ export class PlaylistService {
       },
       select: ['id', 'title', 'public'],
     });
-    const unsorted_playlist_versions =
+    const unsortedPlaylistVersions =
       await this.imageService.getAllRecommendedPlaylistImageVersion();
 
-    const sorted_playlists: Map<number, FindAllPlaylistRecommendedResponseDto> =
+    const sortedPlaylists: Map<number, FindAllPlaylistRecommendedResponseDto> =
       new Map();
 
-    for (const playlist_version of unsorted_playlist_versions) {
-      const playlist_idx = playlists.findIndex(
-        (playlist) => playlist.id === playlist_version.name,
+    for (const playlistVersion of unsortedPlaylistVersions) {
+      const playlistIdx = playlists.findIndex(
+        (playlist) => playlist.id === playlistVersion.name,
       );
-      if (playlist_idx < 0) throw new InternalServerErrorException();
+      if (playlistIdx < 0) throw new InternalServerErrorException();
 
-      sorted_playlists.set(playlist_idx, {
-        ...playlists[playlist_idx],
-        image_round_version: playlist_version.round,
+      sortedPlaylists.set(playlistIdx, {
+        ...playlists[playlistIdx],
+        image_round_version: playlistVersion.round,
       });
     }
 
     return Array.from(
-      new Map([...sorted_playlists].sort((a, b) => a[0] - b[0])).values(),
+      new Map([...sortedPlaylists].sort((a, b) => a[0] - b[0])).values(),
     );
   }
 
@@ -121,7 +121,7 @@ export class PlaylistService {
     });
     if (!playlist) throw new BadRequestException('playlist not exist');
 
-    const image_version =
+    const imageVersion =
       await this.imageService.getRecommendedPlaylistImageVersion(playlist.id);
 
     return {
@@ -129,7 +129,7 @@ export class PlaylistService {
       title: playlist.title,
       songs: await this.songsService.findByIds(playlist.song_ids),
       public: playlist.public,
-      image_square_version: image_version.square,
+      image_square_version: imageVersion.square,
     };
   }
 
@@ -196,65 +196,64 @@ export class PlaylistService {
   }
 
   async addSongsToPlaylist(
-    user_id: string,
+    userId: string,
     key: string,
-    song_ids: Array<string>,
+    songIds: Array<string>,
   ): Promise<PlaylistAddSongsResponseDto> {
-    const playlist = await this.findOneByKeyAndClientId(key, user_id);
+    const playlist = await this.findOneByKeyAndClientId(key, userId);
     if (!playlist) throw new BadRequestException('invaild playlist');
 
-    const check_song_ids = await this.songsService.checkSongs(song_ids);
-    if (!check_song_ids) throw new BadRequestException('invaild song ids');
+    const checkSongIds = await this.songsService.checkSongs(songIds);
+    if (!checkSongIds) throw new BadRequestException('invaild song ids');
 
-    let added_songs_length = 0;
+    let addedSongsLength = 0;
     let duplicated = false;
 
-    for (const song_id of song_ids) {
-      if (playlist.songlist.includes(song_id)) {
+    for (const songId of songIds) {
+      if (playlist.songlist.includes(songId)) {
         if (!duplicated) duplicated = true;
         continue;
       }
 
-      playlist.songlist.push(song_id);
-      added_songs_length += 1;
+      playlist.songlist.push(songId);
+      addedSongsLength += 1;
     }
-    if (added_songs_length == 0)
-      throw new BadRequestException('no songs added');
+    if (addedSongsLength == 0) throw new BadRequestException('no songs added');
 
     await this.playlistRepository.save(playlist);
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
-    await this.cacheManager.del(`(${user_id}) /api/user/playlists`);
+    await this.cacheManager.del(`(${userId}) /api/user/playlists`);
 
     return {
       status: 200,
-      added_songs_length: added_songs_length,
+      added_songs_length: addedSongsLength,
       duplicated: duplicated,
     };
   }
 
   async removeSongsToPlaylist(
-    user_id: string,
+    userId: string,
     key: string,
-    song_ids: Array<string>,
+    songIds: Array<string>,
   ): Promise<void> {
-    const playlist = await this.findOneByKeyAndClientId(key, user_id);
+    const playlist = await this.findOneByKeyAndClientId(key, userId);
     if (!playlist) throw new BadRequestException('invaild playlist');
 
-    for (const song_id of song_ids) {
-      if (!playlist.songlist.includes(song_id))
+    for (const songId of songIds) {
+      if (!playlist.songlist.includes(songId))
         throw new BadRequestException('song not exist');
 
-      const song_idx = playlist.songlist.indexOf(song_id);
-      if (song_idx <= -1) throw new BadRequestException('song not exist');
+      const songIdx = playlist.songlist.indexOf(songId);
+      if (songIdx <= -1) throw new BadRequestException('song not exist');
 
-      playlist.songlist.splice(song_idx, 1);
+      playlist.songlist.splice(songIdx, 1);
     }
 
     await this.playlistRepository.save(playlist);
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
-    await this.cacheManager.del(`(${user_id}) /api/user/playlists`);
+    await this.cacheManager.del(`(${userId}) /api/user/playlists`);
   }
 
   async edit(
@@ -288,11 +287,11 @@ export class PlaylistService {
 
     if (!playlist) throw new NotFoundException('playlist not found');
 
-    const deleted_playlist = await this.playlistRepository.remove(playlist);
+    const deletedPlaylist = await this.playlistRepository.remove(playlist);
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
 
-    return deleted_playlist;
+    return deletedPlaylist;
   }
 
   async deleteMany(keys: Array<string>): Promise<void> {
@@ -315,13 +314,13 @@ export class PlaylistService {
       throw new BadRequestException(
         '개인의 플레이리스트는 추가할 수 없습니다.',
       );
-    const new_playlist = await this.create(creatorId, playlist);
+    const newPlaylist = await this.create(creatorId, playlist);
 
     await this.playlistQueue.add(
       'add_to_my_playlist',
       {
         playlist_key: playlist.key,
-        new_playlist_key: new_playlist.key,
+        new_playlist_key: newPlaylist.key,
         playlist_owner_id: playlist.creator_id,
         new_playlist_owner_id: creatorId,
         datetime: moment().valueOf(),
@@ -332,7 +331,7 @@ export class PlaylistService {
       },
     );
 
-    return new_playlist;
+    return newPlaylist;
   }
 
   private createKey(num = 10) {
@@ -359,45 +358,45 @@ export class PlaylistService {
   }
 
   async createUserPlaylists(id: string): Promise<UserPlaylistsEntity> {
-    const new_user_playlists = this.userPlaylistRepository.create();
-    new_user_playlists.user_id = id;
-    new_user_playlists.playlists = (await this.findByClientId(id)).map(
+    const newUserPlaylists = this.userPlaylistRepository.create();
+    newUserPlaylists.user_id = id;
+    newUserPlaylists.playlists = (await this.findByClientId(id)).map(
       (playlist) => playlist.key,
     );
 
-    return await this.userPlaylistRepository.save(new_user_playlists);
+    return await this.userPlaylistRepository.save(newUserPlaylists);
   }
 
   async addPlaylistToUserPlaylists(
     id: string,
     playlist: string | Array<string>,
   ): Promise<void> {
-    const user_playlists = await this.findUserPlaylistsByUserId(id);
+    const userPlaylists = await this.findUserPlaylistsByUserId(id);
 
     if (Array.isArray(playlist)) {
       for (const el of playlist) {
-        if (user_playlists.playlists.includes(el))
+        if (userPlaylists.playlists.includes(el))
           throw new BadRequestException(
             '이미 추가되어있는 플레이리스트 입니다.',
           );
       }
-      user_playlists.playlists.push(...playlist);
+      userPlaylists.playlists.push(...playlist);
     } else {
-      if (user_playlists.playlists.includes(playlist))
+      if (userPlaylists.playlists.includes(playlist))
         throw new BadRequestException('이미 추가되어있는 플레이리스트 입니다.');
-      user_playlists.playlists.push(playlist);
+      userPlaylists.playlists.push(playlist);
     }
 
-    await this.userPlaylistRepository.save(user_playlists);
+    await this.userPlaylistRepository.save(userPlaylists);
     await this.cacheManager.del(`(${id}) /api/user/playlists`);
   }
 
   async editUserPlaylists(id: string, playlists: Array<string>): Promise<void> {
     await this.validateUserPlaylists(id, playlists);
-    const user_playlists = await this.findUserPlaylistsByUserId(id);
-    user_playlists.playlists = playlists;
+    const userPlaylists = await this.findUserPlaylistsByUserId(id);
+    userPlaylists.playlists = playlists;
 
-    await this.userPlaylistRepository.save(user_playlists);
+    await this.userPlaylistRepository.save(userPlaylists);
     await this.cacheManager.del(`(${id}) /api/user/playlists`);
   }
 
@@ -405,8 +404,8 @@ export class PlaylistService {
     id: string,
     playlists: Array<string>,
   ): Promise<void> {
-    const user_playlists = await this.findByKeysAndClientId(playlists, id);
-    if (user_playlists.length !== playlists.length)
+    const userPlaylists = await this.findByKeysAndClientId(playlists, id);
+    if (userPlaylists.length !== playlists.length)
       throw new BadRequestException('존재하지 않는 플레이리스트 입니다.');
   }
 }

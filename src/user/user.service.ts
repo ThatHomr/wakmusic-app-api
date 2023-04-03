@@ -81,24 +81,24 @@ export class UserService {
     const categories = await this.categoriesService.findCategoriesByType(
       'profile',
     );
-    const unsorted_profile_versions =
+    const unsortedProfileVersions =
       await this.imageService.getAllProfileImageVersion();
 
-    const sorted_profile_image: Map<number, GetProfileImagesResponseDto> =
+    const sortedProfileImage: Map<number, GetProfileImagesResponseDto> =
       new Map();
 
-    for (const profile of unsorted_profile_versions) {
+    for (const profile of unsortedProfileVersions) {
       const idx = categories.indexOf(profile.type);
       if (idx < 0) throw new InternalServerErrorException();
 
-      sorted_profile_image.set(idx, {
+      sortedProfileImage.set(idx, {
         type: profile.type,
         version: profile.version,
       });
     }
 
     return Array.from(
-      new Map([...sorted_profile_image].sort((a, b) => a[0] - b[0])).values(),
+      new Map([...sortedProfileImage].sort((a, b) => a[0] - b[0])).values(),
     );
   }
 
@@ -117,11 +117,11 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
-  checkFirstLogin(first_login_time: number): boolean {
+  checkFirstLogin(firstLoginTime: number): boolean {
     const now = new Date();
-    const first_login = new Date(first_login_time);
+    const firstLogin = new Date(firstLoginTime);
 
-    return now.toDateString() == first_login.toDateString();
+    return now.toDateString() == firstLogin.toDateString();
   }
 
   async remove(user: JwtPayload): Promise<boolean> {
@@ -141,30 +141,30 @@ export class UserService {
     id: string,
   ): Promise<Array<GetUserPlaylistsResponseDto>> {
     const playlists = await this.playlistService.findUserPlaylistsByUserId(id);
-    const unsorted_playlists_detail =
+    const unsortedPlaylistsDetail =
       await this.playlistService.findByKeysAndClientId(playlists.playlists, id);
-    const playlist_image_versions = await (
+    const playlistImageVersions = await (
       await this.imageService.getAllPlaylistImageVersion()
     )
       .map((image) => [parseInt(image.type), image.default])
       .sort((a, b) => a[0] - b[0]);
 
-    const sorted_playlists_detail: Map<number, GetUserPlaylistsResponseDto> =
+    const sortedPlaylistsDetail: Map<number, GetUserPlaylistsResponseDto> =
       new Map();
 
-    for (const playlist of unsorted_playlists_detail) {
+    for (const playlist of unsortedPlaylistsDetail) {
       const idx = playlists.playlists.indexOf(playlist.key);
       if (idx < 0) throw new InternalServerErrorException();
 
-      sorted_playlists_detail.set(idx, {
+      sortedPlaylistsDetail.set(idx, {
         ...playlist,
-        image_version: playlist_image_versions[parseInt(playlist.image) - 1][1],
+        image_version: playlistImageVersions[parseInt(playlist.image) - 1][1],
       });
     }
 
     return Array.from(
       new Map(
-        [...sorted_playlists_detail].sort(this.handleUserPlaylistsSort),
+        [...sortedPlaylistsDetail].sort(this.handleUserPlaylistsSort),
       ).values(),
     );
   }

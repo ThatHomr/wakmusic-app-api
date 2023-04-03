@@ -127,14 +127,14 @@ export class AuthController {
     const userId = (req.user as JwtPayload).id;
     const user = await this.userService.findOneById(userId);
     const first = this.userService.checkFirstLogin(user.first_login_time);
-    const profile_version = await this.imageService.getProfileImageVersion(
+    const profileVersion = await this.imageService.getProfileImageVersion(
       user.profile,
     );
 
     return {
       ...user,
       first,
-      profile_version: profile_version.version,
+      profile_version: profileVersion.version,
     };
   }
 

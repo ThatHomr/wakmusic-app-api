@@ -32,11 +32,11 @@ export class ImageService {
   }
 
   async getRecommendedPlaylistImageVersion(
-    playlist_id: string,
+    playlistId: string,
   ): Promise<RecommendedPlaylistVersionEntity> {
     return await this.recommendedPlaylistRepository.findOne({
       where: {
-        name: playlist_id,
+        name: playlistId,
       },
     });
   }
@@ -48,11 +48,11 @@ export class ImageService {
   }
 
   async getPlaylistImageVersion(
-    image_id: string,
+    imageId: string,
   ): Promise<PlaylistVersionEntity> {
     return await this.playlistRepository.findOne({
       where: {
-        type: image_id,
+        type: imageId,
       },
     });
   }
@@ -62,17 +62,17 @@ export class ImageService {
   }
 
   async getProfileImageVersion(
-    profile_type: string,
+    profileType: string,
   ): Promise<ProfileVersionEntity> {
-    const profile_version = await this.profileRepository.findOne({
+    const profileVersion = await this.profileRepository.findOne({
       where: {
-        type: profile_type,
+        type: profileType,
       },
     });
-    if (!profile_version)
+    if (!profileVersion)
       throw new BadRequestException('profile version not found');
 
-    return profile_version;
+    return profileVersion;
   }
 
   async getAllProfileImageVersion(): Promise<Array<ProfileVersionEntity>> {

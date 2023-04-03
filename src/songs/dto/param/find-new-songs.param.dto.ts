@@ -1,11 +1,11 @@
 import { IsIn, IsNotEmpty, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-export const newSongsGroups = ['all', 'woowakgood', 'isedol', 'gomem'];
+export const NewSongsGroups = ['all', 'woowakgood', 'isedol', 'gomem'];
 export class FindNewSongsParamDto {
-  @ApiProperty({ description: `그룹 목록 : ${newSongsGroups.join(', ')}` })
+  @ApiProperty({ description: `그룹 목록 : ${NewSongsGroups.join(', ')}` })
   @IsString()
   @IsNotEmpty()
-  @IsIn(newSongsGroups)
+  @IsIn(NewSongsGroups)
   group: string;
 }

@@ -8,6 +8,7 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { UpdatedEntity } from '../entitys/chart/updated.entity';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
+
 export const entityByType = {
   monthly: MonthlyEntity,
   weekly: WeeklyEntity,
@@ -56,24 +57,24 @@ export class ChartsService {
       .orderBy(`${type}.increase`, 'DESC')
       .limit(limit);
 
-    const chart_ids: Array<string> = (await chart.getMany()).map(
+    const chartIds: Array<string> = (await chart.getMany()).map(
       (data) => data.id,
     );
-    const unsorted_total_chart = await this.totalRepository.find({
+    const unsortedTotalChart = await this.totalRepository.find({
       where: {
-        id: In(chart_ids),
+        id: In(chartIds),
       },
     });
-    const sorted_total_chart: Map<number, TotalEntity> = new Map();
+    const sortedTotalChart: Map<number, TotalEntity> = new Map();
 
-    for (const chart of unsorted_total_chart) {
-      const idx = chart_ids.indexOf(chart.id);
+    for (const chart of unsortedTotalChart) {
+      const idx = chartIds.indexOf(chart.id);
       if (idx < 0) throw new InternalServerErrorException();
-      sorted_total_chart.set(idx, chart);
+      sortedTotalChart.set(idx, chart);
     }
 
     return Array.from(
-      new Map([...sorted_total_chart].sort(this.handleChartSort)).values(),
+      new Map([...sortedTotalChart].sort(this.handleChartSort)).values(),
     );
   }
 

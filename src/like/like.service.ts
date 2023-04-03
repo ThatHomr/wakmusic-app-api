@@ -47,23 +47,23 @@ export class LikeService {
     return like;
   }
 
-  async findByIds(song_ids: Array<string>): Promise<Array<LikeDto>> {
-    const unsorted_likes = await this.likeRepository.find({
+  async findByIds(songIds: Array<string>): Promise<Array<LikeDto>> {
+    const unsortedLikes = await this.likeRepository.find({
       where: {
-        song_id: In(song_ids),
+        song_id: In(songIds),
       },
     });
-    const sorted_songs = await this.songsService.findByIds(song_ids);
+    const sortedSongs = await this.songsService.findByIds(songIds);
 
-    const sorted_likes: Map<number, LikeDto> = new Map();
+    const sortedLikes: Map<number, LikeDto> = new Map();
 
-    for (const like of unsorted_likes) {
-      const idx = song_ids.indexOf(like.song_id);
+    for (const like of unsortedLikes) {
+      const idx = songIds.indexOf(like.song_id);
       if (idx < 0) throw new InternalServerErrorException();
 
-      const song = sorted_songs[idx];
+      const song = sortedSongs[idx];
 
-      sorted_likes.set(idx, {
+      sortedLikes.set(idx, {
         id: like.id,
         song: song,
         likes: like.likes,
@@ -71,7 +71,7 @@ export class LikeService {
     }
 
     return Array.from(
-      new Map([...sorted_likes].sort((a, b) => a[0] - b[0])).values(),
+      new Map([...sortedLikes].sort((a, b) => a[0] - b[0])).values(),
     );
   }
 
@@ -83,18 +83,18 @@ export class LikeService {
 
   async getLike(songId: string): Promise<LikeDto> {
     const like = await this.findOne(songId);
-    const song_detail = await this.songsService.findOne(songId);
+    const songDetail = await this.songsService.findOne(songId);
 
     return {
       id: like.id,
-      song: song_detail,
+      song: songDetail,
       likes: like.likes,
     };
   }
 
   async addLike(songId: string, userId: string): Promise<LikeEntity> {
-    const is_song_id_exist = await this.chartsService.findOne(songId);
-    if (!is_song_id_exist)
+    const isSongIdExist = await this.chartsService.findOne(songId);
+    if (!isSongIdExist)
       throw new NotFoundException('존재하지 않는 노래입니다.');
 
     const manager = await this.getManager(userId);
@@ -114,16 +114,16 @@ export class LikeService {
   }
 
   async removeLike(songId: string, userId: string): Promise<LikeEntity> {
-    const is_song_id_exist = await this.chartsService.findOne(songId);
-    if (!is_song_id_exist)
+    const isSongIdExist = await this.chartsService.findOne(songId);
+    if (!isSongIdExist)
       throw new NotFoundException('존재하지 않는 노래입니다.');
 
     const manager = await this.getManager(userId);
 
     if (!manager.songs.includes(songId))
       throw new BadRequestException('좋아요를 표시하지 않은 노래입니다.');
-    const song_index = manager.songs.indexOf(songId);
-    manager.songs.splice(song_index, 1);
+    const songIndex = manager.songs.indexOf(songId);
+    manager.songs.splice(songIndex, 1);
     await this.likeManagerRepository.save(manager);
 
     const like = await this.findOne(songId);

@@ -38,15 +38,15 @@ export class PlaylistProcessor {
     )
       return;
 
-    const playlist_data = await this.getPlaylistData(
+    const playlistData = await this.getPlaylistData(
       date,
       job.data.playlist_key,
       job.data.playlist_owner_id,
     );
-    playlist_data.count += 1;
-    await this.playlistCopyRepository.save(playlist_data);
+    playlistData.count += 1;
+    await this.playlistCopyRepository.save(playlistData);
 
-    const playlist_data_log = this.playlistCopyLogRepository.create({
+    const playlistDataLog = this.playlistCopyLogRepository.create({
       date: date,
       playlist_key: job.data.playlist_key,
       new_playlist_key: job.data.new_playlist_key,
@@ -54,39 +54,39 @@ export class PlaylistProcessor {
       new_playlist_owner_id: job.data.new_playlist_owner_id,
       created_at: job.data.datetime,
     });
-    await this.playlistCopyLogRepository.save(playlist_data_log);
+    await this.playlistCopyLogRepository.save(playlistDataLog);
   }
 
   private async checkIfUsersPlaylistAlreadyExist(
     date: number,
-    playlist_key: string,
-    new_playlist_owner_id: string,
+    playlistKey: string,
+    newPlaylistOwnerId: string,
   ): Promise<boolean> {
-    const playlist_data_log = await this.playlistCopyLogRepository.findOne({
+    const playlistDataLog = await this.playlistCopyLogRepository.findOne({
       where: {
-        playlist_key: playlist_key,
-        new_playlist_owner_id: new_playlist_owner_id,
+        playlist_key: playlistKey,
+        new_playlist_owner_id: newPlaylistOwnerId,
         date: date,
       },
     });
 
-    return !!playlist_data_log;
+    return !!playlistDataLog;
   }
 
   private async getPlaylistData(
     date: number,
     key: string,
-    owner_id: string,
+    ownerId: string,
   ): Promise<PlaylistCopyEntity> {
     let playlistData = await this.playlistCopyRepository.findOne({
       where: {
         date: date,
         playlist_key: key,
-        owner_id: owner_id,
+        owner_id: ownerId,
       },
     });
     if (!playlistData)
-      playlistData = await this.createPlaylistData(date, key, owner_id);
+      playlistData = await this.createPlaylistData(date, key, ownerId);
 
     return playlistData;
   }
@@ -94,15 +94,15 @@ export class PlaylistProcessor {
   private async createPlaylistData(
     date: number,
     key: string,
-    owner_id: string,
+    ownerId: string,
   ): Promise<PlaylistCopyEntity> {
-    const playlist_data = this.playlistCopyRepository.create();
-    playlist_data.date = date;
-    playlist_data.playlist_key = key;
-    playlist_data.owner_id = owner_id;
-    playlist_data.count = 0;
+    const playlistData = this.playlistCopyRepository.create();
+    playlistData.date = date;
+    playlistData.playlist_key = key;
+    playlistData.owner_id = ownerId;
+    playlistData.count = 0;
 
-    return await this.playlistCopyRepository.save(playlist_data);
+    return await this.playlistCopyRepository.save(playlistData);
   }
 
   @OnQueueActive()

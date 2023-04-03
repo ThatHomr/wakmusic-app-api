@@ -9,13 +9,13 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
-const songsType = ['month', 'year'];
+const SongsType = ['month', 'year'];
 
 export class FindSongsByPeriodQueryDto {
-  @ApiProperty({ description: '노래 정렬 타입 : ' + songsType.join(',') })
+  @ApiProperty({ description: '노래 정렬 타입 : ' + SongsType.join(',') })
   @IsString()
   @IsNotEmpty()
-  @IsIn(songsType)
+  @IsIn(SongsType)
   type: string;
 
   @ApiProperty({
