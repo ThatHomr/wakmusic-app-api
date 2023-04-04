@@ -5,8 +5,6 @@ import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class NoticeService {
-  private readonly logger = new Logger(NoticeService.name);
-
   constructor(
     @InjectRepository(NoticeEntity)
     private readonly noticeRepository: Repository<NoticeEntity>,
@@ -27,7 +25,6 @@ export class NoticeService {
 
   async findCurrentlyShowing(): Promise<Array<NoticeEntity>> {
     const currentDate = Date.now();
-    this.logger.debug(currentDate);
     return await this.noticeRepository.find({
       where: {
         start_at: LessThanOrEqual(currentDate),
