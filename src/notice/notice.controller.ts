@@ -1,4 +1,4 @@
-import { CacheTTL, Controller, Get } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { NoticeService } from './notice.service';
 import { NoticeEntity } from '../entitys/main/notice.entity';
 import { CategoriesService } from '../categories/categories.service';
@@ -13,6 +13,20 @@ export class NoticeController {
   ) {}
 
   @ApiOperation({
+    summary: '현재 보여지는 공지 가져오기',
+    description: '현재 볼 수 있는 공지들을 가져옵니다.',
+  })
+  @ApiOkResponse({
+    description: '공지 목록',
+    type: () => NoticeEntity,
+    isArray: true,
+  })
+  @Get()
+  async findCurrentlyShowing(): Promise<Array<NoticeEntity>> {
+    return await this.noticeService.findCurrentlyShowing();
+  }
+
+  @ApiOperation({
     summary: '모든 공지 가져오기',
     description: '모든 공지를 가져옵니다.',
   })
@@ -21,8 +35,7 @@ export class NoticeController {
     type: () => NoticeEntity,
     isArray: true,
   })
-  @Get()
-  @CacheTTL(60)
+  @Get('/all')
   async findAll(): Promise<Array<NoticeEntity>> {
     return await this.noticeService.findAll();
   }
@@ -36,7 +49,6 @@ export class NoticeController {
     type: () => NoticeEntity,
   })
   @Get('/latest')
-  @CacheTTL(60)
   async findLatest(): Promise<NoticeEntity> {
     return await this.noticeService.findLatest();
   }

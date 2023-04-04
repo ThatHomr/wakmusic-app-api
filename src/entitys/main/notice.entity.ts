@@ -22,4 +22,12 @@ export class NoticeEntity extends BaseEntity {
   @ApiModelProperty()
   @Column()
   create_at: number;
+
+  @ApiModelProperty()
+  @Column({ type: 'int' })
+  start_at: number;
+
+  @ApiModelProperty()
+  @Column({ type: 'int' })
+  end_at: number;
 }
