@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NoticeEntity } from '../entitys/main/notice.entity';
-import { Repository } from 'typeorm';
+import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 
 @Injectable()
 export class NoticeService {
@@ -19,6 +19,16 @@ export class NoticeService {
       where: {},
       order: {
         id: 'DESC',
+      },
+    });
+  }
+
+  async findCurrentlyShowing(): Promise<Array<NoticeEntity>> {
+    const currentDate = Date.now();
+    return await this.noticeRepository.find({
+      where: {
+        start_at: LessThanOrEqual(currentDate),
+        end_at: MoreThanOrEqual(currentDate),
       },
     });
   }
