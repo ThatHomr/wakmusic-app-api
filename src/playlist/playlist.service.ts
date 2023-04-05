@@ -290,6 +290,7 @@ export class PlaylistService {
     const deletedPlaylist = await this.playlistRepository.remove(playlist);
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
+    await this.cacheManager.del(`(${clientId}) /api/user/playlists`);
 
     return deletedPlaylist;
   }
