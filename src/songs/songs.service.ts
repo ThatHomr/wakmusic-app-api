@@ -174,8 +174,8 @@ export class SongsService {
     const songs = await this.totalRepository.find({
       select: ['id', 'title', 'artist', 'date'],
       order: {
-        views: {
-          direction: 'DESC',
+        date: {
+          direction: 'ASC',
         },
       },
     });
