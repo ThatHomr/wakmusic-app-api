@@ -17,6 +17,8 @@ export const entityByType = {
   total: TotalEntity,
 };
 
+type ChartEntity = MonthlyEntity | WeeklyEntity | DailyEntity | HourlyEntity;
+
 @Injectable()
 export class ChartsService {
   constructor(
@@ -52,14 +54,13 @@ export class ChartsService {
     type: string,
     limit: number,
   ): Promise<Array<TotalEntity>> {
-    const chart = this.dataSourceChart
-      .createQueryBuilder(entityByType[type], type)
+    const charts = await this.dataSourceChart
+      .createQueryBuilder<ChartEntity>(entityByType[type], type)
       .orderBy(`${type}.increase`, 'DESC')
-      .limit(limit);
+      .limit(limit)
+      .getMany();
 
-    const chartIds: Array<string> = (await chart.getMany()).map(
-      (data) => data.id,
-    );
+    const chartIds: Array<string> = charts.map((data) => data.id);
     const unsortedTotalChart = await this.totalRepository.find({
       where: {
         id: In(chartIds),
@@ -70,6 +71,8 @@ export class ChartsService {
     for (const chart of unsortedTotalChart) {
       const idx = chartIds.indexOf(chart.id);
       if (idx < 0) throw new InternalServerErrorException();
+      chart.views = charts[idx].increase;
+      chart.last = charts[idx].last;
       sortedTotalChart.set(idx, chart);
     }
 
