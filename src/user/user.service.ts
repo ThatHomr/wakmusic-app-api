@@ -110,6 +110,7 @@ export class UserService {
     user.profile = image;
 
     await this.userRepository.save(user);
+    this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   async setUsername(id: string, username: string): Promise<void> {
@@ -117,6 +118,7 @@ export class UserService {
     user.displayName = username;
 
     await this.userRepository.save(user);
+    this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   checkFirstLogin(firstLoginTime: number): boolean {
