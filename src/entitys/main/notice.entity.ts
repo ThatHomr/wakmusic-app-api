@@ -20,6 +20,10 @@ export class NoticeEntity extends BaseEntity {
   main_text: string;
 
   @ApiModelProperty()
+  @Column({ type: 'text' })
+  thumbnail: string;
+
+  @ApiModelProperty()
   @Column('simple-array')
   images: Array<string>;
 
