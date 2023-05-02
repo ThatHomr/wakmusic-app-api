@@ -6,9 +6,7 @@ DEFAULT_CONF="conf/nginx/settings/upstream.conf"
 
 if [ -n "$RUNNING_APPLICATION_1"  ] || [ -n "$RUNNING_APPLICATION_1"  ] || [ -n "$RUNNING_APPLICATION_1"  ];then
 	echo "green Deploy..."
-	docker-compose build nest-green-1
-    docker-compose build nest-green-2
-    docker-compose build nest-green-3
+    docker build --no-cache --tag wakmusic-server .
 
     docker-compose up -d nest-green-1
     docker-compose up -d nest-green-2
@@ -39,9 +37,8 @@ if [ -n "$RUNNING_APPLICATION_1"  ] || [ -n "$RUNNING_APPLICATION_1"  ] || [ -n 
     docker-compose stop nest-blue-3
 else
 	echo "blue Deploy..."
-	docker-compose build nest-blue-1
-    docker-compose build nest-blue-2
-    docker-compose build nest-blue-3
+
+    docker build --no-cache --tag wakmusic-server .
     
     docker-compose up -d nest-blue-1
     docker-compose up -d nest-blue-2
