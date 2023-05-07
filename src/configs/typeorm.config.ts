@@ -9,7 +9,6 @@ import { DailyEntity } from '../entitys/chart/daily.entity';
 import { HourlyEntity } from '../entitys/chart/hourly.entity';
 import { NewsEntity } from '../entitys/main/news.entity';
 import { TeamsEntity } from '../entitys/main/teams.entity';
-import { rootPath } from '../utils/path.utils';
 import { PlaylistEntity } from '../entitys/user/playlist.entity';
 import { UserEntity } from '../entitys/user/user.entity';
 import { LikeEntity } from '../entitys/like/like.entity';
