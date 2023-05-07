@@ -4,22 +4,22 @@ import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-prop
 @Entity({ name: 'playlist_copy' })
 export class PlaylistCopyEntity extends BaseEntity {
   @ApiModelProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: true })
   date: number;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'tinytext', nullable: true })
   playlist_key: string;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   owner_id: string;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'int', nullable: true })
   count: number;
 }

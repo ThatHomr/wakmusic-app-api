@@ -4,7 +4,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity({ name: 'artist' })
 export class ArtistVersionEntity extends BaseEntity {
   @ApiModelProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiModelProperty()
@@ -12,10 +12,10 @@ export class ArtistVersionEntity extends BaseEntity {
   artist: string;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'smallint' })
   round: number;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'smallint' })
   square: number;
 }

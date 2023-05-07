@@ -5,24 +5,24 @@ import { Transform } from 'class-transformer';
 @Entity('user')
 export class UserEntity extends BaseEntity {
   @ApiProperty({ description: '유저 고유 id' })
-  @PrimaryColumn({ unique: true })
+  @PrimaryColumn({ type: 'varchar', unique: true })
   id: string;
 
   @ApiProperty({ description: '로그인 플랫폼' })
-  @Column()
+  @Column({ type: 'tinytext', nullable: true })
   platform: string;
 
   @ApiProperty({ description: '프로필 타입', nullable: true })
   @Transform(({ value }) => (value ? value : 'panchi'))
-  @Column({ nullable: true })
+  @Column({ type: 'tinytext', nullable: true })
   profile: string;
 
   @ApiProperty({ description: 'oauth 표시 이름', nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true })
   displayName: string;
 
   @ApiProperty({ description: '처음 로그인 시간 (datetime)' })
-  @Column()
+  @Column({ type: 'bigint', nullable: true })
   first_login_time: number;
 
   constructor(partial: Partial<UserEntity>) {

@@ -27,8 +27,12 @@ import { RecommendedPlaylistVersionEntity } from '../entitys/version/recommended
 import { ProfileVersionEntity } from 'src/entitys/version/profile.entity';
 
 export const mainDataSource: TypeOrmModuleOptions = {
-  type: 'sqlite',
-  database: `${rootPath}/src/database/static.db`,
+  type: 'mariadb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USER_NAME,
+  password: process.env.DB_USER_PASSWORD,
+  database: 'static',
   entities: [
     NewsEntity,
     TeamsEntity,
@@ -37,12 +41,17 @@ export const mainDataSource: TypeOrmModuleOptions = {
     NoticeEntity,
     CategoriesEntity,
   ],
+  synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
 export const chartDataSource: TypeOrmModuleOptions = {
   name: 'chart',
-  type: 'sqlite',
-  database: `${rootPath}/src/database/charts.db`,
+  type: 'mariadb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USER_NAME,
+  password: process.env.DB_USER_PASSWORD,
+  database: 'charts',
   entities: [
     ArtistsEntity,
     UpdatedEntity,
@@ -52,38 +61,58 @@ export const chartDataSource: TypeOrmModuleOptions = {
     DailyEntity,
     HourlyEntity,
   ],
+  synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
 export const userDataSource: TypeOrmModuleOptions = {
   name: 'user',
-  type: 'sqlite',
-  database: `${rootPath}/src/database/user.db`,
+  type: 'mariadb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USER_NAME,
+  password: process.env.DB_USER_PASSWORD,
+  database: 'user',
   entities: [PlaylistEntity, UserEntity, UserPlaylistsEntity],
+  synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
 export const likeDataSource: TypeOrmModuleOptions = {
   name: 'like',
-  type: 'sqlite',
-  database: `${rootPath}/src/database/like.db`,
+  type: 'mariadb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USER_NAME,
+  password: process.env.DB_USER_PASSWORD,
+  database: 'like',
   entities: [LikeEntity, LikeManagerEntity, RecommendPlaylistEntity],
-  synchronize: false,
+  synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
 export const dataDataSource: TypeOrmModuleOptions = {
   name: 'data',
-  type: 'sqlite',
-  database: `${rootPath}/src/database/data.db`,
+  type: 'mariadb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USER_NAME,
+  password: process.env.DB_USER_PASSWORD,
+  database: 'data',
   entities: [PlaylistCopyEntity, PlaylistCopyLogEntity],
+  synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
 export const versionDataSource: TypeOrmModuleOptions = {
   name: 'version',
-  type: 'sqlite',
-  database: `${rootPath}/src/database/version.db`,
+  type: 'mariadb',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT),
+  username: process.env.DB_USER_NAME,
+  password: process.env.DB_USER_PASSWORD,
+  database: 'version',
   entities: [
     ArtistVersionEntity,
     PlaylistVersionEntity,
     RecommendedPlaylistVersionEntity,
     ProfileVersionEntity,
   ],
+  synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };

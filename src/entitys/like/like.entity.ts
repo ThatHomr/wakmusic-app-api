@@ -7,14 +7,14 @@ import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-prop
 export class LikeEntity extends BaseEntity {
   @ApiModelProperty({ description: '고유 id' })
   @Exclude()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiProperty({ description: '노래 id' })
-  @Column({ type: 'text', nullable: false, unique: true })
+  @Column({ type: 'tinytext', unique: true })
   song_id: string;
 
   @ApiProperty({ description: '좋아요 수' })
-  @Column({ type: 'int', nullable: false, default: 0 })
+  @Column({ type: 'bigint', default: 0 })
   likes: number;
 }

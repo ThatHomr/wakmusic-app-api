@@ -6,7 +6,7 @@ import { Exclude } from 'class-transformer';
 export class UserPlaylistsEntity {
   @ApiModelProperty()
   @Exclude()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiModelProperty()
@@ -14,6 +14,6 @@ export class UserPlaylistsEntity {
   user_id: string;
 
   @ApiModelProperty()
-  @Column({ type: 'simple-array' })
+  @Column({ type: 'simple-array', nullable: true })
   playlists: Array<string>;
 }

@@ -4,7 +4,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity({ name: 'recommended_playlist' })
 export class RecommendedPlaylistVersionEntity extends BaseEntity {
   @ApiModelProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiModelProperty()
@@ -12,10 +12,10 @@ export class RecommendedPlaylistVersionEntity extends BaseEntity {
   name: string;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'smallint' })
   round: number;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'smallint' })
   square: number;
 }

@@ -6,14 +6,14 @@ import { ApiProperty } from '@nestjs/swagger';
 export class LikeManagerEntity extends BaseEntity {
   @ApiProperty({ description: '고유 id' })
   @Exclude()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiProperty({ description: '유저 id' })
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text' })
   user_id: string;
 
   @ApiProperty()
-  @Column('simple-array')
+  @Column({ type: 'simple-array', nullable: true })
   songs: Array<string>;
 }

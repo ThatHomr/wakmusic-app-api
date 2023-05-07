@@ -4,35 +4,35 @@ import { ApiProperty } from '@nestjs/swagger';
 @Entity({ name: 'total' })
 export class TotalEntity extends BaseEntity {
   @ApiProperty({ description: '음악 id', uniqueItems: true })
-  @PrimaryColumn({ unique: true })
+  @PrimaryColumn({ type: 'varchar', unique: true })
   id: string;
 
   @ApiProperty({ description: '제목' })
-  @Column()
+  @Column({ type: 'mediumtext', nullable: true })
   title: string;
 
   @ApiProperty({ description: '아티스트' })
-  @Column()
+  @Column({ type: 'text', nullable: true })
   artist: string;
 
   @ApiProperty({ description: '조교', default: '' })
-  @Column({ default: '' })
+  @Column({ type: 'text', default: '' })
   remix: string;
 
   @ApiProperty({ description: '반응영상 URL', default: '' })
-  @Column({ default: '' })
+  @Column({ type: 'text', default: '' })
   reaction: string;
 
   @ApiProperty({ description: '업로드 날짜' })
-  @Column()
+  @Column({ type: 'int', nullable: true })
   date: number;
 
   @ApiProperty({ description: '조회수' })
-  @Column()
+  @Column({ type: 'bigint', nullable: true })
   views: number;
 
   @ApiProperty({ description: '지난 번 집계 순위' })
-  @Column()
+  @Column({ type: 'int', nullable: true })
   last: number;
 
   constructor(partial: Partial<TotalEntity>) {

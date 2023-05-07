@@ -4,14 +4,14 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity({ name: 'profile' })
 export class ProfileVersionEntity extends BaseEntity {
   @ApiModelProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'tinytext', unique: true })
   type: string;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'smallint' })
   version: number;
 }

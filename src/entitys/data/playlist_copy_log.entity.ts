@@ -4,7 +4,7 @@ import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-prop
 @Entity({ name: 'playlist_copy_log' })
 export class PlaylistCopyLogEntity extends BaseEntity {
   @ApiModelProperty()
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'int' })
   id: number;
 
   @ApiModelProperty()
@@ -12,22 +12,22 @@ export class PlaylistCopyLogEntity extends BaseEntity {
   date: number;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'tinytext' })
   playlist_key: string;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'tinytext' })
   new_playlist_key: string;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   playlist_owner_id: string;
 
   @ApiModelProperty()
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   new_playlist_owner_id: string;
 
   @ApiModelProperty()
-  @Column({ type: 'int' })
+  @Column({ type: 'bigint' })
   created_at: number;
 }
