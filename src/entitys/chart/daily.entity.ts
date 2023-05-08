@@ -11,7 +11,7 @@ export class DailyEntity extends BaseEntity {
 
   @ApiModelProperty()
   @Exclude()
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: 'int', nullable: true })
   views: number;
 
   @ApiProperty({ description: '증가량' })

@@ -28,7 +28,7 @@ export class TotalEntity extends BaseEntity {
   date: number;
 
   @ApiProperty({ description: '조회수' })
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: 'int', nullable: true })
   views: number;
 
   @ApiProperty({ description: '지난 번 집계 순위' })
