@@ -40,6 +40,7 @@ export const mainDataSource: TypeOrmModuleOptions = {
     NoticeEntity,
     CategoriesEntity,
   ],
+  bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
@@ -60,6 +61,7 @@ export const chartDataSource: TypeOrmModuleOptions = {
     DailyEntity,
     HourlyEntity,
   ],
+  bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
@@ -72,6 +74,7 @@ export const userDataSource: TypeOrmModuleOptions = {
   password: process.env.DB_USER_PASSWORD,
   database: 'user',
   entities: [PlaylistEntity, UserEntity, UserPlaylistsEntity],
+  bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
@@ -84,6 +87,7 @@ export const likeDataSource: TypeOrmModuleOptions = {
   password: process.env.DB_USER_PASSWORD,
   database: 'like',
   entities: [LikeEntity, LikeManagerEntity, RecommendPlaylistEntity],
+  bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
@@ -96,6 +100,7 @@ export const dataDataSource: TypeOrmModuleOptions = {
   password: process.env.DB_USER_PASSWORD,
   database: 'data',
   entities: [PlaylistCopyEntity, PlaylistCopyLogEntity],
+  bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
@@ -113,5 +118,6 @@ export const versionDataSource: TypeOrmModuleOptions = {
     RecommendedPlaylistVersionEntity,
     ProfileVersionEntity,
   ],
+  bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
