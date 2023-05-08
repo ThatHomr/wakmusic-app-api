@@ -24,6 +24,9 @@ export class ArtistService {
   async findAll(): Promise<Array<FindAllResponseDto>> {
     const artists = await this.mainArtistsRepository.find({
       where: {},
+      order: {
+        order: 'ASC',
+      },
     });
 
     const unsortedAritstsImageVersion =
@@ -37,6 +40,7 @@ export class ArtistService {
       );
       if (artistIdx < 0) throw new InternalServerErrorException();
 
+      delete artists[artistIdx].order;
       sortedArtists.set(artistIdx, {
         ...artists[artistIdx],
         color: artists[artistIdx].color
@@ -56,6 +60,9 @@ export class ArtistService {
     return await this.mainArtistsRepository.find({
       where: {
         group: group,
+      },
+      order: {
+        order: 'ASC',
       },
     });
   }

@@ -1,9 +1,15 @@
 import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
+import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
 
 @Entity({ name: 'artists' })
 export class MainArtistsEntity extends BaseEntity {
+  @ApiModelProperty()
+  @Exclude()
+  @Column({ unique: true })
+  order: number;
+
   @ApiProperty({ description: '아티스트 id' })
   @PrimaryColumn({ type: 'varchar' })
   id: string;
