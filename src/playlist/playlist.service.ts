@@ -97,7 +97,7 @@ export class PlaylistService {
       const playlistIdx = playlists.findIndex(
         (playlist) => playlist.id === playlistVersion.name,
       );
-      if (playlistIdx < 0) throw new InternalServerErrorException();
+      if (playlistIdx < 0) continue;
 
       sortedPlaylists.set(playlistIdx, {
         ...playlists[playlistIdx],
