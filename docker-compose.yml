@@ -16,6 +16,7 @@ services:
       - ./../wakmusic-lyrics:/home/ubuntu/wakmusic-lyrics
       - /etc/letsencrypt:/etc/letsencrypt
     networks:
+      - default
       - wakmusic-api
     environment:
       - TZ=Asia/Seoul
