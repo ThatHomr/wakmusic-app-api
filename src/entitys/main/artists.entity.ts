@@ -1,52 +1,75 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Exclude, Transform } from 'class-transformer';
 import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { GroupEntity } from './group.entity';
+import { ArtistImageVersionEntity } from './artistImageVersion.entity';
+import { SongsEntity } from './songs.entity';
 
 @Entity({ name: 'artists' })
-export class MainArtistsEntity extends BaseEntity {
+export class ArtistsEntity extends BaseEntity {
+  @ApiModelProperty({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
+
   @ApiModelProperty()
   @Exclude()
-  @Column({ unique: true })
+  @Column()
   order: number;
 
-  @ApiProperty({ description: '아티스트 id' })
-  @PrimaryColumn({ type: 'varchar' })
-  id: string;
+  @ApiModelProperty({ description: '아티스트 id' })
+  @Column({ type: 'varchar', length: 255 })
+  artist_id: string;
 
-  @ApiProperty({ description: '이름' })
-  @Column({ type: 'text', nullable: true })
+  @ApiModelProperty({ description: '이름' })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   name: string;
 
-  @ApiProperty({ description: '짧은 이름' })
-  @Column({ type: 'text', nullable: true })
+  @ApiModelProperty({ description: '짧은 이름' })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   short: string;
 
-  @ApiProperty({ description: '소속 그룹' })
-  @Column({ type: 'text', nullable: true })
-  group: string;
-
-  @ApiProperty({ description: '소속 그룹(한글)' })
-  @Column({ type: 'text', nullable: true })
-  group_kr: string;
-
-  @ApiProperty({ description: '졸업 여부' })
+  @ApiModelProperty({ description: '졸업 여부' })
   @Column({ type: 'boolean', default: 0 })
   graduated: boolean;
 
-  @ApiProperty({ description: '한 줄 소개' })
+  @ApiModelProperty({ type: () => GroupEntity })
+  @OneToOne(() => GroupEntity, (group) => group.artist)
+  group: GroupEntity;
+
+  @ApiModelProperty({ type: () => SongsEntity, isArray: true })
+  @ManyToMany(() => SongsEntity, (song) => song.artists)
+  @JoinTable({
+    name: 'artist_song',
+    joinColumn: {
+      name: 'artist_id',
+    },
+    inverseJoinColumn: {
+      name: 'song_id',
+    },
+  })
+  songs: Array<SongsEntity>;
+
+  @ApiModelProperty({ description: '한 줄 소개' })
   @Column({ type: 'longtext', nullable: true })
   title: string;
 
-  @ApiProperty({ description: '한 줄 소개(앱)' })
+  @ApiModelProperty({ description: '한 줄 소개(앱)' })
   @Column({ type: 'longtext', nullable: true })
   app_title: string;
 
-  @ApiProperty({ description: '긴 소개글' })
+  @ApiModelProperty({ description: '긴 소개글' })
   @Column({ type: 'longtext', nullable: true })
   description: string;
 
-  @ApiProperty({
+  @ApiModelProperty({
     description: 'HEX 색깔 코드',
     example: '5EA585|100|0,5EA585|0|0',
   })
@@ -54,20 +77,22 @@ export class MainArtistsEntity extends BaseEntity {
   @Column({ type: 'tinytext', nullable: true })
   color: string;
 
-  @ApiProperty({ description: '유튜브 URL' })
+  @ApiModelProperty({ type: 'text', description: '유튜브 URL' })
   @Column({ type: 'text', nullable: true })
   youtube: string;
 
-  @ApiProperty({ description: '트위치 URL' })
+  @ApiModelProperty({ description: '트위치 URL' })
   @Column({ type: 'text', nullable: true })
   twitch: string;
 
-  @ApiProperty({ description: '인스타그램 URL' })
+  @ApiModelProperty({ description: '인스타그램 URL' })
   @Column({ type: 'text', nullable: true })
   instagram: string;
 
-  constructor(partial: Partial<MainArtistsEntity>) {
-    super();
-    Object.assign(this, partial);
-  }
+  @ApiModelProperty({ type: () => ArtistImageVersionEntity })
+  @OneToOne(
+    () => ArtistImageVersionEntity,
+    (artistImageVersion) => artistImageVersion.artist,
+  )
+  artistImageVersion: ArtistImageVersionEntity;
 }

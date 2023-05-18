@@ -4,14 +4,14 @@ import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-prop
 @Entity({ name: 'categories' })
 export class CategoriesEntity extends BaseEntity {
   @ApiModelProperty()
-  @PrimaryGeneratedColumn({ type: 'int' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiModelProperty()
-  @Column({ type: 'tinytext' })
+  @ApiModelProperty({ type: 'varchar', maxLength: 255 })
+  @Column({ type: 'varchar', length: 255 })
   type: string;
 
-  @ApiModelProperty()
-  @Column({ type: 'simple-array', nullable: true })
-  categories: Array<string>;
+  @ApiModelProperty({ type: 'varchar', maxLength: 255 })
+  @Column({ type: 'varchar', length: 255 })
+  category: string;
 }
