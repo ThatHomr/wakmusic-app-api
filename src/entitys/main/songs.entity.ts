@@ -13,6 +13,7 @@ import { ChartHourlyEntity } from './chartHourly.entity';
 import { ChartDailyEntity } from './chartDaily.entity';
 import { ChartWeeklyEntity } from './chartWeekly.entity';
 import { ChartMonthlyEntity } from './chartMonthly.entity';
+import { ChartTotalEntity } from './chartTotal.entity';
 
 @Entity({ name: 'songs' })
 export class SongsEntity extends BaseEntity {
@@ -59,6 +60,10 @@ export class SongsEntity extends BaseEntity {
   @ApiProperty({ type: 'bigint' })
   @Column({ type: 'bigint' })
   end: number;
+
+  @ApiProperty({ type: () => ChartTotalEntity })
+  @OneToOne(() => ChartTotalEntity, (total) => total.song)
+  total: ChartTotalEntity;
 
   @ApiProperty({ type: () => ChartHourlyEntity })
   @OneToOne(() => ChartHourlyEntity, (hourly) => hourly.song)

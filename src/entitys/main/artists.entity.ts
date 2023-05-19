@@ -100,5 +100,5 @@ export class ArtistsEntity extends BaseEntity {
     () => ArtistImageVersionEntity,
     (artistImageVersion) => artistImageVersion.artist,
   )
-  artistImageVersion: ArtistImageVersionEntity;
+  image: ArtistImageVersionEntity;
 }
