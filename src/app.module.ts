@@ -8,14 +8,7 @@ import {
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  chartDataSource,
-  dataDataSource,
-  likeDataSource,
-  mainDataSource,
-  userDataSource,
-  versionDataSource,
-} from './configs/typeorm.config';
+import { mainDataSource } from './configs/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { NewsEntity } from './entitys/main/news.entity';
 import { TeamsEntity } from './entitys/main/teams.entity';
@@ -76,11 +69,6 @@ import { ImageModule } from './image/image.module';
       // ttl: 5 * 60,
     }),
     TypeOrmModule.forRoot(mainDataSource),
-    TypeOrmModule.forRoot(chartDataSource),
-    TypeOrmModule.forRoot(userDataSource),
-    TypeOrmModule.forRoot(likeDataSource),
-    TypeOrmModule.forRoot(dataDataSource),
-    TypeOrmModule.forRoot(versionDataSource),
     TypeOrmModule.forFeature([NewsEntity, TeamsEntity]),
     ChartsModule,
     SongsModule,
