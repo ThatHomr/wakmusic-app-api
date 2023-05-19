@@ -279,6 +279,7 @@ ALTER TABLE `playlist_songs` ADD FOREIGN KEY (`playlist_id`) REFERENCES `playlis
 ALTER TABLE `playlist_songs` ADD FOREIGN KEY (`song_id`) REFERENCES `songs` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `playlist_copy` ADD FOREIGN KEY (`playlist_key`) REFERENCES `playlist` (`key`) ON DELETE NO ACTION ON UPDATE CASCADE;
+ALTER TABLE `playlist_copy` ADD FOREIGN KEY (`owner_id`) REFERENCES `user` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 ALTER TABLE `artist_song` ADD FOREIGN KEY (`artist_id`) REFERENCES `artists` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
