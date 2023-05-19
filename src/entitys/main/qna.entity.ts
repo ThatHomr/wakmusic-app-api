@@ -1,25 +1,34 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { CategoriesEntity } from './categories.entity';
 
 @Entity({ name: 'qna' })
 export class QnaEntity extends BaseEntity {
-  @ApiProperty()
-  @PrimaryGeneratedColumn({ type: 'int' })
+  @ApiProperty({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty()
-  @Column({ type: 'text' })
-  category: string;
+  @ApiProperty({ type: () => CategoriesEntity })
+  @ManyToOne(() => CategoriesEntity, (category) => category.id)
+  @JoinColumn({ name: 'category_id' })
+  category: CategoriesEntity;
 
-  @ApiProperty()
-  @Column({ type: 'mediumtext', unique: true })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @Column({ type: 'varchar', length: 255, unique: true })
   question: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: 'longtext' })
   @Column({ type: 'longtext' })
   description: string;
 
-  @ApiProperty({ description: 'timestamp 형식' })
-  @Column({ type: 'bigint' })
-  create_at: number;
+  @ApiProperty({ type: 'bigint', description: 'unix timestamp 형식' })
+  @Column({ name: 'create_at', type: 'bigint' })
+  createAt: number;
 }

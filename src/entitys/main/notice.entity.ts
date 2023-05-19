@@ -1,41 +1,50 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { CategoriesEntity } from './categories.entity';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'notice' })
 export class NoticeEntity extends BaseEntity {
-  @ApiModelProperty()
-  @PrimaryGeneratedColumn({ type: 'int' })
+  @ApiProperty({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiModelProperty()
-  @Column({ type: 'tinytext' })
-  category: string;
+  @ApiProperty({ type: () => CategoriesEntity })
+  @ManyToOne(() => CategoriesEntity, (category) => category.id)
+  @JoinColumn({ name: 'category_id' })
+  category: CategoriesEntity;
 
-  @ApiModelProperty()
-  @Column({ type: 'mediumtext' })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @ApiModelProperty()
-  @Column({ type: 'longtext', nullable: true })
-  main_text: string;
+  @ApiProperty({ type: 'longtext' })
+  @Column({ name: 'main_text', type: 'longtext', nullable: true })
+  mainText: string;
 
-  @ApiModelProperty()
-  @Column({ type: 'text', nullable: true })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   thumbnail: string;
 
-  @ApiModelProperty()
-  @Column({ type: 'simple-array' })
+  @ApiProperty({ type: 'string', isArray: true })
+  @Column({ type: 'simple-array', nullable: true })
   images: Array<string>;
 
-  @ApiModelProperty()
-  @Column({ type: 'bigint' })
-  create_at: number;
+  @ApiProperty({ type: 'bigint' })
+  @Column({ name: 'create_at', type: 'bigint' })
+  createAt: number;
 
-  @ApiModelProperty()
-  @Column({ type: 'bigint' })
-  start_at: number;
+  @ApiProperty({ type: 'bigint' })
+  @Column({ name: 'start_at', type: 'bigint' })
+  startAt: number;
 
-  @ApiModelProperty()
-  @Column({ type: 'bigint' })
-  end_at: number;
+  @ApiProperty({ type: 'bigint' })
+  @Column({ name: 'end_at', type: 'bigint' })
+  endAt: number;
 }

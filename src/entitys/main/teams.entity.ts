@@ -1,28 +1,23 @@
 import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'teams' })
 export class TeamsEntity extends BaseEntity {
-  @ApiModelProperty()
   @Exclude()
-  @PrimaryGeneratedColumn({ type: 'int' })
+  @ApiProperty({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiModelProperty({ description: '소속팀' })
-  @Column({ type: 'varchar' })
+  @ApiProperty({ type: 'varchar', maxLength: 255, description: '소속팀' })
+  @Column({ type: 'varchar', length: 255 })
   team: string;
 
-  @ApiModelProperty({ description: '닉네임' })
-  @Column({ type: 'longtext', nullable: true })
+  @ApiProperty({ description: '닉네임' })
+  @Column({ type: 'text', nullable: true })
   name: string;
 
-  @ApiModelProperty({ description: '맡은 역할' })
-  @Column({ type: 'tinytext', nullable: true })
+  @ApiProperty({ type: 'varchar', maxLength: 255, description: '맡은 역할' })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   role: string;
-
-  constructor(partial: Partial<TeamsEntity>) {
-    super();
-    Object.assign(this, partial);
-  }
 }

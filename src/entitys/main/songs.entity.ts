@@ -1,4 +1,4 @@
-import { ApiModelProperty } from '@nestjs/swagger/dist/decorators/api-model-property.decorator';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
   Column,
@@ -9,50 +9,70 @@ import {
 } from 'typeorm';
 import { ArtistsEntity } from './artists.entity';
 import { LikeEntity } from './like.entity';
+import { ChartHourlyEntity } from './chartHourly.entity';
+import { ChartDailyEntity } from './chartDaily.entity';
+import { ChartWeeklyEntity } from './chartWeekly.entity';
+import { ChartMonthlyEntity } from './chartMonthly.entity';
 
 @Entity({ name: 'songs' })
 export class SongsEntity extends BaseEntity {
-  @ApiModelProperty({ type: 'bigint' })
-  @PrimaryGeneratedColumn()
+  @ApiProperty({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiModelProperty({ type: 'varchar', maxLength: 255, uniqueItems: true })
+  @ApiProperty({ type: 'varchar', maxLength: 255, uniqueItems: true })
   @Column({ name: 'song_id', type: 'varchar', length: 255, unique: true })
   songId: string;
 
-  @ApiModelProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @ApiModelProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   artist: string;
 
-  @ApiModelProperty({ type: () => ArtistsEntity, isArray: true })
+  @ApiProperty({ type: () => ArtistsEntity, isArray: true })
   @ManyToMany(() => ArtistsEntity, (artist) => artist.songs)
   artists: Array<ArtistsEntity>;
 
-  @ApiModelProperty({ type: () => LikeEntity })
+  @ApiProperty({ type: () => LikeEntity })
   @OneToOne(() => LikeEntity, (like) => like.song)
   like: LikeEntity;
 
-  @ApiModelProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
   @Column({ type: 'varchar', length: 255, nullable: true })
   remix: string;
 
-  @ApiModelProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'varchar', maxLength: 255 })
   @Column({ type: 'varchar', length: 255, nullable: true })
   reaction: string;
 
-  @ApiModelProperty({ type: 'int' })
+  @ApiProperty({ type: 'int' })
   @Column({ type: 'int' })
   date: number;
 
-  @ApiModelProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'bigint' })
   @Column({ type: 'bigint' })
   start: number;
 
-  @ApiModelProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'bigint' })
   @Column({ type: 'bigint' })
   end: number;
+
+  @ApiProperty({ type: () => ChartHourlyEntity })
+  @OneToOne(() => ChartHourlyEntity, (hourly) => hourly.song)
+  hourly: ChartHourlyEntity;
+
+  @ApiProperty({ type: () => ChartDailyEntity })
+  @OneToOne(() => ChartDailyEntity, (daily) => daily.song)
+  daily: ChartDailyEntity;
+
+  @ApiProperty({ type: () => ChartWeeklyEntity })
+  @OneToOne(() => ChartWeeklyEntity, (weekly) => weekly.song)
+  weekly: ChartWeeklyEntity;
+
+  @ApiProperty({ type: () => ChartMonthlyEntity })
+  @OneToOne(() => ChartMonthlyEntity, (monthly) => monthly.song)
+  monthly: ChartMonthlyEntity;
 }
