@@ -11,6 +11,7 @@ import { ProfileEntity } from 'src/entitys/main/profile.entity';
 import { UserPlaylistsEntity } from 'src/entitys/main/userPlaylists.entity';
 import { UserPlaylistPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
 import { UserPermissionsEntity } from 'src/entitys/main/userPermissions.entity';
+import { UserAccessLogsEntity } from 'src/entitys/main/userAccessLogs.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserPermissionsEntity } from 'src/entitys/main/userPermissions.entity';
       UserPlaylistsEntity,
       UserPlaylistPlaylistsEntity,
       UserPermissionsEntity,
+      UserAccessLogsEntity,
     ]),
     PlaylistModule,
     LikeModule,

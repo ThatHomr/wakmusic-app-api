@@ -25,6 +25,7 @@ import { PlaylistEntity } from 'src/entitys/main/playlist.entity';
 import { UserPlaylistsEntity } from 'src/entitys/main/userPlaylists.entity';
 import { UserPlaylistPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
 import { UserPermissionsEntity } from 'src/entitys/main/userPermissions.entity';
+import { UserAccessLogsEntity } from 'src/entitys/main/userAccessLogs.entity';
 
 @Injectable()
 export class UserService {
@@ -37,6 +38,8 @@ export class UserService {
 
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserAccessLogsEntity)
+    private readonly userAccessLogRepository: Repository<UserAccessLogsEntity>,
     @InjectRepository(UserPlaylistsEntity)
     private readonly userPlaylistsRepository: Repository<UserPlaylistsEntity>,
     @InjectRepository(UserPlaylistPlaylistsEntity)
@@ -92,7 +95,22 @@ export class UserService {
     const user = await this.userRepository.save(newUser);
     if (!user) throw new InternalServerErrorException();
 
+    const userPermissions = this.userPermissionsRepository.create({
+      user: user,
+      type: 'default',
+    });
+    await this.userPermissionsRepository.save(userPermissions);
+
     return user;
+  }
+
+  async createAccessLog(user: UserEntity): Promise<void> {
+    const log = this.userAccessLogRepository.create({
+      user: user,
+      createdAt: moment().valueOf(),
+    });
+
+    await this.userAccessLogRepository.save(log);
   }
 
   async getProfileImages(): Promise<Array<ProfileEntity>> {

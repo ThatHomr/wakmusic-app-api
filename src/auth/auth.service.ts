@@ -20,7 +20,11 @@ export class AuthService {
 
     const payload: JwtPayload = { id: user.userId };
 
-    return this.getToken(payload);
+    const token = this.getToken(payload);
+
+    await this.userService.createAccessLog(user);
+
+    return token;
   }
 
   private getToken(payload: JwtPayload) {
