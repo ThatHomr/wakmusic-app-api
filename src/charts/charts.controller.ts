@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { TotalEntity } from '../entitys/chart/total.entity';
 import { ChartsService } from './charts.service';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SongsEntity } from 'src/entitys/main/songs.entity';
 
 @ApiTags('charts')
 @Controller('charts')
@@ -15,13 +15,13 @@ export class ChartsController {
   })
   @ApiOkResponse({
     description: '차트 순위 목록',
-    type: () => TotalEntity,
+    type: () => SongsEntity,
     isArray: true,
   })
   @Get('/')
   async findCharts(
     @Query() query: FindChartsQueryDto,
-  ): Promise<Array<TotalEntity>> {
+  ): Promise<Array<SongsEntity>> {
     return await this.chartsService.findCharts(query);
   }
 

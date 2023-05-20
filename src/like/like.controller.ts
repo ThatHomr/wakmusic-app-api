@@ -16,8 +16,8 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { LikeDto } from './dto/like.dto';
 import { LikeResponseDto } from './dto/response/like.response.dto';
+import { LikeEntity } from 'src/entitys/main/like.entity';
 
 @ApiTags('like')
 @Controller('like')
@@ -25,9 +25,9 @@ export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
   @ApiOperation({ summary: '좋아요 수', description: '좋아요를 가져옵니다.' })
-  @ApiOkResponse({ description: '좋아요 entity', type: () => LikeDto })
+  @ApiOkResponse({ description: '좋아요 entity', type: () => LikeEntity })
   @Get('/:songId')
-  async getLike(@Param('songId') songId: string): Promise<LikeDto> {
+  async getLike(@Param('songId') songId: string): Promise<LikeEntity> {
     return await this.likeService.getLike(songId);
   }
 

@@ -11,6 +11,13 @@ export class QnaService {
   ) {}
 
   async findAll(): Promise<Array<QnaEntity>> {
-    return await this.qnaRepository.find({});
+    return await this.qnaRepository.find({
+      relations: {
+        category: true,
+      },
+      order: {
+        createAt: 'ASC',
+      },
+    });
   }
 }

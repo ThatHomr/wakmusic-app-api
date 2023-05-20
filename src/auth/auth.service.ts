@@ -18,7 +18,7 @@ export class AuthService {
   async login(reqUser: OauthDto) {
     const user = await this.userService.findByProviderIdOrSave(reqUser);
 
-    const payload: JwtPayload = { id: user.id };
+    const payload: JwtPayload = { id: user.userId };
 
     return this.getToken(payload);
   }

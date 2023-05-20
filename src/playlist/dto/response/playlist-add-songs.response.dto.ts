@@ -5,7 +5,7 @@ import { SuccessDto } from 'src/core/dto/success.dto';
 export class PlaylistAddSongsResponseDto extends SuccessDto {
   @ApiProperty()
   @IsNumber()
-  added_songs_length: number;
+  addedSongsLength: number;
 
   @ApiProperty()
   @IsBoolean()

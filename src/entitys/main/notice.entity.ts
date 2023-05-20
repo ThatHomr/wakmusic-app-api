@@ -16,8 +16,11 @@ export class NoticeEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => CategoriesEntity })
-  @ManyToOne(() => CategoriesEntity, (category) => category.id)
-  @JoinColumn({ name: 'category_id' })
+  @ManyToOne(() => CategoriesEntity, (category) => category.id, {
+    onDelete: 'NO ACTION',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: CategoriesEntity;
 
   @ApiProperty({ type: 'varchar', maxLength: 255 })

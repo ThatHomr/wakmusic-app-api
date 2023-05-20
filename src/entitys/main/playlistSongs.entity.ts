@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
+  Column,
   Entity,
   JoinColumn,
   ManyToOne,
@@ -8,20 +9,33 @@ import {
 } from 'typeorm';
 import { PlaylistEntity } from './playlist.entity';
 import { SongsEntity } from './songs.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'playlist_songs' })
 export class PlaylistSongsEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => PlaylistEntity })
-  @ManyToOne(() => PlaylistEntity, (playlist) => playlist.songs)
-  @JoinColumn({ name: 'playlist_id' })
+  @ManyToOne(() => PlaylistEntity, (playlist) => playlist.songs, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'playlist_id', referencedColumnName: 'id' })
   playlist: PlaylistEntity;
 
   @ApiProperty({ type: () => SongsEntity })
-  @ManyToOne(() => SongsEntity, (song) => song.id)
-  @JoinColumn({ name: 'song_id' })
+  @ManyToOne(() => SongsEntity, (song) => song.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
   song: SongsEntity;
+
+  @Exclude()
+  @ApiProperty({ type: 'bigint' })
+  @Column({ type: 'bigint' })
+  order: number;
 }

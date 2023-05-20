@@ -30,7 +30,7 @@ import { UserLikesEntity } from 'src/entitys/main/userLikes.entity';
 import { UserLikesSongsEntity } from 'src/entitys/main/userLikesSongs.entity';
 import { UserPermissionsEntity } from 'src/entitys/main/userPermissions.entity';
 import { UserPlaylistsEntity } from 'src/entitys/main/userPlaylists.entity';
-import { UserPlaylistsPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
+import { UserPlaylistPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
 
 export const mainDataSource: TypeOrmModuleOptions = {
   type: 'mariadb',
@@ -71,7 +71,7 @@ export const mainDataSource: TypeOrmModuleOptions = {
     UserLikesSongsEntity,
     UserPermissionsEntity,
     UserPlaylistsEntity,
-    UserPlaylistsPlaylistsEntity,
+    UserPlaylistPlaylistsEntity,
   ],
   bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,

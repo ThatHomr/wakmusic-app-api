@@ -11,9 +11,11 @@ import {
 import { UserEntity } from './user.entity';
 import { PlaylistImageEntity } from './playlistImage.entity';
 import { PlaylistSongsEntity } from './playlistSongs.entity';
+import { Exclude, Transform } from 'class-transformer';
 
 @Entity({ name: 'playlist' })
 export class PlaylistEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
@@ -27,15 +29,24 @@ export class PlaylistEntity extends BaseEntity {
   title: string;
 
   @ApiProperty({ type: () => UserEntity })
-  @ManyToOne(() => UserEntity, (user) => user.id)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => UserEntity, (user) => user.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
   @ApiProperty({ type: () => PlaylistImageEntity })
-  @ManyToOne(() => PlaylistImageEntity, (image) => image.id)
-  @JoinColumn({ name: 'image_id' })
+  @ManyToOne(() => PlaylistImageEntity, (image) => image.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+  })
+  @JoinColumn({ name: 'image_id', referencedColumnName: 'id' })
   image: PlaylistImageEntity;
 
+  @Transform(({ value }: { value: Array<PlaylistSongsEntity> }) =>
+    value.map((song) => song.song),
+  )
   @ApiProperty({ type: () => PlaylistSongsEntity, isArray: true })
   @OneToMany(() => PlaylistSongsEntity, (songs) => songs.playlist)
   songs: Array<PlaylistSongsEntity>;

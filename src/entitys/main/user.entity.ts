@@ -12,9 +12,11 @@ import { ProfileEntity } from './profile.entity';
 import { UserLikesEntity } from './userLikes.entity';
 import { UserPermissionsEntity } from './userPermissions.entity';
 import { UserPlaylistsEntity } from './userPlaylists.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
@@ -28,8 +30,11 @@ export class UserEntity extends BaseEntity {
   platform: string;
 
   @ApiProperty({ type: () => ProfileEntity })
-  @ManyToOne(() => ProfileEntity, (profile) => profile.id)
-  @JoinColumn({ name: 'profile_id' })
+  @ManyToOne(() => ProfileEntity, (profile) => profile.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+  })
+  @JoinColumn({ name: 'profile_id', referencedColumnName: 'id' })
   profile: ProfileEntity;
 
   @ApiProperty({ type: 'varchar', maxLength: 255 })

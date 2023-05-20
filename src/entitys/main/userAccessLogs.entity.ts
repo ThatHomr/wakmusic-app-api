@@ -16,8 +16,11 @@ export class UserAccessLogsEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => UserEntity })
-  @ManyToOne(() => UserEntity, (user) => user.id)
-  @JoinColumn({ name: 'user_id' })
+  @ManyToOne(() => UserEntity, (user) => user.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
   @ApiProperty({ type: 'bigint' })

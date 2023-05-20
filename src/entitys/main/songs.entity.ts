@@ -14,9 +14,11 @@ import { ChartDailyEntity } from './chartDaily.entity';
 import { ChartWeeklyEntity } from './chartWeekly.entity';
 import { ChartMonthlyEntity } from './chartMonthly.entity';
 import { ChartTotalEntity } from './chartTotal.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'songs' })
 export class SongsEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
@@ -34,7 +36,7 @@ export class SongsEntity extends BaseEntity {
   artist: string;
 
   @ApiProperty({ type: () => ArtistsEntity, isArray: true })
-  @ManyToMany(() => ArtistsEntity, (artist) => artist.songs)
+  @ManyToMany(() => ArtistsEntity, (artist) => artist.songs, {})
   artists: Array<ArtistsEntity>;
 
   @ApiProperty({ type: () => LikeEntity })

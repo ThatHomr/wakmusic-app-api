@@ -8,16 +8,18 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { SongsEntity } from './songs.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'chart_weekly' })
 export class ChartWeeklyEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => SongsEntity })
   @OneToOne(() => SongsEntity, (song) => song.weekly)
-  @JoinColumn({ name: 'song_id' })
+  @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
   song: SongsEntity;
 
   @ApiProperty({ type: 'bigint' })

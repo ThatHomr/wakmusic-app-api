@@ -8,16 +8,21 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ArtistsEntity } from './artists.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'artist_image_version' })
 export class ArtistImageVersionEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => ArtistsEntity })
-  @OneToOne(() => ArtistsEntity, (artist) => artist.artistImageVersion)
-  @JoinColumn({ name: 'artist_id' })
+  @OneToOne(() => ArtistsEntity, (artist) => artist.image, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'artist_id', referencedColumnName: 'id' })
   artist: ArtistsEntity;
 
   @ApiProperty({ type: 'int', default: 1 })

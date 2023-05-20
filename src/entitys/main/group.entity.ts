@@ -16,8 +16,11 @@ export class GroupEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => ArtistsEntity })
-  @OneToOne(() => ArtistsEntity, (artist) => artist.group)
-  @JoinColumn({ name: 'artist_id' })
+  @OneToOne(() => ArtistsEntity, (artist) => artist.group, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'artist_id', referencedColumnName: 'id' })
   artist: ArtistsEntity;
 
   @ApiProperty()

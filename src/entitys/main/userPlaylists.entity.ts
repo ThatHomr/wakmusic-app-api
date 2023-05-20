@@ -3,28 +3,33 @@ import {
   BaseEntity,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
-import { UserPlaylistsPlaylistsEntity } from './userPlaylistsPlaylists.entity';
+import { UserPlaylistPlaylistsEntity } from './userPlaylistsPlaylists.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user_playlists' })
 export class UserPlaylistsEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => UserEntity })
-  @OneToOne(() => UserEntity, (user) => user.playlists)
-  @JoinColumn({ name: 'user_id' })
+  @OneToOne(() => UserEntity, (user) => user.playlists, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
-  @ApiProperty({ type: () => UserPlaylistsPlaylistsEntity, isArray: true })
-  @ManyToOne(
-    () => UserPlaylistsPlaylistsEntity,
+  @ApiProperty({ type: () => UserPlaylistPlaylistsEntity, isArray: true })
+  @OneToMany(
+    () => UserPlaylistPlaylistsEntity,
     (playlists) => playlists.userPlaylists,
   )
-  playlists: Array<UserPlaylistsPlaylistsEntity>;
+  playlists: Array<UserPlaylistPlaylistsEntity>;
 }

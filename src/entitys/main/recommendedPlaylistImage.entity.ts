@@ -8,16 +8,21 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RecommendedPlaylistEntity } from './recommendedPlaylist.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'recommended_playlist_image' })
 export class RecommendedPlaylistImageEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => RecommendedPlaylistEntity })
-  @OneToOne(() => RecommendedPlaylistEntity, (playlist) => playlist.image)
-  @JoinColumn({ name: 'playlist_id' })
+  @OneToOne(() => RecommendedPlaylistEntity, (playlist) => playlist.image, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'playlist_id', referencedColumnName: 'id' })
   playlist: RecommendedPlaylistEntity;
 
   @ApiProperty({ type: 'int' })

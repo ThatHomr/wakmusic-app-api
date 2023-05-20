@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserLikesEntity } from './userLikes.entity';
-import { SongsEntity } from './songs.entity';
+import { LikeEntity } from './like.entity';
 
 @Entity({ name: 'user_likes_songs' })
 export class UserLikesSongsEntity extends BaseEntity {
@@ -17,14 +17,20 @@ export class UserLikesSongsEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => UserLikesEntity })
-  @ManyToOne(() => UserLikesEntity, (userLikes) => userLikes.songs)
-  @JoinColumn({ name: 'user_likes_id' })
+  @ManyToOne(() => UserLikesEntity, (userLikes) => userLikes.likes, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_likes_id', referencedColumnName: 'id' })
   userLikes: UserLikesEntity;
 
-  @ApiProperty({ type: () => SongsEntity })
-  @ManyToOne(() => SongsEntity, (song) => song.id)
-  @JoinColumn({ name: 'song_id' })
-  song: SongsEntity;
+  @ApiProperty({ type: () => LikeEntity })
+  @ManyToOne(() => LikeEntity, (like) => like.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'like_id', referencedColumnName: 'id' })
+  like: LikeEntity;
 
   @ApiProperty({ type: 'bigint' })
   @Column({ type: 'bigint' })

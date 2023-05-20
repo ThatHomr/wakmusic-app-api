@@ -16,8 +16,11 @@ export class UserPermissionsEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => UserEntity })
-  @OneToOne(() => UserEntity, (user) => user.permission)
-  @JoinColumn({ name: 'user_id' })
+  @OneToOne(() => UserEntity, (user) => user.permission, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
   @ApiProperty({ type: 'varchar', maxLength: 255 })

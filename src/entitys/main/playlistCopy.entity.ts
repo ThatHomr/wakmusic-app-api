@@ -22,13 +22,19 @@ export class PlaylistCopyEntity extends BaseEntity {
   date: number;
 
   @ApiProperty({ type: () => PlaylistEntity })
-  @OneToOne(() => PlaylistEntity, (playlist) => playlist.key)
-  @JoinColumn({ name: 'playlist_key' })
+  @OneToOne(() => PlaylistEntity, (playlist) => playlist.key, {
+    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+  })
+  @JoinColumn({ name: 'playlist_key', referencedColumnName: 'key' })
   playlist: PlaylistEntity;
 
   @ApiProperty({ type: () => UserEntity })
-  @ManyToOne(() => UserEntity, (user) => user.id)
-  @JoinColumn({ name: 'owner_id' })
+  @ManyToOne(() => UserEntity, (user) => user.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+  })
+  @JoinColumn({ name: 'owner_id', referencedColumnName: 'id' })
   owner: UserEntity;
 
   @ApiProperty({ type: 'bigint' })

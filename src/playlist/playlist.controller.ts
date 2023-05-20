@@ -12,7 +12,6 @@ import {
   Delete,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
-import { PlaylistEntity } from '../entitys/user/playlist.entity';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { PlaylistCreateBodyDto } from './dto/body/playlist-create.body.dto';
 import { PlaylistCreateResponseDto } from './dto/response/playlist-create.response.dto';
@@ -27,15 +26,13 @@ import {
   ApiTags,
   OmitType,
 } from '@nestjs/swagger';
-import { RecommendPlaylistEntity } from '../entitys/like/playlist.entity';
-import { FindPlaylistRecommendedResponseDto } from './dto/response/find-playlist-recommended.response.dto';
-import { PlaylistGetDetailResponseDto } from './dto/response/playlist-get-detail.response.dto';
 import { SuccessDto } from '../core/dto/success.dto';
 import { PlaylistEditTitleBodyDto } from './dto/body/playlist-edit-title.body.dto';
 import { PlaylistEditTitleResponseDto } from './dto/response/playlist-edit-title.response.dto';
-import { FindAllPlaylistRecommendedResponseDto } from './dto/response/find-all-playlist-recommended.response.dto';
 import { PlaylistAddSongsBodyDto } from './dto/body/playlist-add-songs.body.dto';
 import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.response.dto';
+import { PlaylistEntity } from 'src/entitys/main/playlist.entity';
+import { RecommendedPlaylistEntity } from 'src/entitys/main/recommendedPlaylist.entity';
 
 @ApiTags('playlist')
 @Controller('playlist')
@@ -62,12 +59,12 @@ export class PlaylistController {
   })
   @ApiOkResponse({
     description: '추천 플레이리스트 목록',
-    type: () => OmitType(RecommendPlaylistEntity, ['song_ids'] as const),
+    type: () => OmitType(RecommendedPlaylistEntity, ['songs'] as const),
     isArray: true,
   })
   @Get('/recommended')
   async findAllPlaylistRecommended(): Promise<
-    Array<FindAllPlaylistRecommendedResponseDto>
+    Array<RecommendedPlaylistEntity>
   > {
     return await this.playlistService.findAllPlaylistRecommended();
   }
@@ -78,12 +75,12 @@ export class PlaylistController {
   })
   @ApiOkResponse({
     description: '추천 플레이리스트',
-    type: () => FindPlaylistRecommendedResponseDto,
+    type: () => RecommendedPlaylistEntity,
   })
   @Get('/recommended/:key')
   async findPlaylistRecommended(
     @Param('key') key: string,
-  ): Promise<FindPlaylistRecommendedResponseDto> {
+  ): Promise<RecommendedPlaylistEntity> {
     const playlist = await this.playlistService.findPlaylistRecommended(key);
     if (!playlist) throw new NotFoundException('플레이리스트가 없습니다.');
 
@@ -139,12 +136,10 @@ export class PlaylistController {
   })
   @ApiOkResponse({
     description: '플레이리스트 세부정보',
-    type: () => PlaylistGetDetailResponseDto,
+    type: () => PlaylistEntity,
   })
   @Get('/:key/detail')
-  async getDetail(
-    @Param('key') key: string,
-  ): Promise<PlaylistGetDetailResponseDto> {
+  async getDetail(@Param('key') key: string): Promise<PlaylistEntity> {
     const playlist = await this.playlistService.getDetail(key);
     if (!playlist) throw new NotFoundException();
 

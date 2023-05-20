@@ -29,7 +29,6 @@ import { BullModule } from '@nestjs/bull';
 import * as redisStore from 'cache-manager-ioredis';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor';
-import { ImageModule } from './image/image.module';
 
 @Module({
   imports: [
@@ -61,7 +60,7 @@ import { ImageModule } from './image/image.module';
           },
         ],
         options: {
-          ttl: 5 * 60,
+          ttl: 1,
         },
       },
       // host: 'localhost',
@@ -81,7 +80,6 @@ import { ImageModule } from './image/image.module';
     QnaModule,
     NoticeModule,
     CategoriesModule,
-    ImageModule,
   ],
   controllers: [AppController],
   providers: [

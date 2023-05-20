@@ -8,16 +8,21 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { CategoriesEntity } from './categories.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'qna' })
 export class QnaEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => CategoriesEntity })
-  @ManyToOne(() => CategoriesEntity, (category) => category.id)
-  @JoinColumn({ name: 'category_id' })
+  @ManyToOne(() => CategoriesEntity, (category) => category.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'NO ACTION',
+  })
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: CategoriesEntity;
 
   @ApiProperty({ type: 'varchar', maxLength: 255 })

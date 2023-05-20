@@ -1,18 +1,18 @@
 import { IsNumber, IsObject, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { TotalEntity } from '../../entitys/chart/total.entity';
 import { Type } from 'class-transformer';
+import { SongsEntity } from 'src/entitys/main/songs.entity';
 
 export class LikeDto {
   @ApiProperty()
   @IsNumber()
   id: number;
 
-  @ApiProperty({ type: () => TotalEntity })
+  @ApiProperty({ type: () => SongsEntity })
   @IsObject()
   @ValidateNested()
-  @Type(() => TotalEntity)
-  song: TotalEntity;
+  @Type(() => SongsEntity)
+  song: SongsEntity;
 
   @ApiProperty()
   @IsNumber()

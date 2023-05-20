@@ -1,102 +1,39 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
-import { MonthlyEntity } from '../entitys/chart/monthly.entity';
-import { WeeklyEntity } from '../entitys/chart/weekly.entity';
-import { DailyEntity } from '../entitys/chart/daily.entity';
-import { HourlyEntity } from '../entitys/chart/hourly.entity';
-import { TotalEntity } from '../entitys/chart/total.entity';
-import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
-import { DataSource, In, Repository } from 'typeorm';
-import { UpdatedEntity } from '../entitys/chart/updated.entity';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
-
-export const entityByType = {
-  monthly: MonthlyEntity,
-  weekly: WeeklyEntity,
-  daily: DailyEntity,
-  hourly: HourlyEntity,
-  total: TotalEntity,
-};
-
-type ChartEntity = MonthlyEntity | WeeklyEntity | DailyEntity | HourlyEntity;
+import { ChartUpdatedEntity } from 'src/entitys/main/chartUpdated.entity';
+import { SongsEntity } from 'src/entitys/main/songs.entity';
 
 @Injectable()
 export class ChartsService {
   constructor(
-    @InjectDataSource('chart')
-    private readonly dataSourceChart: DataSource,
-    @InjectRepository(TotalEntity, 'chart')
-    private readonly totalRepository: Repository<TotalEntity>,
-    @InjectRepository(UpdatedEntity, 'chart')
-    private readonly updatedRepository: Repository<UpdatedEntity>,
+    @InjectRepository(SongsEntity)
+    private readonly songsRepository: Repository<SongsEntity>,
+    @InjectRepository(ChartUpdatedEntity)
+    private readonly updatedRepository: Repository<ChartUpdatedEntity>,
   ) {}
 
-  async findOne(id: string): Promise<TotalEntity> {
-    return await this.totalRepository.findOne({
+  async findOne(id: string): Promise<SongsEntity> {
+    return await this.songsRepository.findOne({
       where: {
-        id: id,
+        songId: id,
       },
     });
   }
 
-  async findCharts(query: FindChartsQueryDto): Promise<Array<TotalEntity>> {
+  async findCharts(query: FindChartsQueryDto): Promise<Array<SongsEntity>> {
     const type = query.type;
     const limit = query.limit || 10;
 
-    let charts: Array<TotalEntity>;
-
-    if (type == 'total') charts = await this._findChartsByTotal(limit);
-    else charts = await this._findCharts(type, limit);
-
-    return charts;
-  }
-
-  private async _findCharts(
-    type: string,
-    limit: number,
-  ): Promise<Array<TotalEntity>> {
-    const charts = await this.dataSourceChart
-      .createQueryBuilder<ChartEntity>(entityByType[type], type)
+    const songs = await this.songsRepository
+      .createQueryBuilder('songs')
+      .innerJoinAndSelect(`songs.${type}`, type)
       .orderBy(`${type}.increase`, 'DESC')
       .limit(limit)
       .getMany();
 
-    const chartIds: Array<string> = charts.map((data) => data.id);
-    const unsortedTotalChart = await this.totalRepository.find({
-      where: {
-        id: In(chartIds),
-      },
-    });
-    const sortedTotalChart: Map<number, TotalEntity> = new Map();
-
-    for (const chart of unsortedTotalChart) {
-      const idx = chartIds.indexOf(chart.id);
-      if (idx < 0) throw new InternalServerErrorException();
-      chart.views = charts[idx].increase;
-      chart.last = charts[idx].last;
-      sortedTotalChart.set(idx, chart);
-    }
-
-    return Array.from(
-      new Map([...sortedTotalChart].sort(this.handleChartSort)).values(),
-    );
-  }
-
-  private handleChartSort(
-    a: [number, TotalEntity],
-    b: [number, TotalEntity],
-  ): number {
-    return a[0] - b[0];
-  }
-
-  private async _findChartsByTotal(limit: number): Promise<Array<TotalEntity>> {
-    return await this.totalRepository.find({
-      order: {
-        views: {
-          direction: 'DESC',
-        },
-      },
-      take: limit,
-    });
+    return songs;
   }
 
   async findUpdated(): Promise<number> {

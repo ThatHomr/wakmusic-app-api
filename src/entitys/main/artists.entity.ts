@@ -15,6 +15,7 @@ import { SongsEntity } from './songs.entity';
 
 @Entity({ name: 'artists' })
 export class ArtistsEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
@@ -45,14 +46,19 @@ export class ArtistsEntity extends BaseEntity {
   group: GroupEntity;
 
   @ApiProperty({ type: () => SongsEntity, isArray: true })
-  @ManyToMany(() => SongsEntity, (song) => song.artists)
+  @ManyToMany(() => SongsEntity, (song) => song.artists, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinTable({
     name: 'artist_song',
     joinColumn: {
       name: 'artist_id',
+      referencedColumnName: 'id',
     },
     inverseJoinColumn: {
       name: 'song_id',
+      referencedColumnName: 'id',
     },
   })
   songs: Array<SongsEntity>;

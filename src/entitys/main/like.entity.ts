@@ -8,16 +8,22 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { SongsEntity } from './songs.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'like' })
 export class LikeEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => SongsEntity })
-  @OneToOne(() => SongsEntity, (song) => song.like)
-  @JoinColumn({ name: 'song_id' })
+  @OneToOne(() => SongsEntity, (song) => song.like, {
+    eager: true,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
   song: SongsEntity;
 
   @ApiProperty({ type: 'bigint' })

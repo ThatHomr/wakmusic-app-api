@@ -5,16 +5,19 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LikeEntity } from '../entitys/like/like.entity';
+
 import { In, Repository } from 'typeorm';
-import { LikeManagerEntity } from '../entitys/like/manager.entity';
 import { ChartsService } from '../charts/charts.service';
 import { LikeDto } from './dto/like.dto';
 import { SongsService } from '../songs/songs.service';
-import { EditUserLikesBodyDto } from '../user/dto/body/edit-user-likes.body.dto';
 import { Cache } from 'cache-manager';
+import { LikeEntity } from 'src/entitys/main/like.entity';
+import { UserLikesEntity } from 'src/entitys/main/userLikes.entity';
+import { UserLikesSongsEntity } from 'src/entitys/main/userLikesSongs.entity';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class LikeService {
@@ -24,11 +27,15 @@ export class LikeService {
 
     private readonly chartsService: ChartsService,
     private readonly songsService: SongsService,
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
 
-    @InjectRepository(LikeEntity, 'like')
+    @InjectRepository(LikeEntity)
     private readonly likeRepository: Repository<LikeEntity>,
-    @InjectRepository(LikeManagerEntity, 'like')
-    private readonly likeManagerRepository: Repository<LikeManagerEntity>,
+    @InjectRepository(UserLikesEntity)
+    private readonly userLikesRepository: Repository<UserLikesEntity>,
+    @InjectRepository(UserLikesSongsEntity)
+    private readonly userLikesSongsRepository: Repository<UserLikesSongsEntity>,
   ) {}
 
   async findOne(songId: string): Promise<LikeEntity> {
@@ -39,8 +46,11 @@ export class LikeService {
 
     like = await this.likeRepository.findOne({
       where: {
-        song_id: songId,
+        song: {
+          songId: songId,
+        },
       },
+      relations: ['song'],
     });
     if (!like) like = await this.create(songId);
 
@@ -50,24 +60,20 @@ export class LikeService {
   async findByIds(songIds: Array<string>): Promise<Array<LikeDto>> {
     const unsortedLikes = await this.likeRepository.find({
       where: {
-        song_id: In(songIds),
+        song: {
+          songId: In(songIds),
+        },
       },
+      relations: ['song'],
     });
-    const sortedSongs = await this.songsService.findByIds(songIds);
 
     const sortedLikes: Map<number, LikeDto> = new Map();
 
     for (const like of unsortedLikes) {
-      const idx = songIds.indexOf(like.song_id);
+      const idx = songIds.indexOf(like.song.songId);
       if (idx < 0) throw new InternalServerErrorException();
 
-      const song = sortedSongs[idx];
-
-      sortedLikes.set(idx, {
-        id: like.id,
-        song: song,
-        likes: like.likes,
-      });
+      sortedLikes.set(idx, like);
     }
 
     return Array.from(
@@ -76,15 +82,26 @@ export class LikeService {
   }
 
   async create(songId: string): Promise<LikeEntity> {
+    const song = await this.songsService.findOne(songId);
+    if (!song) throw new NotFoundException('invalid song id.');
     const like = this.likeRepository.create();
-    like.song_id = songId;
+    like.song = song;
     return this.likeRepository.save(like);
   }
 
   async deleteByIds(songIds: Array<string>): Promise<void> {
+    const likes = await this.likeRepository.find({
+      where: {
+        song: {
+          songId: In(songIds),
+        },
+      },
+      relations: ['song'],
+    });
+
     await this.likeRepository.update(
       {
-        song_id: In(songIds),
+        id: In(likes.map((like) => like.id)),
       },
       {
         likes: () => 'likes - 1',
@@ -92,118 +109,240 @@ export class LikeService {
     );
   }
 
-  async getLike(songId: string): Promise<LikeDto> {
-    const like = await this.findOne(songId);
-    const songDetail = await this.songsService.findOne(songId);
-
-    return {
-      id: like.id,
-      song: songDetail,
-      likes: like.likes,
-    };
+  async getLike(songId: string): Promise<LikeEntity> {
+    return await this.findOne(songId);
   }
 
   async addLike(songId: string, userId: string): Promise<LikeEntity> {
-    const isSongIdExist = await this.chartsService.findOne(songId);
-    if (!isSongIdExist)
-      throw new NotFoundException('존재하지 않는 노래입니다.');
+    const song = await this.chartsService.findOne(songId);
+    if (!song) throw new NotFoundException('존재하지 않는 노래입니다.');
 
-    const manager = await this.getManager(userId);
+    const userLikes = await this.getUserLikes(userId);
+    const songs = userLikes.likes.map((like) => like.like.song.songId);
 
-    if (manager.songs.includes(songId))
+    if (songs.includes(songId))
       throw new BadRequestException('좋아요를 이미 표시한 노래입니다.');
-    manager.songs.push(songId);
-    await this.likeManagerRepository.save(manager);
 
     const like = await this.findOne(songId);
+
+    const maxOrder =
+      userLikes.likes.length !== 0
+        ? userLikes.likes.reduce((prev, curr) =>
+            prev.order > curr.order ? prev : curr,
+          ).order
+        : 0;
+
+    const userLikeSongs = this.userLikesSongsRepository.create({
+      userLikes: userLikes,
+      like: like,
+      order: maxOrder + 1,
+    });
+    await this.userLikesSongsRepository.save(userLikeSongs);
+
     like.likes += 1;
 
-    const newLike = await this.likeRepository.save(like);
+    await this.likeRepository.save(like);
+
     await this.cacheManager.del(`/api/like/${songId}`);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 
-    return newLike;
+    return like;
   }
 
   async removeLike(songId: string, userId: string): Promise<LikeEntity> {
-    const isSongIdExist = await this.chartsService.findOne(songId);
-    if (!isSongIdExist)
-      throw new NotFoundException('존재하지 않는 노래입니다.');
+    const song = await this.chartsService.findOne(songId);
+    if (!song) throw new NotFoundException('존재하지 않는 노래입니다.');
 
-    const manager = await this.getManager(userId);
+    const userLikes = await this.getUserLikes(userId);
+    const songs = userLikes.likes.map((like) => like.like.song.songId);
 
-    if (!manager.songs.includes(songId))
+    if (!songs.includes(songId))
       throw new BadRequestException('좋아요를 표시하지 않은 노래입니다.');
-    const songIndex = manager.songs.indexOf(songId);
-    manager.songs.splice(songIndex, 1);
-    await this.likeManagerRepository.save(manager);
+
+    const songIndex = songs.indexOf(songId);
+    const [deleteLikeSongEntity] = userLikes.likes.splice(songIndex, 1);
+
+    await this.userLikesSongsRepository.remove(deleteLikeSongEntity);
 
     const like = await this.findOne(songId);
     like.likes -= 1;
 
-    const newLike = await this.likeRepository.save(like);
+    await this.likeRepository.save(like);
     await this.cacheManager.del(`/api/like/${songId}`);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 
-    return newLike;
+    return like;
   }
 
-  async getManager(userId: string): Promise<LikeManagerEntity> {
-    let manager = await this.likeManagerRepository.findOne({
+  async getUserLikes(userId: string): Promise<UserLikesEntity> {
+    let userLikes = await this.userLikesRepository.findOne({
       where: {
-        user_id: userId,
+        user: {
+          userId: userId,
+        },
+      },
+      order: {
+        likes: {
+          order: 'asc',
+        },
+      },
+      relations: {
+        user: true,
+        likes: {
+          like: {
+            song: {
+              total: true,
+            },
+          },
+        },
       },
     });
-    if (!manager) manager = await this.createManager(userId);
+    if (!userLikes) userLikes = await this.createUserLikes(userId);
 
-    return manager;
+    return userLikes;
   }
 
-  async createManager(userId: string): Promise<LikeManagerEntity> {
-    const newManager = this.likeManagerRepository.create();
-    newManager.user_id = userId;
-    newManager.songs = [];
-
-    return await this.likeManagerRepository.save(newManager);
+  async createUserLikes(userId: string): Promise<UserLikesEntity> {
+    const user = await this.userService.findOneById(userId);
+    const newUserLikes = this.userLikesRepository.create({
+      user: user,
+      likes: [],
+    });
+    return await this.userLikesRepository.save(newUserLikes);
   }
 
-  async editManager(userId: string, body: EditUserLikesBodyDto): Promise<void>;
-  async editManager(manager: LikeManagerEntity): Promise<void>;
-  async editManager(
-    a: string | LikeManagerEntity,
-    b?: EditUserLikesBodyDto,
-  ): Promise<void> {
-    if (
-      typeof a == 'string' &&
-      b !== undefined &&
-      b instanceof EditUserLikesBodyDto
-    ) {
-      await this.editManagerByUserId(a, b);
-    } else if (a instanceof LikeManagerEntity) {
-      await this.editManagerByManager(a);
+  async editUserLikes(userId: string, songs: Array<string>): Promise<void> {
+    const userLikes = await this.getUserLikes(userId);
+    await this.validateEditUserLikes(
+      userLikes.likes.map((like) => like.like.song.songId),
+      songs,
+    );
+
+    for (const userLikeSongs of userLikes.likes) {
+      const order = songs.indexOf(userLikeSongs.like.song.songId) + 1;
+      if (order === 0)
+        throw new InternalServerErrorException('error while sorting songs.');
+      userLikeSongs.order = order;
     }
-  }
 
-  private async editManagerByUserId(
-    userId: string,
-    body: EditUserLikesBodyDto,
-  ): Promise<void> {
-    const manager = await this.getManager(userId);
+    await Promise.all(
+      userLikes.likes.map((userLikeSongs) =>
+        this.userLikesSongsRepository.save(userLikeSongs),
+      ),
+    );
 
-    await this.songsService.validateSongs(manager.songs, body.songs);
-
-    manager.songs = body.songs;
-    await this.likeManagerRepository.save(manager);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
   }
 
-  private async editManagerByManager(
-    manager: LikeManagerEntity,
+  async validateEditUserLikes(
+    oldSongs: Array<string>,
+    editSongs: Array<string>,
   ): Promise<void> {
-    await this.likeManagerRepository.update(
-      { id: manager.id },
-      { songs: manager.songs },
-    );
-    await this.cacheManager.del(`(${manager.user_id}) /api/user/likes`);
+    if (oldSongs.length !== editSongs.length)
+      throw new BadRequestException('invalid song list.');
+
+    const songs = await this.songsService.findByIds(editSongs);
+    if (songs.length !== editSongs.length)
+      throw new BadRequestException('invalid song included');
+
+    for (const song of editSongs) {
+      if (!oldSongs.includes(song))
+        throw new BadRequestException('invalid song included.');
+    }
   }
+
+  async deleteUserLikes(userId: string, songs: Array<string>): Promise<void> {
+    const userLikes = await this.getUserLikes(userId);
+    const userSongs = userLikes.likes.map((like) => like.like.song.songId);
+    this.validateDeleteUserLikes(userSongs, songs);
+
+    await this.deleteByIds(songs);
+
+    const removedEntitys: Array<UserLikesSongsEntity> = [];
+
+    for (const song of songs) {
+      const songIdx = userSongs.indexOf(song);
+      if (songIdx < 0) throw new InternalServerErrorException();
+
+      const deletedEntitys = userLikes.likes[songIdx];
+      removedEntitys.push(deletedEntitys);
+    }
+
+    await this.userLikesSongsRepository.delete({
+      id: In(removedEntitys.map((entity) => entity.id)),
+    });
+    await Promise.all(
+      songs.map((song) => this.cacheManager.del(`/api/like/${song}`)),
+    );
+    await this.cacheManager.del(`(${userId}) /api/user/likes`);
+  }
+
+  validateDeleteUserLikes(
+    currentSongs: Array<string>,
+    deleteSongs: Array<string>,
+  ): void {
+    for (const song of deleteSongs) {
+      if (!currentSongs.includes(song))
+        throw new BadRequestException('invaild song included');
+    }
+  }
+
+  // async getManager(userId: string): Promise<LikeManagerEntity> {
+  //   let manager = await this.likeManagerRepository.findOne({
+  //     where: {
+  //       user_id: userId,
+  //     },
+  //   });
+  //   if (!manager) manager = await this.createManager(userId);
+
+  //   return manager;
+  // }
+
+  // async createManager(userId: string): Promise<LikeManagerEntity> {
+  //   const newManager = this.likeManagerRepository.create();
+  //   newManager.user_id = userId;
+  //   newManager.songs = [];
+
+  //   return await this.likeManagerRepository.save(newManager);
+  // }
+
+  // async editManager(userId: string, body: EditUserLikesBodyDto): Promise<void>;
+  // async editManager(manager: LikeManagerEntity): Promise<void>;
+  // async editManager(
+  //   a: string | LikeManagerEntity,
+  //   b?: EditUserLikesBodyDto,
+  // ): Promise<void> {
+  //   if (
+  //     typeof a == 'string' &&
+  //     b !== undefined &&
+  //     b instanceof EditUserLikesBodyDto
+  //   ) {
+  //     await this.editManagerByUserId(a, b);
+  //   } else if (a instanceof LikeManagerEntity) {
+  //     await this.editManagerByManager(a);
+  //   }
+  // }
+
+  // private async editManagerByUserId(
+  //   userId: string,
+  //   body: EditUserLikesBodyDto,
+  // ): Promise<void> {
+  //   const manager = await this.getManager(userId);
+
+  //   await this.songsService.validateSongs(manager.songs, body.songs);
+
+  //   manager.songs = body.songs;
+  //   await this.likeManagerRepository.save(manager);
+  //   await this.cacheManager.del(`(${userId}) /api/user/likes`);
+  // }
+
+  // private async editManagerByManager(
+  //   manager: LikeManagerEntity,
+  // ): Promise<void> {
+  //   await this.likeManagerRepository.update(
+  //     { id: manager.id },
+  //     { songs: manager.songs },
+  //   );
+  //   await this.cacheManager.del(`(${manager.user_id}) /api/user/likes`);
+  // }
 }

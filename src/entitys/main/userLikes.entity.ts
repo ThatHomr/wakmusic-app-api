@@ -17,11 +17,16 @@ export class UserLikesEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => UserEntity })
-  @OneToOne(() => UserEntity, (user) => user.likes)
-  @JoinColumn({ name: 'user_id' })
+  @OneToOne(() => UserEntity, (user) => user.likes, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
   @ApiProperty({ type: () => UserLikesSongsEntity, isArray: true })
-  @OneToMany(() => UserLikesSongsEntity, (songs) => songs.userLikes)
-  songs: Array<UserLikesSongsEntity>;
+  @OneToMany(() => UserLikesSongsEntity, (songs) => songs.userLikes, {
+    eager: true,
+  })
+  likes: Array<UserLikesSongsEntity>;
 }

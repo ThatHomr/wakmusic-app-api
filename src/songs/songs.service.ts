@@ -4,18 +4,17 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { TotalEntity } from '../entitys/chart/total.entity';
 import { moment } from '../utils/moment.utils';
 import { FindOperator, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindSongsQueryDto } from './dto/query/find-songs.query.dto';
 import * as fs from 'fs';
 import { lyricsPath } from '../utils/path.utils';
-import { FindSongsByLyricsResponseDto } from './dto/response/find-songs-by-lyrics.response.dto';
 import { CheckLyricsQueryDto } from './dto/query/check-lyrics.query.dto';
 import { FindSongsByPeriodQueryDto } from './dto/query/find-songs-by-period.query.dto';
 import { ArtistService } from '../artist/artist.service';
 import * as vttParser from 'node-webvtt';
+import { SongsEntity } from 'src/entitys/main/songs.entity';
 
 @Injectable()
 export class SongsService {
@@ -23,25 +22,33 @@ export class SongsService {
     @Inject(ArtistService)
     private readonly artistService: ArtistService,
 
-    @InjectRepository(TotalEntity, 'chart')
-    private readonly totalRepository: Repository<TotalEntity>,
+    @InjectRepository(SongsEntity)
+    private readonly songsRepositroy: Repository<SongsEntity>,
   ) {}
 
-  async findOne(id: string): Promise<TotalEntity> {
-    return await this.totalRepository.findOne({ where: { id: id } });
+  async findOne(id: string): Promise<SongsEntity> {
+    return await this.songsRepositroy.findOne({
+      where: { songId: id },
+      relations: {
+        total: true,
+      },
+    });
   }
 
-  async findByIds(ids: Array<string>): Promise<Array<TotalEntity>> {
-    const unsortedSongs = await this.totalRepository.find({
+  async findByIds(ids: Array<string>): Promise<Array<SongsEntity>> {
+    const unsortedSongs = await this.songsRepositroy.find({
       where: {
-        id: In(ids),
+        songId: In(ids),
+      },
+      relations: {
+        total: true,
       },
     });
 
-    const sortedSongs: Map<number, TotalEntity> = new Map();
+    const sortedSongs: Map<number, SongsEntity> = new Map();
 
     for (const song of unsortedSongs) {
-      const idx = ids.indexOf(song.id);
+      const idx = ids.indexOf(song.songId);
       if (idx < 0) throw new InternalServerErrorException();
 
       sortedSongs.set(idx, song);
@@ -53,8 +60,8 @@ export class SongsService {
   }
 
   private handleTotalSongsSort(
-    a: [number, TotalEntity],
-    b: [number, TotalEntity],
+    a: [number, SongsEntity],
+    b: [number, SongsEntity],
   ): number {
     return a[0] - b[0];
   }
@@ -62,55 +69,59 @@ export class SongsService {
   async findNewSongs(
     artist?: string | FindOperator<any>,
     limit = 10,
-  ): Promise<Array<TotalEntity>> {
-    return await this.totalRepository.find({
+  ): Promise<Array<SongsEntity>> {
+    return await this.songsRepositroy.find({
       where: {
-        artist: artist || null,
+        artists: {
+          artistId: artist || null,
+        },
       },
       order: {
         date: 'desc',
       },
       take: limit,
+      relations: {
+        total: true,
+      },
     });
   }
 
-  async findNewSongsByMonth(): Promise<Array<TotalEntity>> {
+  async findNewSongsByMonth(): Promise<Array<SongsEntity>> {
     const time = moment();
     const dateNow = time.format('YYMMDD');
     const dateStart = time.subtract(1, 'months').format('YYMMDD');
-    const newSongs = this.totalRepository
-      .createQueryBuilder('total')
-      .where('total.date <= :dateNow', { dateNow })
-      .andWhere('total.date >= :dateStart', { dateStart });
+    const newSongs = this.songsRepositroy
+      .createQueryBuilder('song')
+      .leftJoinAndSelect('song.total', 'total')
+      .where('song.date <= :dateNow', { dateNow })
+      .andWhere('song.date >= :dateStart', { dateStart })
+      .orderBy('song.date', 'DESC');
 
     return await newSongs.getMany();
   }
 
-  async findNewSongsByGroup(group: string): Promise<Array<TotalEntity>> {
+  async findNewSongsByGroup(group: string): Promise<Array<SongsEntity>> {
     if (group == 'all') return await this.findNewSongs();
 
-    const artists = (await this.artistService.findByGroup(group)).map(
-      (artist) => artist.name,
+    const artists = await this.artistService.findByGroup(group);
+
+    const artistsSongs = artists.reduce<Array<SongsEntity>>(
+      (songs, current) => {
+        songs.push(...current.songs);
+
+        return songs;
+      },
+      [],
     );
 
-    const artistsSongs = await this.findNewSongs(In(artists));
-
-    artistsSongs.sort(this._sortSongsByDateDesc);
     if (artistsSongs.length < 10) return artistsSongs;
 
     return artistsSongs.slice(0, 10);
   }
 
-  private _sortSongsByDateDesc(a: TotalEntity, b: TotalEntity): number {
-    if (a.date > b.date) return -1;
-    if (a.date < b.date) return 1;
-
-    return 0;
-  }
-
   async findSongsByPeriod(
     query: FindSongsByPeriodQueryDto,
-  ): Promise<Array<TotalEntity>> {
+  ): Promise<Array<SongsEntity>> {
     let startDate: string;
     let endDate: string;
 
@@ -125,10 +136,11 @@ export class SongsService {
       endDate = `${period}1232`;
     }
 
-    const songs = await this.totalRepository
-      .createQueryBuilder('total')
-      .where(`total.date >= :startDate`, { startDate })
-      .andWhere('total.date <= :endDate', { endDate })
+    const songs = await this.songsRepositroy
+      .createQueryBuilder('song')
+      .leftJoinAndSelect('song.total', 'total')
+      .where(`song.date >= :startDate`, { startDate })
+      .andWhere('song.date <= :endDate', { endDate })
       .getMany();
 
     return songs.slice(start, start + 30);
@@ -136,30 +148,32 @@ export class SongsService {
 
   async findSongsBySearch(
     query: FindSongsQueryDto,
-  ): Promise<Array<TotalEntity>> {
+  ): Promise<Array<SongsEntity>> {
     const keyword = decodeURI(query.keyword);
 
     let sort: string;
     let order: boolean;
     if (query.sort == 'new') {
-      sort = 'total.date';
+      sort = 'song.date';
       order = true;
     } else if (query.sort == 'old') {
-      sort = 'total.date';
+      sort = 'song.date';
       order = false;
     } else if (query.sort == 'popular') {
       sort = 'total.views';
       order = true;
     }
 
-    const songsQueryBuilder = this.totalRepository.createQueryBuilder('total');
+    const songsQueryBuilder = this.songsRepositroy
+      .createQueryBuilder('song')
+      .leftJoinAndSelect('song.total', 'total');
 
     if (query.type == 'ids') {
-      songsQueryBuilder.where('total.id IN (:...ids)', {
+      songsQueryBuilder.where('song.songId IN (:...ids)', {
         ids: keyword.split(','),
       });
     } else {
-      songsQueryBuilder.where(`total.${query.type} LIKE :keyword`, {
+      songsQueryBuilder.where(`song.${query.type} LIKE :keyword`, {
         keyword: `%${keyword}%`,
       });
     }
@@ -168,11 +182,17 @@ export class SongsService {
     return await songsQueryBuilder.getMany();
   }
 
-  async findSongsByLyrics(): Promise<Array<FindSongsByLyricsResponseDto>> {
+  async findSongsByLyrics(): Promise<Array<SongsEntity>> {
     const lyrics = fs.readdirSync(lyricsPath);
 
-    const songs = await this.totalRepository.find({
-      select: ['id', 'title', 'artist', 'date'],
+    const songs = await this.songsRepositroy.find({
+      select: {
+        id: true,
+        songId: true,
+        title: true,
+        artist: true,
+        date: true,
+      },
       order: {
         date: {
           direction: 'ASC',
@@ -180,7 +200,7 @@ export class SongsService {
       },
     });
 
-    return songs.filter((song) => !lyrics.includes(song.id + '.vtt'));
+    return songs.filter((song) => !lyrics.includes(song.songId + '.vtt'));
   }
 
   async checkLyrics(query: CheckLyricsQueryDto): Promise<boolean> {
@@ -214,9 +234,9 @@ export class SongsService {
         throw new BadRequestException('invalid song included');
     }
 
-    const songs = await this.totalRepository.find({
+    const songs = await this.songsRepositroy.find({
       where: {
-        id: In(editSongs),
+        songId: In(editSongs),
       },
     });
     if (songs.length !== editSongs.length)
@@ -224,9 +244,9 @@ export class SongsService {
   }
 
   async checkSongs(songIds: Array<string>): Promise<boolean> {
-    const songs = await this.totalRepository.find({
+    const songs = await this.songsRepositroy.find({
       where: {
-        id: In(songIds),
+        songId: In(songIds),
       },
     });
     if (songs.length !== songIds.length) return false;
