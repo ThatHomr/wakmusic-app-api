@@ -9,9 +9,11 @@ import {
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { UserLikesSongsEntity } from './userLikesSongs.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user_likes' })
 export class UserLikesEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;

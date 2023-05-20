@@ -8,9 +8,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user_permissions' })
 export class UserPermissionsEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty({ type: 'bigint' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
