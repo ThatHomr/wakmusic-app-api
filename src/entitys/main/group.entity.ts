@@ -8,9 +8,11 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ArtistsEntity } from './artists.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'group' })
 export class GroupEntity extends BaseEntity {
+  @Exclude()
   @ApiProperty()
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
