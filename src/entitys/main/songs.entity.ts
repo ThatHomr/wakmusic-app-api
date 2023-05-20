@@ -19,19 +19,19 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'songs' })
 export class SongsEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: 'text', maxLength: 255, uniqueItems: true })
+  @ApiProperty({ type: String, maxLength: 255, uniqueItems: true })
   @Column({ name: 'song_id', type: 'varchar', length: 255, unique: true })
   songId: string;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   artist: string;
 
@@ -43,23 +43,23 @@ export class SongsEntity extends BaseEntity {
   @OneToOne(() => LikeEntity, (like) => like.song)
   like: LikeEntity;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255, nullable: true })
   remix: string;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255, nullable: true })
   reaction: string;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'int' })
   date: number;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'bigint' })
   start: number;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'bigint' })
   end: number;
 

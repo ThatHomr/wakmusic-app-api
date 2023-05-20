@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'recommended_playlist_image' })
 export class RecommendedPlaylistImageEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -25,11 +25,11 @@ export class RecommendedPlaylistImageEntity extends BaseEntity {
   @JoinColumn({ name: 'playlist_id', referencedColumnName: 'id' })
   playlist: RecommendedPlaylistEntity;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'int' })
   round: number;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'int' })
   square: number;
 }

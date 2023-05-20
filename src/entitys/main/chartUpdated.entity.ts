@@ -3,7 +3,7 @@ import { BaseEntity, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'chart_updated' })
 export class ChartUpdatedEntity extends BaseEntity {
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryColumn({ type: 'bigint' })
   time: number;
 }

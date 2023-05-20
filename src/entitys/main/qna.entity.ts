@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'qna' })
 export class QnaEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -25,15 +25,15 @@ export class QnaEntity extends BaseEntity {
   @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: CategoriesEntity;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255, unique: true })
   question: string;
 
-  @ApiProperty({ type: 'longtext' })
+  @ApiProperty({ type: String })
   @Column({ type: 'longtext' })
   description: string;
 
-  @ApiProperty({ type: 'int', description: 'unix timestamp 형식' })
+  @ApiProperty({ type: Number, description: 'unix timestamp 형식' })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;
 }

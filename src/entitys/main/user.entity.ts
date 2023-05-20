@@ -17,17 +17,17 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @Exclude()
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ name: 'user_id', type: 'varchar', length: 255 })
   userId: string;
 
   @Exclude()
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   platform: string;
 
@@ -39,12 +39,12 @@ export class UserEntity extends BaseEntity {
   @JoinColumn({ name: 'profile_id', referencedColumnName: 'id' })
   profile: ProfileEntity;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   displayName: string;
 
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ name: 'first_login_time', type: 'bigint' })
   firstLoginTime: number;
 
@@ -61,7 +61,7 @@ export class UserEntity extends BaseEntity {
   permission: UserPermissionsEntity;
 
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;
 }

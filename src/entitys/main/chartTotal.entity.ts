@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'chart_total' })
 export class ChartTotalEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -22,15 +22,15 @@ export class ChartTotalEntity extends BaseEntity {
   @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
   song: SongsEntity;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'bigint' })
   views: number;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'int' })
   increase: number;
 
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @Column({ type: 'int' })
   last: number;
 }

@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'artist_image_version' })
 export class ArtistImageVersionEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -25,11 +25,11 @@ export class ArtistImageVersionEntity extends BaseEntity {
   @JoinColumn({ name: 'artist_id', referencedColumnName: 'id' })
   artist: ArtistsEntity;
 
-  @ApiProperty({ type: 'int', default: 1 })
+  @ApiProperty({ type: Number, default: 1 })
   @Column({ type: 'int', default: 1 })
   round: number;
 
-  @ApiProperty({ type: 'int', default: 1 })
+  @ApiProperty({ type: Number, default: 1 })
   @Column({ type: 'int', default: 1 })
   square: number;
 }

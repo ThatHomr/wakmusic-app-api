@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'user_permissions' })
 export class UserPermissionsEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'int' })
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -25,7 +25,7 @@ export class UserPermissionsEntity extends BaseEntity {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
-  @ApiProperty({ type: 'text', maxLength: 255 })
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   type: string;
 }

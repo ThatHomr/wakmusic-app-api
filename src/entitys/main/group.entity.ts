@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'group' })
 export class GroupEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty()
+  @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -25,11 +25,11 @@ export class GroupEntity extends BaseEntity {
   @JoinColumn({ name: 'artist_id', referencedColumnName: 'id' })
   artist: ArtistsEntity;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   en: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   kr: string;
 }
