@@ -14,7 +14,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'user_likes_songs' })
 export class UserLikesSongsEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -34,7 +34,7 @@ export class UserLikesSongsEntity extends BaseEntity {
   @JoinColumn({ name: 'like_id', referencedColumnName: 'id' })
   like: LikeEntity;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ type: 'bigint' })
   order: number;
 }

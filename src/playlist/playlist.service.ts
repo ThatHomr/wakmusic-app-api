@@ -57,10 +57,14 @@ export class PlaylistService {
     return await this.playlistRepository.find({
       where: {},
       relations: {
-        user: true,
+        user: {
+          profile: true,
+        },
         image: true,
         songs: {
-          song: true,
+          song: {
+            total: true,
+          },
         },
       },
       order: {
@@ -77,10 +81,14 @@ export class PlaylistService {
         key: id,
       },
       relations: {
-        user: true,
+        user: {
+          profile: true,
+        },
         image: true,
         songs: {
-          song: true,
+          song: {
+            total: true,
+          },
         },
       },
       order: {
@@ -97,10 +105,14 @@ export class PlaylistService {
         key: key,
       },
       relations: {
-        user: true,
+        user: {
+          profile: true,
+        },
         image: true,
         songs: {
-          song: true,
+          song: {
+            total: true,
+          },
         },
       },
       order: {

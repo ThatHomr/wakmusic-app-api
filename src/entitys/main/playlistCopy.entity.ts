@@ -13,7 +13,7 @@ import { UserEntity } from './user.entity';
 
 @Entity({ name: 'playlist_copy' })
 export class PlaylistCopyEntity extends BaseEntity {
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -37,11 +37,11 @@ export class PlaylistCopyEntity extends BaseEntity {
   @JoinColumn({ name: 'owner_id', referencedColumnName: 'id' })
   owner: UserEntity;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ type: 'bigint' })
   count: number;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;
 }

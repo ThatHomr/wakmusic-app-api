@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'news' })
 export class NewsEntity extends BaseEntity {
-  @ApiProperty({ type: 'bigint', description: '카페 게시글 아이디' })
+  @ApiProperty({ type: 'int', description: '카페 게시글 아이디' })
   @PrimaryColumn({ type: 'bigint' })
   id: number;
 

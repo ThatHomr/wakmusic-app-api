@@ -14,7 +14,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'playlist_songs' })
 export class PlaylistSongsEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -35,7 +35,7 @@ export class PlaylistSongsEntity extends BaseEntity {
   song: SongsEntity;
 
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ type: 'bigint' })
   order: number;
 }

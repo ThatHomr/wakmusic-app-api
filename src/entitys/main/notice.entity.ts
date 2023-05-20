@@ -13,7 +13,7 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'notice' })
 export class NoticeEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -25,7 +25,7 @@ export class NoticeEntity extends BaseEntity {
   @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: CategoriesEntity;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
@@ -33,7 +33,7 @@ export class NoticeEntity extends BaseEntity {
   @Column({ name: 'main_text', type: 'longtext', nullable: true })
   mainText: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255, nullable: true })
   thumbnail: string;
 
@@ -41,15 +41,15 @@ export class NoticeEntity extends BaseEntity {
   @Column({ type: 'simple-array', nullable: true })
   images: Array<string>;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'start_at', type: 'bigint' })
   startAt: number;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'end_at', type: 'bigint' })
   endAt: number;
 }

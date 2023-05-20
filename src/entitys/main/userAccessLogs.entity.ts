@@ -11,7 +11,7 @@ import { UserEntity } from './user.entity';
 
 @Entity({ name: 'user_access_logs' })
 export class UserAccessLogsEntity extends BaseEntity {
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
@@ -23,7 +23,7 @@ export class UserAccessLogsEntity extends BaseEntity {
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'created_at', type: 'bigint' })
   createdAt: number;
 }

@@ -50,7 +50,11 @@ export class LikeService {
           songId: songId,
         },
       },
-      relations: ['song'],
+      relations: {
+        song: {
+          total: true,
+        },
+      },
     });
     if (!like) like = await this.create(songId);
 
@@ -64,7 +68,11 @@ export class LikeService {
           songId: In(songIds),
         },
       },
-      relations: ['song'],
+      relations: {
+        song: {
+          total: true,
+        },
+      },
     });
 
     const sortedLikes: Map<number, LikeDto> = new Map();

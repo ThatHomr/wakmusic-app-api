@@ -16,24 +16,24 @@ import { SongsEntity } from './songs.entity';
 @Entity({ name: 'artists' })
 export class ArtistsEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ type: 'bigint' })
   order: number;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '아티스트 id' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '아티스트 id' })
   @Column({ name: 'artist_id', type: 'varchar', length: 255 })
   artistId: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '이름' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '이름' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   name: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '짧은 이름' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '짧은 이름' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   short: string;
 
@@ -85,11 +85,11 @@ export class ArtistsEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   color: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '유튜브 URL' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '유튜브 URL' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   youtube: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '트위치 URL' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '트위치 URL' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   twitch: string;
 

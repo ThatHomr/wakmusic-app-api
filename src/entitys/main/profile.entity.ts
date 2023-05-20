@@ -5,11 +5,11 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 @Entity({ name: 'profile' })
 export class ProfileEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255, unique: true })
   type: string;
 

@@ -5,11 +5,11 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'teams' })
 export class TeamsEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '소속팀' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '소속팀' })
   @Column({ type: 'varchar', length: 255 })
   team: string;
 
@@ -17,7 +17,7 @@ export class TeamsEntity extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   name: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255, description: '맡은 역할' })
+  @ApiProperty({ type: 'text', maxLength: 255, description: '맡은 역할' })
   @Column({ type: 'varchar', length: 255, nullable: true })
   role: string;
 }

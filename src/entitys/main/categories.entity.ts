@@ -5,15 +5,15 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'categories' })
 export class CategoriesEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   type: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   category: string;
 }

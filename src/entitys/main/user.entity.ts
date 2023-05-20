@@ -17,15 +17,17 @@ import { Exclude } from 'class-transformer';
 @Entity({ name: 'user' })
 export class UserEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @Exclude()
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ name: 'user_id', type: 'varchar', length: 255 })
   userId: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @Exclude()
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   platform: string;
 
@@ -37,11 +39,12 @@ export class UserEntity extends BaseEntity {
   @JoinColumn({ name: 'profile_id', referencedColumnName: 'id' })
   profile: ProfileEntity;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   displayName: string;
 
-  @ApiProperty({ type: 'bigint' })
+  @Exclude()
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'first_login_time', type: 'bigint' })
   firstLoginTime: number;
 
@@ -57,7 +60,8 @@ export class UserEntity extends BaseEntity {
   @OneToOne(() => UserPermissionsEntity, (permission) => permission.user)
   permission: UserPermissionsEntity;
 
-  @ApiProperty({ type: 'bigint' })
+  @Exclude()
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;
 }

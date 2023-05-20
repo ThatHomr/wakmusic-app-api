@@ -14,15 +14,15 @@ import { Exclude, Transform } from 'class-transformer';
 @Entity({ name: 'recommended_playlist' })
 export class RecommendedPlaylistEntity extends BaseEntity {
   @Exclude()
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   key: string;
 
-  @ApiProperty({ type: 'varchar', maxLength: 255 })
+  @ApiProperty({ type: 'text', maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
@@ -43,7 +43,7 @@ export class RecommendedPlaylistEntity extends BaseEntity {
   @Column({ type: 'boolean' })
   public: boolean;
 
-  @ApiProperty({ type: 'bigint' })
+  @ApiProperty({ type: 'int' })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;
 }

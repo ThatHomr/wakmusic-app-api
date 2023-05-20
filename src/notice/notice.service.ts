@@ -12,7 +12,11 @@ export class NoticeService {
   ) {}
 
   async findAll(): Promise<Array<NoticeEntity>> {
-    return await this.noticeRepository.find({});
+    return await this.noticeRepository.find({
+      relations: {
+        category: true,
+      },
+    });
   }
 
   async findLatest(): Promise<NoticeEntity> {
@@ -33,6 +37,9 @@ export class NoticeService {
       where: {
         startAt: LessThanOrEqual(currentDate),
         endAt: MoreThanOrEqual(currentDate),
+      },
+      relations: {
+        category: true,
       },
     });
   }
