@@ -8,11 +8,9 @@ import {
 } from 'typeorm';
 import { CategoriesEntity } from './categories.entity';
 import { ApiProperty } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'notice' })
 export class NoticeEntity extends BaseEntity {
-  @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
