@@ -147,9 +147,12 @@ export class LikeService {
     });
     await this.userLikesSongsRepository.save(userLikeSongs);
 
-    like.likes += 1;
+    await this.likeRepository.update(
+      { id: like.id },
+      { likes: () => 'likes + 1' },
+    );
 
-    await this.likeRepository.save(like);
+    like.likes += 1;
 
     await this.cacheManager.del(`/api/like/${songId}`);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
@@ -173,9 +176,14 @@ export class LikeService {
     await this.userLikesSongsRepository.remove(deleteLikeSongEntity);
 
     const like = await this.findOne(songId);
+
+    await this.likeRepository.update(
+      { id: like.id },
+      { likes: () => 'likes - 1' },
+    );
+
     like.likes -= 1;
 
-    await this.likeRepository.save(like);
     await this.cacheManager.del(`/api/like/${songId}`);
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
 

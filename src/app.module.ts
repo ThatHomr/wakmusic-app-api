@@ -60,7 +60,7 @@ import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor'
           },
         ],
         options: {
-          ttl: 1,
+          ttl: process.env.CACHE_TTL || 1 * 60,
         },
       },
       // host: 'localhost',
