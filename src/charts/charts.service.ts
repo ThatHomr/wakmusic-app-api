@@ -29,7 +29,7 @@ export class ChartsService {
     const songs = await this.songsRepository
       .createQueryBuilder('songs')
       .innerJoinAndSelect(`songs.${type}`, type)
-      .orderBy(`${type}.increase`, 'DESC')
+      .orderBy(type === 'total' ? `${type}.views` : `${type}.increase`, 'DESC')
       .limit(limit)
       .getMany();
 
