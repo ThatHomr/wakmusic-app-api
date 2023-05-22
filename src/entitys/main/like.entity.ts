@@ -26,6 +26,10 @@ export class LikeEntity extends BaseEntity {
   @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
   song: SongsEntity;
 
+  @Exclude()
+  @Column({ name: 'song_id', type: 'bigint', unique: true })
+  songId: number;
+
   @ApiProperty({ type: Number })
   @Column({ type: 'bigint', default: 0 })
   likes: number;

@@ -18,6 +18,7 @@ import { LikeEntity } from 'src/entitys/main/like.entity';
 import { UserLikesEntity } from 'src/entitys/main/userLikes.entity';
 import { UserLikesSongsEntity } from 'src/entitys/main/userLikesSongs.entity';
 import { UserService } from 'src/user/user.service';
+import { SongsEntity } from 'src/entitys/main/songs.entity';
 
 @Injectable()
 export class LikeService {
@@ -39,16 +40,14 @@ export class LikeService {
   ) {}
 
   async findOne(songId: string): Promise<LikeEntity> {
-    const isSongIdExist = await this.chartsService.findOne(songId);
-    if (!isSongIdExist) throw new NotFoundException('song not found');
+    const song = await this.chartsService.findOne(songId);
+    if (!song) throw new NotFoundException('song not found');
 
     let like: LikeEntity;
 
     like = await this.likeRepository.findOne({
       where: {
-        song: {
-          songId: songId,
-        },
+        songId: song.id,
       },
       relations: {
         song: {
@@ -56,7 +55,7 @@ export class LikeService {
         },
       },
     });
-    if (!like) like = await this.create(songId);
+    if (!like) like = await this.create(song);
 
     return like;
   }
@@ -89,11 +88,11 @@ export class LikeService {
     );
   }
 
-  async create(songId: string): Promise<LikeEntity> {
-    const song = await this.songsService.findOne(songId);
-    if (!song) throw new NotFoundException('invalid song id.');
+  async create(song: SongsEntity): Promise<LikeEntity> {
     const like = this.likeRepository.create();
     like.song = song;
+    like.songId = song.id;
+    like.likes = 0;
     return this.likeRepository.save(like);
   }
 
