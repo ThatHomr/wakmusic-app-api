@@ -9,6 +9,7 @@ import {
 import { NewsEntity } from './entitys/main/news.entity';
 import { TeamsEntity } from './entitys/main/teams.entity';
 import { SuccessDto } from './core/dto/success.dto';
+import { VersionCheckDto } from './core/dto/body/versionCheck.dto';
 
 @ApiTags('main')
 @Controller()
@@ -56,5 +57,15 @@ export class AppController {
     return {
       status: 200,
     };
+  }
+
+  @ApiOperation({
+    summary: '',
+    description: '',
+  })
+  @ApiOkResponse()
+  @Get('/app/version')
+  async checkVersion(@Query() query: VersionCheckDto) {
+    return await this.appService.checkVersion(query);
   }
 }
