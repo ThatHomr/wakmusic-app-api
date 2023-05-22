@@ -103,7 +103,9 @@ export class LikeService {
           songId: In(songIds),
         },
       },
-      relations: ['song'],
+      relations: {
+        song: true,
+      },
     });
 
     await this.likeRepository.update(

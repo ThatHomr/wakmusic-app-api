@@ -69,7 +69,9 @@ export class UserService {
         userId: OAuthUser.id,
         platform: OAuthUser.provider,
       },
-      relations: ['profile'],
+      relations: {
+        profile: true,
+      },
     });
 
     if (!user) user = await this.create(OAuthUser);

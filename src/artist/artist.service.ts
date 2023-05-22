@@ -20,7 +20,10 @@ export class ArtistService {
       order: {
         order: 'ASC',
       },
-      relations: ['group', 'image'],
+      relations: {
+        group: true,
+        image: true,
+      },
     });
   }
 
