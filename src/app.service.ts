@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsEntity } from './entitys/main/news.entity';
 import { Repository } from 'typeorm';
@@ -54,7 +58,7 @@ export class AppService {
       };
     }
 
-    const version = await this.versionRepository.findOne({
+    let versions = await this.versionRepository.find({
       where: {
         os: query.os,
       },
@@ -62,25 +66,53 @@ export class AppService {
         createAt: 'desc',
       },
     });
-    if (version === null || version === undefined)
+
+    if (versions.length === 0) {
       throw new InternalServerErrorException('an unexpected error occurred.');
+    }
 
-    if (version.version !== query.version) {
-      if (version.force === true) {
-        return {
-          flag: AppCheckFlagTypes.VERSION_FORCE,
-          version: version.version,
-        };
-      }
+    versions = versions.filter((value: VersionEntity) =>
+      this.isHigherVersion(query.version, value.version),
+    );
 
+    if (versions.length === 0) {
+      throw new BadRequestException('invalid app version.');
+    }
+
+    const forceVersion = versions.find((version) => version.force);
+
+    if (forceVersion !== undefined) {
+      return {
+        flag: AppCheckFlagTypes.VERSION_FORCE,
+        version: versions[0].version,
+      };
+    }
+
+    if (versions.length >= 1) {
       return {
         flag: AppCheckFlagTypes.VERSION,
-        version: version.version,
+        version: versions[0].version,
       };
     }
 
     return {
       flag: AppCheckFlagTypes.SUCCESS,
     };
+  }
+
+  isHigherVersion(current: string, compare: string): boolean {
+    const currArray = current.split('.');
+    const compareArray = compare.split('.');
+
+    for (let i = 0; i < 3; i++) {
+      const currInt = parseInt(currArray[i]);
+      const compareInt = parseInt(compareArray[i]);
+
+      if (currInt === compareInt) continue;
+      if (currInt > compareInt) return false;
+      if (currInt < compareInt) return true;
+    }
+
+    return false;
   }
 }
