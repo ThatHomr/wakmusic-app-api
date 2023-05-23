@@ -9,7 +9,8 @@ import {
 import { NewsEntity } from './entitys/main/news.entity';
 import { TeamsEntity } from './entitys/main/teams.entity';
 import { SuccessDto } from './core/dto/success.dto';
-import { VersionCheckDto } from './core/dto/body/versionCheck.dto';
+import { AppCheckQueryDto } from './core/dto/query/appCheck.query.dto';
+import { AppCheckResDto } from './core/dto/response/appCheck.res';
 
 @ApiTags('main')
 @Controller()
@@ -60,12 +61,14 @@ export class AppController {
   }
 
   @ApiOperation({
-    summary: '',
-    description: '',
+    summary: '앱 체크',
+    description: '앱 서비스에 지장이 가는 부분들을 확인합니다.',
   })
-  @ApiOkResponse()
-  @Get('/app/version')
-  async checkVersion(@Query() query: VersionCheckDto) {
-    return await this.appService.checkVersion(query);
+  @ApiOkResponse({
+    type: () => AppCheckResDto,
+  })
+  @Get('/app/check')
+  async appCheck(@Query() query: AppCheckQueryDto): Promise<AppCheckResDto> {
+    return await this.appService.appCheck(query);
   }
 }

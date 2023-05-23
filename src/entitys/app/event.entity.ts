@@ -19,7 +19,11 @@ export class EventEntity extends BaseEntity {
   @ApiProperty({ type: Boolean })
   active: boolean;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({
+    name: 'create_at',
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   @ApiProperty({ type: Date })
-  create_at: Date;
+  createAt: Date;
 }
