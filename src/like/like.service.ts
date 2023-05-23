@@ -14,11 +14,11 @@ import { ChartsService } from '../charts/charts.service';
 import { LikeDto } from './dto/like.dto';
 import { SongsService } from '../songs/songs.service';
 import { Cache } from 'cache-manager';
-import { LikeEntity } from 'src/entitys/main/like.entity';
-import { UserLikesEntity } from 'src/entitys/main/userLikes.entity';
-import { UserLikesSongsEntity } from 'src/entitys/main/userLikesSongs.entity';
+import { LikeEntity } from 'src/core/entitys/main/like.entity';
+import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
+import { UserLikesSongsEntity } from 'src/core/entitys/main/userLikesSongs.entity';
 import { UserService } from 'src/user/user.service';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @Injectable()
 export class LikeService {

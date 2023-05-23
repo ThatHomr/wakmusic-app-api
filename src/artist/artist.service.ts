@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindQueryDto } from './dto/query/find.query.dto';
-import { ArtistsEntity } from 'src/entitys/main/artists.entity';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { ArtistsEntity } from 'src/core/entitys/main/artists.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @Injectable()
 export class ArtistService {

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 export class PlaylistGetDetailResponseDto {
   @ApiProperty({ description: '플레이리스트 고유 key' })

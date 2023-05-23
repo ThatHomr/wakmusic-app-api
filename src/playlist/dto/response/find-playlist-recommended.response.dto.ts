@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 export class FindPlaylistRecommendedResponseDto {
   @ApiProperty()

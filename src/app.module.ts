@@ -10,8 +10,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { appDataSource, mainDataSource } from './configs/typeorm.config';
 import { AuthModule } from './auth/auth.module';
-import { NewsEntity } from './entitys/main/news.entity';
-import { TeamsEntity } from './entitys/main/teams.entity';
+import { NewsEntity } from './core/entitys/main/news.entity';
+import { TeamsEntity } from './core/entitys/main/teams.entity';
 import { DataSource } from 'typeorm';
 import { ChartsModule } from './charts/charts.module';
 import { SongsModule } from './songs/songs.module';
@@ -29,8 +29,8 @@ import { BullModule } from '@nestjs/bull';
 import * as redisStore from 'cache-manager-ioredis';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor';
-import { VersionEntity } from './entitys/app/version.entity';
-import { EventEntity } from './entitys/app/event.entity';
+import { VersionEntity } from './core/entitys/app/version.entity';
+import { EventEntity } from './core/entitys/app/event.entity';
 
 @Module({
   imports: [

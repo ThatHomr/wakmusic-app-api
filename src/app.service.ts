@@ -4,12 +4,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NewsEntity } from './entitys/main/news.entity';
+import { NewsEntity } from './core/entitys/main/news.entity';
 import { Repository } from 'typeorm';
-import { TeamsEntity } from './entitys/main/teams.entity';
+import { TeamsEntity } from './core/entitys/main/teams.entity';
 import { AppCheckQueryDto } from './core/dto/query/appCheck.query.dto';
-import { VersionEntity } from './entitys/app/version.entity';
-import { EventEntity } from './entitys/app/event.entity';
+import { VersionEntity } from './core/entitys/app/version.entity';
+import { EventEntity } from './core/entitys/app/event.entity';
 import { AppCheckResDto } from './core/dto/response/appCheck.res';
 import { AppCheckFlagTypes } from './core/constants';
 

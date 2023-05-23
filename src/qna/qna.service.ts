@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QnaEntity } from '../entitys/main/qna.entity';
+import { QnaEntity } from '../core/entitys/main/qna.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()

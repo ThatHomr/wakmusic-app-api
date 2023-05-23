@@ -1,6 +1,6 @@
 import { IsBoolean, IsInstance, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { ProfileEntity } from 'src/entitys/main/profile.entity';
+import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
 
 export class AuthResponseDto {
   @ApiProperty()

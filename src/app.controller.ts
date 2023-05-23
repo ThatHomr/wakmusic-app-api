@@ -6,8 +6,8 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { NewsEntity } from './entitys/main/news.entity';
-import { TeamsEntity } from './entitys/main/teams.entity';
+import { NewsEntity } from './core/entitys/main/news.entity';
+import { TeamsEntity } from './core/entitys/main/teams.entity';
 import { SuccessDto } from './core/dto/success.dto';
 import { AppCheckQueryDto } from './core/dto/query/appCheck.query.dto';
 import { AppCheckResDto } from './core/dto/response/appCheck.res';

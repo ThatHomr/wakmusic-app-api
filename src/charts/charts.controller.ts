@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ChartsService } from './charts.service';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @ApiTags('charts')
 @Controller('charts')

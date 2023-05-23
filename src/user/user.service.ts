@@ -17,15 +17,15 @@ import { EditUserPlaylistsBodyDto } from './dto/body/edit-user-playlists.body.dt
 import { Cache } from 'cache-manager';
 import { DeleteUserPlaylistsBodyDto } from './dto/body/delete-user-playlists.body.dto';
 import { DeleteUserLikesBodyDto } from './dto/body/delete-user-likes.body.dto';
-import { UserEntity } from 'src/entitys/main/user.entity';
-import { ProfileEntity } from 'src/entitys/main/profile.entity';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
+import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
 import { moment } from '../utils/moment.utils';
-import { LikeEntity } from 'src/entitys/main/like.entity';
-import { PlaylistEntity } from 'src/entitys/main/playlist.entity';
-import { UserPlaylistsEntity } from 'src/entitys/main/userPlaylists.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
-import { UserPermissionsEntity } from 'src/entitys/main/userPermissions.entity';
-import { UserAccessLogsEntity } from 'src/entitys/main/userAccessLogs.entity';
+import { LikeEntity } from 'src/core/entitys/main/like.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
+import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
+import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
+import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
 
 @Injectable()
 export class UserService {

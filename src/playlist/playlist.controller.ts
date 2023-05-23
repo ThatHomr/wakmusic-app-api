@@ -31,8 +31,8 @@ import { PlaylistEditTitleBodyDto } from './dto/body/playlist-edit-title.body.dt
 import { PlaylistEditTitleResponseDto } from './dto/response/playlist-edit-title.response.dto';
 import { PlaylistAddSongsBodyDto } from './dto/body/playlist-add-songs.body.dto';
 import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.response.dto';
-import { PlaylistEntity } from 'src/entitys/main/playlist.entity';
-import { RecommendedPlaylistEntity } from 'src/entitys/main/recommendedPlaylist.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
 
 @ApiTags('playlist')
 @Controller('playlist')

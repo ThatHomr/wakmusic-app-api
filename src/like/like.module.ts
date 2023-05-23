@@ -4,9 +4,9 @@ import { LikeController } from './like.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ChartsModule } from '../charts/charts.module';
 import { SongsModule } from '../songs/songs.module';
-import { LikeEntity } from 'src/entitys/main/like.entity';
-import { UserLikesEntity } from 'src/entitys/main/userLikes.entity';
-import { UserLikesSongsEntity } from 'src/entitys/main/userLikesSongs.entity';
+import { LikeEntity } from 'src/core/entitys/main/like.entity';
+import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
+import { UserLikesSongsEntity } from 'src/core/entitys/main/userLikesSongs.entity';
 import { UserModule } from 'src/user/user.module';
 
 @Module({

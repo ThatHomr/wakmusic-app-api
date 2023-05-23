@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { NoticeService } from './notice.service';
-import { NoticeEntity } from '../entitys/main/notice.entity';
+import { NoticeEntity } from '../core/entitys/main/notice.entity';
 import { CategoriesService } from '../categories/categories.service';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CategoriesEntity } from 'src/entitys/main/categories.entity';
+import { CategoriesEntity } from 'src/core/entitys/main/categories.entity';
 
 @ApiTags('notice')
 @Controller('notice')

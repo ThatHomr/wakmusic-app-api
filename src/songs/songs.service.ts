@@ -14,7 +14,7 @@ import { CheckLyricsQueryDto } from './dto/query/check-lyrics.query.dto';
 import { FindSongsByPeriodQueryDto } from './dto/query/find-songs-by-period.query.dto';
 import { ArtistService } from '../artist/artist.service';
 import * as vttParser from 'node-webvtt';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @Injectable()
 export class SongsService {

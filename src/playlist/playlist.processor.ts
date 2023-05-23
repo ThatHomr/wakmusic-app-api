@@ -11,10 +11,10 @@ import { PlaylistJobDto } from './dto/playlist-job.dto';
 import { moment } from '../utils/moment.utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PlaylistCopyEntity } from 'src/entitys/main/playlistCopy.entity';
-import { PlaylistCopyLogsEntity } from 'src/entitys/main/playlistCopyLogs.entity';
-import { PlaylistEntity } from 'src/entitys/main/playlist.entity';
-import { UserEntity } from 'src/entitys/main/user.entity';
+import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
+import { PlaylistCopyLogsEntity } from 'src/core/entitys/main/playlistCopyLogs.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
 
 @Processor('playlist')
 export class PlaylistProcessor {

@@ -2,8 +2,8 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { FindQueryDto } from './dto/query/find.query.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ArtistsEntity } from 'src/entitys/main/artists.entity';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { ArtistsEntity } from 'src/core/entitys/main/artists.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 const ARTIST_EXAMPLE = {
   id: 'woowakgood',

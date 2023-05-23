@@ -6,12 +6,12 @@ import { PlaylistModule } from '../playlist/playlist.module';
 import { LikeModule } from '../like/like.module';
 import { SongsModule } from '../songs/songs.module';
 import { CategoriesModule } from '../categories/categories.module';
-import { UserEntity } from 'src/entitys/main/user.entity';
-import { ProfileEntity } from 'src/entitys/main/profile.entity';
-import { UserPlaylistsEntity } from 'src/entitys/main/userPlaylists.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
-import { UserPermissionsEntity } from 'src/entitys/main/userPermissions.entity';
-import { UserAccessLogsEntity } from 'src/entitys/main/userAccessLogs.entity';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
+import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
+import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
+import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
+import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
+import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
 
 @Module({
   imports: [

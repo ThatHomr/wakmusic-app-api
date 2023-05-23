@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
-import { ChartUpdatedEntity } from 'src/entitys/main/chartUpdated.entity';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { ChartUpdatedEntity } from 'src/core/entitys/main/chartUpdated.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @Injectable()
 export class ChartsService {

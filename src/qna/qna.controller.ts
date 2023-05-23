@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
 import { QnaService } from './qna.service';
-import { QnaEntity } from '../entitys/main/qna.entity';
+import { QnaEntity } from '../core/entitys/main/qna.entity';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from '../categories/categories.service';
-import { CategoriesEntity } from 'src/entitys/main/categories.entity';
+import { CategoriesEntity } from 'src/core/entitys/main/categories.entity';
 
 @ApiTags('qna')
 @Controller('qna')

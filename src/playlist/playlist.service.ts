@@ -17,13 +17,13 @@ import { moment } from '../utils/moment.utils';
 import { Cache } from 'cache-manager';
 import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.response.dto';
 import { PlaylistJobDto } from './dto/playlist-job.dto';
-import { PlaylistEntity } from 'src/entitys/main/playlist.entity';
-import { RecommendedPlaylistEntity } from 'src/entitys/main/recommendedPlaylist.entity';
-import { UserPlaylistsEntity } from 'src/entitys/main/userPlaylists.entity';
-import { PlaylistImageEntity } from 'src/entitys/main/playlistImage.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
+import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
+import { PlaylistImageEntity } from 'src/core/entitys/main/playlistImage.entity';
 import { UserService } from 'src/user/user.service';
-import { PlaylistSongsEntity } from 'src/entitys/main/playlistSongs.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/entitys/main/userPlaylistsPlaylists.entity';
+import { PlaylistSongsEntity } from 'src/core/entitys/main/playlistSongs.entity';
+import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
 
 @Injectable()
 export class PlaylistService {

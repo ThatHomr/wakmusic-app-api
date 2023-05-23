@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { NoticeEntity } from '../entitys/main/notice.entity';
+import { NoticeEntity } from '../core/entitys/main/notice.entity';
 import { LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import { moment } from '../utils/moment.utils';
 

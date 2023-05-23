@@ -17,7 +17,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { LikeResponseDto } from './dto/response/like.response.dto';
-import { LikeEntity } from 'src/entitys/main/like.entity';
+import { LikeEntity } from 'src/core/entitys/main/like.entity';
 
 @ApiTags('like')
 @Controller('like')

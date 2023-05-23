@@ -13,7 +13,7 @@ import { CheckLyricsResponseDto } from './dto/response/check-lyrics.response.dto
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindNewSongsParamDto } from './dto/param/find-new-songs.param.dto';
 import { FindLyricsResponseDto } from './dto/response/find-lyrics.response.dto';
-import { SongsEntity } from 'src/entitys/main/songs.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @ApiTags('songs')
 @Controller('songs')
