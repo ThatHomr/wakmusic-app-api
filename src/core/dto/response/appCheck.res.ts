@@ -10,8 +10,10 @@ export class AppCheckResDto {
   version?: string;
 
   @IsString()
+  @IsOptional()
   title?: string;
 
   @IsString()
+  @IsOptional()
   description?: string;
 }
