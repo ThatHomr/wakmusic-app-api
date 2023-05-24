@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { CacheTTL, Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import {
   ApiCreatedResponse,
@@ -68,6 +68,7 @@ export class AppController {
     type: () => AppCheckResDto,
   })
   @Get('/app/check')
+  @CacheTTL(60)
   async appCheck(@Query() query: AppCheckQueryDto): Promise<AppCheckResDto> {
     return await this.appService.appCheck(query);
   }
