@@ -78,6 +78,7 @@ export class AppService {
     if (versions.length === 0) {
       throw new BadRequestException('invalid app version.');
     }
+    versions.splice(0, 1);
 
     const forceVersion = versions.find((version) => version.force);
 
@@ -88,7 +89,7 @@ export class AppService {
       };
     }
 
-    if (versions.length > 1) {
+    if (versions.length >= 1) {
       return {
         flag: AppCheckFlagTypes.VERSION,
         version: versions[0].version,
