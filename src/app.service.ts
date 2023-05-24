@@ -75,9 +75,9 @@ export class AppService {
       this.isHigherVersion(query.version, value.version),
     );
 
-    if (versions.length === 0) {
-      throw new BadRequestException('invalid app version.');
-    }
+    // if (versions.length === 0) {
+    //   throw new BadRequestException('invalid app version.');
+    // }
 
     const forceVersion = versions.find((version) => version.force);
 
@@ -113,6 +113,6 @@ export class AppService {
       if (currInt < compareInt) return true;
     }
 
-    return true;
+    return false;
   }
 }
