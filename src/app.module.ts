@@ -62,7 +62,7 @@ import { EventEntity } from './core/entitys/app/event.entity';
           },
         ],
         options: {
-          ttl: process.env.CACHE_TTL || 1 * 60,
+          ttl: (parseInt(process.env.CACHE_TTL) || 1) * 60,
         },
       },
       // host: 'localhost',
