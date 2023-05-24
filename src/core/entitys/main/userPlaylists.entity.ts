@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   BaseEntity,
+  Column,
   Entity,
   JoinColumn,
   OneToMany,
@@ -25,6 +26,11 @@ export class UserPlaylistsEntity extends BaseEntity {
   })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   user: UserEntity;
+
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ name: 'user_id', type: 'bigint' })
+  userId: number;
 
   @ApiProperty({ type: () => UserPlaylistPlaylistsEntity, isArray: true })
   @OneToMany(

@@ -7,9 +7,8 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-
-import { In, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { ChartsService } from '../charts/charts.service';
 import { LikeDto } from './dto/like.dto';
 import { SongsService } from '../songs/songs.service';
@@ -37,6 +36,9 @@ export class LikeService {
     private readonly userLikesRepository: Repository<UserLikesEntity>,
     @InjectRepository(UserLikesSongsEntity)
     private readonly userLikesSongsRepository: Repository<UserLikesSongsEntity>,
+
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   async findOne(songId: string): Promise<LikeEntity> {
@@ -90,10 +92,23 @@ export class LikeService {
 
   async create(song: SongsEntity): Promise<LikeEntity> {
     const like = this.likeRepository.create();
-    like.song = song;
     like.songId = song.id;
     like.likes = 0;
-    return this.likeRepository.save(like);
+
+    await this.likeRepository.insert(like);
+
+    const savedLike = await this.likeRepository.findOne({
+      relations: {
+        song: {
+          total: true,
+        },
+      },
+      where: {
+        songId: song.id,
+      },
+    });
+
+    return savedLike;
   }
 
   async deleteByIds(songIds: Array<string>): Promise<void> {
@@ -146,12 +161,26 @@ export class LikeService {
       like: like,
       order: maxOrder + 1,
     });
-    await this.userLikesSongsRepository.save(userLikeSongs);
 
-    await this.likeRepository.update(
-      { id: like.id },
-      { likes: () => 'likes + 1' },
-    );
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.insert(UserLikesSongsEntity, userLikeSongs);
+      await queryRunner.manager.update(
+        LikeEntity,
+        { id: like.id },
+        { likes: () => 'likes + 1' },
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('failed to add like.');
+    } finally {
+      await queryRunner.release();
+    }
 
     like.likes += 1;
 
@@ -174,14 +203,27 @@ export class LikeService {
     const songIndex = songs.indexOf(songId);
     const [deleteLikeSongEntity] = userLikes.likes.splice(songIndex, 1);
 
-    await this.userLikesSongsRepository.remove(deleteLikeSongEntity);
-
     const like = await this.findOne(songId);
 
-    await this.likeRepository.update(
-      { id: like.id },
-      { likes: () => 'likes - 1' },
-    );
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.remove(deleteLikeSongEntity);
+      await queryRunner.manager.update(
+        LikeEntity,
+        { id: like.id },
+        { likes: () => 'likes - 1' },
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('failed to remove like.');
+    } finally {
+      await queryRunner.release();
+    }
 
     like.likes -= 1;
 
@@ -225,7 +267,22 @@ export class LikeService {
       user: user,
       likes: [],
     });
-    return await this.userLikesRepository.save(newUserLikes);
+    await this.userLikesRepository.insert(newUserLikes);
+    return await this.userLikesRepository.findOne({
+      relations: {
+        user: true,
+        likes: {
+          like: {
+            song: {
+              total: true,
+            },
+          },
+        },
+      },
+      where: {
+        userId: user.id,
+      },
+    });
   }
 
   async editUserLikes(userId: string, songs: Array<string>): Promise<void> {
@@ -239,14 +296,17 @@ export class LikeService {
       const order = songs.indexOf(userLikeSongs.like.song.songId) + 1;
       if (order === 0)
         throw new InternalServerErrorException('error while sorting songs.');
+
+      await this.userLikesSongsRepository.update(
+        {
+          id: userLikeSongs.id,
+        },
+        {
+          order: order,
+        },
+      );
       userLikeSongs.order = order;
     }
-
-    await Promise.all(
-      userLikes.likes.map((userLikeSongs) =>
-        this.userLikesSongsRepository.save(userLikeSongs),
-      ),
-    );
 
     await this.cacheManager.del(`(${userId}) /api/user/likes`);
   }

@@ -64,7 +64,7 @@ export class PlaylistProcessor {
       newPlaylistOwnerId: job.data.new_playlist_owner_id,
       createAt: job.data.datetime,
     });
-    await this.playlistCopyLogRepository.save(playlistDataLog);
+    await this.playlistCopyLogRepository.insert(playlistDataLog);
   }
 
   private async checkIfUsersPlaylistAlreadyExist(
@@ -136,7 +136,12 @@ export class PlaylistProcessor {
     playlistData.count = 0;
     playlistData.createAt = createAt;
 
-    return await this.playlistCopyRepository.save(playlistData);
+    await this.playlistCopyRepository.insert(playlistData);
+    return await this.playlistCopyRepository.findOne({
+      where: {
+        createAt: createAt,
+      },
+    });
   }
 
   @OnQueueActive()

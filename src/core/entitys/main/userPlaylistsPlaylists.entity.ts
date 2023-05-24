@@ -31,6 +31,11 @@ export class UserPlaylistPlaylistsEntity extends BaseEntity {
   @JoinColumn({ name: 'user_playlists_id', referencedColumnName: 'id' })
   userPlaylists: UserPlaylistsEntity;
 
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ name: 'user_playlists_id', type: 'bigint' })
+  userPlaylistsId: number;
+
   @ApiProperty({ type: () => PlaylistEntity })
   @OneToOne(() => PlaylistEntity, (playlist) => playlist.id, {
     onUpdate: 'CASCADE',
@@ -38,6 +43,11 @@ export class UserPlaylistPlaylistsEntity extends BaseEntity {
   })
   @JoinColumn({ name: 'playlist_id', referencedColumnName: 'id' })
   playlist: PlaylistEntity;
+
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ name: 'playlist_id', type: 'bigint' })
+  playlistId: number;
 
   @Exclude()
   @ApiProperty({ type: Number })

@@ -283,7 +283,11 @@ export class PlaylistService {
     await queryRunner.startTransaction();
 
     try {
-      savedPlaylist = await queryRunner.manager.save(newPlaylist);
+      await queryRunner.manager.insert(PlaylistEntity, newPlaylist);
+      savedPlaylist = await queryRunner.manager.findOne(PlaylistEntity, {
+        where: { key: key },
+      });
+
       if (songs) {
         const playlistSongs: Array<PlaylistSongsEntity> = [];
         let idx = 0;
@@ -306,7 +310,10 @@ export class PlaylistService {
           user: user,
           playlists: [],
         });
-        userPlaylists = await queryRunner.manager.save(playlists);
+        await queryRunner.manager.insert(UserPlaylistsEntity, playlists);
+        userPlaylists = await queryRunner.manager.findOne(UserPlaylistsEntity, {
+          where: { userId: user.id },
+        });
       }
       const order =
         userPlaylists.playlists.length !== 0
@@ -329,6 +336,7 @@ export class PlaylistService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('failed to create playlist.');
     } finally {
       await queryRunner.release();
     }
@@ -413,9 +421,12 @@ export class PlaylistService {
       playlistSongEntitys.push(playlistSongEntity);
     }
 
-    const savedSongs = await this.playlistSongsRepository.save(
-      playlistSongEntitys,
-    );
+    await this.playlistSongsRepository.insert(playlistSongEntitys);
+
+    const savedSongs = await this.playlistSongsRepository.find({
+      relations: { song: { total: true } },
+      where: { playlistId: playlist.id },
+    });
 
     return savedSongs;
   }
@@ -501,7 +512,14 @@ export class PlaylistService {
     try {
       if (body.songs) {
         await queryRunner.manager.remove(deleteSongs);
-        currentPlaylist.songs = await queryRunner.manager.save(newSongEntitys);
+        await queryRunner.manager.insert(PlaylistSongsEntity, newSongEntitys);
+        currentPlaylist.songs = await queryRunner.manager.find(
+          PlaylistSongsEntity,
+          {
+            relations: { song: { total: true } },
+            where: { playlistId: currentPlaylist.id },
+          },
+        );
       }
       await queryRunner.manager.update(
         PlaylistEntity,
@@ -613,7 +631,26 @@ export class PlaylistService {
     newUserPlaylists.user = user;
     newUserPlaylists.playlists = [];
 
-    return await this.userPlaylistRepository.save(newUserPlaylists);
+    await this.userPlaylistRepository.insert(newUserPlaylists);
+    return await this.userPlaylistRepository.findOne({
+      relations: {
+        user: {
+          profile: true,
+        },
+        playlists: {
+          playlist: {
+            songs: {
+              song: {
+                total: true,
+              },
+            },
+          },
+        },
+      },
+      where: {
+        userId: user.id,
+      },
+    });
   }
 
   async createUserPlaylistPlaylists(
@@ -634,9 +671,15 @@ export class PlaylistService {
         order: order + 1,
       });
 
-    return await this.userPlaylistPlaylistsRepository.save(
+    await this.userPlaylistPlaylistsRepository.insert(
       userPlaylistPlaylistsEntity,
     );
+    return await this.userPlaylistPlaylistsRepository.findOne({
+      where: {
+        userPlaylistsId: userPlaylistsEntity.id,
+        playlistId: newPlaylist.id,
+      },
+    });
   }
 
   async addPlaylistToUserPlaylists(
@@ -667,7 +710,7 @@ export class PlaylistService {
       userPlaylistPlaylistsEntitys[playlistIdx].order = i + 1;
     }
 
-    await this.userPlaylistPlaylistsRepository.save(
+    await this.userPlaylistPlaylistsRepository.insert(
       userPlaylistPlaylistsEntitys,
     );
 

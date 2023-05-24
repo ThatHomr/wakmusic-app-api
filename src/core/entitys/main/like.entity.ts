@@ -19,7 +19,6 @@ export class LikeEntity extends BaseEntity {
 
   @ApiProperty({ type: () => SongsEntity })
   @OneToOne(() => SongsEntity, (song) => song.like, {
-    eager: true,
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
@@ -27,6 +26,7 @@ export class LikeEntity extends BaseEntity {
   song: SongsEntity;
 
   @Exclude()
+  @ApiProperty({ type: Number })
   @Column({ name: 'song_id', type: 'bigint', unique: true })
   songId: number;
 

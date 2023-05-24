@@ -109,7 +109,13 @@ export class UserService {
     await queryRunner.startTransaction();
 
     try {
-      user = await queryRunner.manager.save(newUser);
+      await queryRunner.manager.insert(UserEntity, newUser);
+      user = await queryRunner.manager.findOne(UserEntity, {
+        relations: { profile: true },
+        where: {
+          userId: newUser.userId,
+        },
+      });
       if (!user)
         throw new InternalServerErrorException('failed to create new user.');
 
@@ -147,7 +153,7 @@ export class UserService {
       createdAt: moment().valueOf(),
     });
 
-    await this.userAccessLogRepository.save(log);
+    await this.userAccessLogRepository.insert(log);
   }
 
   async getProfileImages(): Promise<Array<ProfileEntity>> {
@@ -164,7 +170,7 @@ export class UserService {
 
     user.profile = newProfile;
 
-    await this.userRepository.save(user);
+    await this.userRepository.insert(user);
     this.cacheManager.del(`(${id}) /api/auth`);
   }
 
@@ -172,7 +178,7 @@ export class UserService {
     const user = await this.findOneById(id);
     user.displayName = username;
 
-    await this.userRepository.save(user);
+    await this.userRepository.insert(user);
     this.cacheManager.del(`(${id}) /api/auth`);
   }
 
