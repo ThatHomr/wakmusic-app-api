@@ -721,11 +721,16 @@ export class PlaylistService {
     for (let i = 0; i < playlists.length; i++) {
       const playlistIdx = userPlaylists.indexOf(playlists[i]);
       userPlaylistPlaylistsEntitys[playlistIdx].order = i + 1;
-    }
 
-    await this.userPlaylistPlaylistsRepository.insert(
-      userPlaylistPlaylistsEntitys,
-    );
+      await this.userPlaylistPlaylistsRepository.update(
+        {
+          id: userPlaylistPlaylistsEntitys[playlistIdx].id,
+        },
+        {
+          order: userPlaylistPlaylistsEntitys[playlistIdx].order,
+        },
+      );
+    }
 
     await this.cacheManager.del(`(${id}) /api/user/playlists`);
   }

@@ -127,6 +127,7 @@ export class AuthController {
     const first = this.userService.checkFirstLogin(user.firstLoginTime);
 
     delete user.id;
+    delete user.profileId;
     return {
       ...user,
       first,

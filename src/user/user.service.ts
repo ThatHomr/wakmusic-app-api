@@ -168,17 +168,20 @@ export class UserService {
       },
     });
 
-    user.profile = newProfile;
-
-    await this.userRepository.insert(user);
+    await this.userRepository.update(
+      { id: user.id },
+      { profileId: newProfile.id },
+    );
     this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   async setUsername(id: string, username: string): Promise<void> {
     const user = await this.findOneById(id);
-    user.displayName = username;
 
-    await this.userRepository.insert(user);
+    await this.userRepository.update(
+      { id: user.id },
+      { displayName: username },
+    );
     this.cacheManager.del(`(${id}) /api/auth`);
   }
 
