@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
@@ -29,6 +30,8 @@ import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @Injectable()
 export class PlaylistService {
+  private logger = new Logger(PlaylistService.name);
+
   constructor(
     @InjectQueue('playlist')
     private playlistQueue: Queue<PlaylistJobDto>,
@@ -512,7 +515,15 @@ export class PlaylistService {
     try {
       if (body.songs) {
         await queryRunner.manager.remove(deleteSongs);
-        await queryRunner.manager.insert(PlaylistSongsEntity, newSongEntitys);
+        for (const song of newSongEntitys) {
+          await queryRunner.manager.update(
+            PlaylistSongsEntity,
+            {
+              id: song.id,
+            },
+            { order: song.order },
+          );
+        }
         currentPlaylist.songs = await queryRunner.manager.find(
           PlaylistSongsEntity,
           {
@@ -534,6 +545,8 @@ export class PlaylistService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+
+      this.logger.error(err);
       throw new InternalServerErrorException('failed to save edited playlist.');
     } finally {
       await queryRunner.release();
