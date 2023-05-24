@@ -113,6 +113,6 @@ export class AppService {
       if (currInt < compareInt) return true;
     }
 
-    return false;
+    return true;
   }
 }
