@@ -24,7 +24,7 @@ export class PlaylistCopyEntity extends BaseEntity {
   @ApiProperty({ type: () => PlaylistEntity })
   @OneToOne(() => PlaylistEntity, (playlist) => playlist.key, {
     onUpdate: 'CASCADE',
-    onDelete: 'NO ACTION',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'playlist_key', referencedColumnName: 'key' })
   playlist: PlaylistEntity;
@@ -32,7 +32,7 @@ export class PlaylistCopyEntity extends BaseEntity {
   @ApiProperty({ type: () => UserEntity })
   @ManyToOne(() => UserEntity, (user) => user.id, {
     onUpdate: 'CASCADE',
-    onDelete: 'NO ACTION',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'owner_id', referencedColumnName: 'id' })
   owner: UserEntity;

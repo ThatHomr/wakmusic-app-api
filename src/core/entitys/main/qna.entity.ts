@@ -20,7 +20,7 @@ export class QnaEntity extends BaseEntity {
   @ApiProperty({ type: () => CategoriesEntity })
   @ManyToOne(() => CategoriesEntity, (category) => category.id, {
     onUpdate: 'CASCADE',
-    onDelete: 'NO ACTION',
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
   category: CategoriesEntity;

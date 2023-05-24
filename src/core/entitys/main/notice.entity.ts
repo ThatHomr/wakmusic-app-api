@@ -17,7 +17,7 @@ export class NoticeEntity extends BaseEntity {
 
   @ApiProperty({ type: () => CategoriesEntity })
   @ManyToOne(() => CategoriesEntity, (category) => category.id, {
-    onDelete: 'NO ACTION',
+    onDelete: 'SET NULL',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })

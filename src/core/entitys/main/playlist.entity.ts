@@ -39,7 +39,7 @@ export class PlaylistEntity extends BaseEntity {
   @ApiProperty({ type: () => PlaylistImageEntity })
   @ManyToOne(() => PlaylistImageEntity, (image) => image.id, {
     onUpdate: 'CASCADE',
-    onDelete: 'NO ACTION',
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'image_id', referencedColumnName: 'id' })
   image: PlaylistImageEntity;

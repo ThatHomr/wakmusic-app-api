@@ -18,7 +18,10 @@ export class ChartMonthlyEntity extends BaseEntity {
   id: number;
 
   @ApiProperty({ type: () => SongsEntity })
-  @OneToOne(() => SongsEntity, (song) => song.monthly)
+  @OneToOne(() => SongsEntity, (song) => song.daily, {
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
   song: SongsEntity;
 

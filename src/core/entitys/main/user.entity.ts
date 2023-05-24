@@ -34,10 +34,15 @@ export class UserEntity extends BaseEntity {
   @ApiProperty({ type: () => ProfileEntity })
   @ManyToOne(() => ProfileEntity, (profile) => profile.id, {
     onUpdate: 'CASCADE',
-    onDelete: 'NO ACTION',
+    onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'profile_id', referencedColumnName: 'id' })
   profile: ProfileEntity;
+
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ name: 'profile_id', type: 'bigint' })
+  profileId: number;
 
   @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
