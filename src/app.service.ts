@@ -72,12 +72,12 @@ export class AppService {
     }
 
     versions = versions.filter((value: VersionEntity) =>
-      this.isHigherVersion(query.version, value.version),
+      this.isHigherOrEqualVersion(query.version, value.version),
     );
 
-    // if (versions.length === 0) {
-    //   throw new BadRequestException('invalid app version.');
-    // }
+    if (versions.length === 0) {
+      throw new BadRequestException('invalid app version.');
+    }
 
     const forceVersion = versions.find((version) => version.force);
 
@@ -88,7 +88,7 @@ export class AppService {
       };
     }
 
-    if (versions.length >= 1) {
+    if (versions.length > 1) {
       return {
         flag: AppCheckFlagTypes.VERSION,
         version: versions[0].version,
@@ -100,7 +100,7 @@ export class AppService {
     };
   }
 
-  isHigherVersion(current: string, compare: string): boolean {
+  isHigherOrEqualVersion(current: string, compare: string): boolean {
     const currArray = current.split('.');
     const compareArray = compare.split('.');
 
@@ -113,6 +113,6 @@ export class AppService {
       if (currInt < compareInt) return true;
     }
 
-    return false;
+    return true;
   }
 }
