@@ -5,8 +5,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, FindOptionsRelations, Repository } from 'typeorm';
 import { OauthDto } from '../auth/dto/oauth.dto';
 import { JwtPayload } from '../auth/auth.service';
 import * as process from 'process';
@@ -23,9 +23,9 @@ import { moment } from '../utils/moment.utils';
 import { LikeEntity } from 'src/core/entitys/main/like.entity';
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
 import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
 import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
 import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
+import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
 
 @Injectable()
 export class UserService {
@@ -42,20 +42,26 @@ export class UserService {
     private readonly userAccessLogRepository: Repository<UserAccessLogsEntity>,
     @InjectRepository(UserPlaylistsEntity)
     private readonly userPlaylistsRepository: Repository<UserPlaylistsEntity>,
-    @InjectRepository(UserPlaylistPlaylistsEntity)
-    private readonly userPlaylistPlaylistsRepository: Repository<UserPlaylistPlaylistsEntity>,
+    @InjectRepository(UserLikesEntity)
+    private readonly userLikesRepository: Repository<UserLikesEntity>,
     @InjectRepository(UserPermissionsEntity)
     private readonly userPermissionsRepository: Repository<UserPermissionsEntity>,
     @InjectRepository(ProfileEntity)
     private readonly profileRepository: Repository<ProfileEntity>,
+
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
-  async findOneById(id: string): Promise<UserEntity> {
+  async findOneById(
+    id: string,
+    relations?: FindOptionsRelations<UserEntity>,
+  ): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: {
         userId: id,
       },
-      relations: {
+      relations: relations || {
         profile: true,
       },
     });
@@ -85,6 +91,8 @@ export class UserService {
         type: 'panchi',
       },
     });
+    if (!profile)
+      throw new InternalServerErrorException('failed to find profile entity.');
 
     const newUser = this.userRepository.create();
     newUser.userId = OAuthUser.id;
@@ -94,14 +102,41 @@ export class UserService {
     newUser.firstLoginTime = moment().valueOf();
     newUser.createAt = moment().valueOf();
 
-    const user = await this.userRepository.save(newUser);
-    if (!user) throw new InternalServerErrorException();
+    let user: UserEntity;
 
-    const userPermissions = this.userPermissionsRepository.create({
-      user: user,
-      type: 'default',
-    });
-    await this.userPermissionsRepository.save(userPermissions);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      user = await queryRunner.manager.save(newUser);
+      if (!user)
+        throw new InternalServerErrorException('failed to create new user.');
+
+      const userPermissions = this.userPermissionsRepository.create({
+        user: user,
+        type: 'default',
+      });
+      const userPlaylists = this.userPlaylistsRepository.create({
+        user: user,
+        playlists: [],
+      });
+      const userLikes = this.userLikesRepository.create({
+        user: user,
+        likes: [],
+      });
+      await queryRunner.manager.insert(UserPermissionsEntity, userPermissions);
+      await queryRunner.manager.insert(UserPlaylistsEntity, userPlaylists);
+      await queryRunner.manager.insert(UserLikesEntity, userLikes);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+
+    if (!user)
+      throw new InternalServerErrorException('failed to create new user.');
 
     return user;
   }

@@ -9,9 +9,9 @@ import { CategoriesModule } from '../categories/categories.module';
 import { UserEntity } from 'src/core/entitys/main/user.entity';
 import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
 import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
 import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
 import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
+import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entit
       UserEntity,
       ProfileEntity,
       UserPlaylistsEntity,
-      UserPlaylistPlaylistsEntity,
+      UserLikesEntity,
       UserPermissionsEntity,
       UserAccessLogsEntity,
     ]),

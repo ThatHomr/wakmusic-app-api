@@ -3,11 +3,12 @@ import {
   CACHE_MANAGER,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { PlaylistCreateBodyDto } from './dto/body/playlist-create.body.dto';
 import { SongsService } from '../songs/songs.service';
 import { PlaylistEditDto } from './dto/playlist-edit.dto';
@@ -24,6 +25,7 @@ import { PlaylistImageEntity } from 'src/core/entitys/main/playlistImage.entity'
 import { UserService } from 'src/user/user.service';
 import { PlaylistSongsEntity } from 'src/core/entitys/main/playlistSongs.entity';
 import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
+import { SongsEntity } from 'src/core/entitys/main/songs.entity';
 
 @Injectable()
 export class PlaylistService {
@@ -51,6 +53,9 @@ export class PlaylistService {
     private readonly userPlaylistPlaylistsRepository: Repository<UserPlaylistPlaylistsEntity>,
     @InjectRepository(PlaylistImageEntity)
     private readonly playlistImageRepository: Repository<PlaylistImageEntity>,
+
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAll(): Promise<Array<PlaylistEntity>> {
@@ -236,6 +241,7 @@ export class PlaylistService {
   async create(
     id: string,
     body: PlaylistCreateBodyDto,
+    songs?: Array<SongsEntity>,
   ): Promise<PlaylistEntity> {
     const limit = 20;
     let key: string;
@@ -248,7 +254,12 @@ export class PlaylistService {
       if (i == limit) return null;
     }
 
-    const user = await this.userService.findOneById(id);
+    const user = await this.userService.findOneById(id, {
+      profile: true,
+      playlists: {
+        playlists: true,
+      },
+    });
     const image = await this.playlistImageRepository.findOne({
       where: {
         name: body.image,
@@ -264,10 +275,68 @@ export class PlaylistService {
     newPlaylist.songs = [];
     newPlaylist.createAt = moment().valueOf();
 
-    const savedPlaylist = await this.playlistRepository.save(newPlaylist);
-    if (body.songlist) await this.createSongList(savedPlaylist, body.songlist);
+    let savedPlaylist: PlaylistEntity;
 
-    await this.addPlaylistToUserPlaylists(id, savedPlaylist);
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      savedPlaylist = await queryRunner.manager.save(newPlaylist);
+      if (songs) {
+        const playlistSongs: Array<PlaylistSongsEntity> = [];
+        let idx = 0;
+        for (const song of songs) {
+          idx += 1;
+          playlistSongs.push(
+            this.playlistSongsRepository.create({
+              playlist: savedPlaylist,
+              song: song,
+              order: idx,
+            }),
+          );
+        }
+        await queryRunner.manager.insert(PlaylistSongsEntity, playlistSongs);
+      }
+      // await this.createSongList(savedPlaylist, body.songlist);
+      let userPlaylists = user.playlists;
+      if (!userPlaylists) {
+        const playlists = this.userPlaylistRepository.create({
+          user: user,
+          playlists: [],
+        });
+        userPlaylists = await queryRunner.manager.save(playlists);
+      }
+      const order =
+        userPlaylists.playlists.length !== 0
+          ? userPlaylists.playlists.reduce((prev, current) =>
+              prev.order > current.order ? prev : current,
+            ).order
+          : 0;
+      const userPlaylistsPlaylistEntity =
+        this.userPlaylistPlaylistsRepository.create({
+          userPlaylists: userPlaylists,
+          playlist: savedPlaylist,
+          order: order + 1,
+        });
+
+      await queryRunner.manager.insert(
+        UserPlaylistPlaylistsEntity,
+        userPlaylistsPlaylistEntity,
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+
+    if (!savedPlaylist)
+      throw new InternalServerErrorException('failed to create playlist.');
+
+    await this.cacheManager.del(`(${user.userId}) /api/user/playlists`);
 
     return savedPlaylist;
   }
@@ -282,32 +351,6 @@ export class PlaylistService {
       );
     }
     return result;
-  }
-
-  async createSongList(
-    playlist: PlaylistEntity,
-    songIds: Array<string>,
-  ): Promise<Array<PlaylistSongsEntity>> {
-    if (songIds.length === 0) return [];
-
-    const songs = await this.songsService.findByIds(songIds);
-    let results: Array<PlaylistSongsEntity> = [];
-
-    for (let i = 0; i < songs.length; i++) {
-      const newPlaylistSongsEntity = this.playlistSongsRepository.create({
-        playlist: playlist,
-        song: songs[i + 1],
-      });
-      results.push(newPlaylistSongsEntity);
-    }
-
-    results = await Promise.all(
-      results.map((playlistSongsEntity) =>
-        this.playlistSongsRepository.save(playlistSongsEntity),
-      ),
-    );
-
-    return results;
   }
 
   async addSongsToPlaylist(
@@ -358,7 +401,7 @@ export class PlaylistService {
             prev.order > current.order ? prev : current,
           ).order
         : 0;
-    const playlistSongEntitys = [];
+    const playlistSongEntitys: Array<PlaylistSongsEntity> = [];
     const songs = await this.songsService.findByIds(songIds);
 
     for (let i = 0; i < songIds.length; i++) {
@@ -370,11 +413,11 @@ export class PlaylistService {
       playlistSongEntitys.push(playlistSongEntity);
     }
 
-    return await Promise.all(
-      playlistSongEntitys.map((playlistSongEntity) =>
-        this.playlistSongsRepository.save(playlistSongEntity),
-      ),
+    const savedSongs = await this.playlistSongsRepository.save(
+      playlistSongEntitys,
     );
+
+    return savedSongs;
   }
 
   // async removeSongsToPlaylist(
@@ -410,6 +453,9 @@ export class PlaylistService {
     if (!currentPlaylist)
       throw new NotFoundException('플레이리스트가 없습니다.');
 
+    const newSongEntitys: Array<PlaylistSongsEntity> = [];
+    let deleteSongs: Array<PlaylistSongsEntity>;
+
     if (body.title) currentPlaylist.title = body.title;
 
     if (body.songs) {
@@ -437,7 +483,8 @@ export class PlaylistService {
         },
       );
 
-      const newSongEntitys: Array<PlaylistSongsEntity> = [];
+      deleteSongs = result.delete;
+
       for (let i = 0; i < body.songs.length; i++) {
         const song = result.edit.find((value) =>
           value.song.songId === body.songs[i] ? true : undefined,
@@ -445,21 +492,34 @@ export class PlaylistService {
         song.order = i + 1;
         newSongEntitys.push(song);
       }
-
-      await this.playlistSongsRepository.remove(result.delete);
-      currentPlaylist.songs = await this.playlistSongsRepository.save(
-        newSongEntitys,
-      );
     }
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    await this.playlistRepository.update(
-      {
-        id: currentPlaylist.id,
-      },
-      {
-        title: currentPlaylist.title,
-      },
-    );
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      if (body.songs) {
+        await queryRunner.manager.remove(deleteSongs);
+        currentPlaylist.songs = await queryRunner.manager.save(newSongEntitys);
+      }
+      await queryRunner.manager.update(
+        PlaylistEntity,
+        {
+          id: currentPlaylist.id,
+        },
+        {
+          title: currentPlaylist.title,
+        },
+      );
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new InternalServerErrorException('failed to save edited playlist.');
+    } finally {
+      await queryRunner.release();
+    }
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
     await this.cacheManager.del(`(${id}) /api/user/playlists`);
@@ -500,11 +560,19 @@ export class PlaylistService {
       throw new BadRequestException(
         '개인의 플레이리스트는 추가할 수 없습니다.',
       );
-    const newPlaylist = await this.create(creatorId, {
-      title: playlist.title,
-      image: playlist.image.name,
-      songlist: playlist.songs.map((song) => song.song.songId),
-    });
+    const newPlaylist = await this.create(
+      creatorId,
+      {
+        title: playlist.title,
+        image: playlist.image.name,
+      },
+      playlist.songs.map((song) => song.song),
+    );
+    if (newPlaylist === null) {
+      throw new InternalServerErrorException(
+        'Failed to create playlist. please try again.',
+      );
+    }
 
     await this.playlistQueue.add(
       'add_to_my_playlist',
