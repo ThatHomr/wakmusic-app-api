@@ -9,9 +9,9 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ProfileEntity } from './profile.entity';
-import { UserLikesEntity } from './userLikes.entity';
-import { UserPermissionsEntity } from './userPermissions.entity';
-import { UserPlaylistsEntity } from './userPlaylists.entity';
+import { UserLikeEntity } from './userLike.entity';
+import { UserPermissionEntity } from './userPermission.entity';
+import { UserPlaylistEntity } from './userPlaylist.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user' })
@@ -53,17 +53,17 @@ export class UserEntity extends BaseEntity {
   @Column({ name: 'first_login_time', type: 'bigint' })
   firstLoginTime: number;
 
-  @ApiProperty({ type: () => UserPlaylistsEntity })
-  @OneToOne(() => UserPlaylistsEntity, (playlists) => playlists.user)
-  playlists: UserPlaylistsEntity;
+  @ApiProperty({ type: () => UserPlaylistEntity })
+  @OneToOne(() => UserPlaylistEntity, (playlists) => playlists.user)
+  playlists: UserPlaylistEntity;
 
-  @ApiProperty({ type: () => UserLikesEntity })
-  @OneToOne(() => UserLikesEntity, (likes) => likes.user)
-  likes: UserLikesEntity;
+  @ApiProperty({ type: () => UserLikeEntity })
+  @OneToOne(() => UserLikeEntity, (likes) => likes.user)
+  likes: UserLikeEntity;
 
-  @ApiProperty({ type: () => UserPermissionsEntity })
-  @OneToOne(() => UserPermissionsEntity, (permission) => permission.user)
-  permission: UserPermissionsEntity;
+  @ApiProperty({ type: () => UserPermissionEntity })
+  @OneToOne(() => UserPermissionEntity, (permission) => permission.user)
+  permission: UserPermissionEntity;
 
   @Exclude()
   @ApiProperty({ type: Number })

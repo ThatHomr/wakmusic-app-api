@@ -3,7 +3,7 @@ import { QnaService } from './qna.service';
 import { QnaEntity } from '../core/entitys/main/qna.entity';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CategoriesService } from '../categories/categories.service';
-import { CategoriesEntity } from 'src/core/entitys/main/categories.entity';
+import { CategoryEntity } from 'src/core/entitys/main/category.entity';
 
 @ApiTags('qna')
 @Controller('qna')
@@ -19,11 +19,11 @@ export class QnaController {
   })
   @ApiOkResponse({
     description: '카테고리들',
-    type: () => CategoriesEntity,
+    type: () => CategoryEntity,
     isArray: true,
   })
   @Get('/categories')
-  async getAllCategories(): Promise<Array<CategoriesEntity>> {
+  async getAllCategories(): Promise<Array<CategoryEntity>> {
     return await this.categoriesService.findCategoriesByType('qna');
   }
 

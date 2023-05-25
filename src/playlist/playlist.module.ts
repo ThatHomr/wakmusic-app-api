@@ -6,13 +6,13 @@ import { SongsModule } from '../songs/songs.module';
 import { BullModule } from '@nestjs/bull';
 import { PlaylistProcessor } from './playlist.processor';
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
-import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
 import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
 import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
-import { PlaylistCopyLogsEntity } from 'src/core/entitys/main/playlistCopyLogs.entity';
-import { PlaylistSongsEntity } from 'src/core/entitys/main/playlistSongs.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
-import { RecommendedPlaylistSongsEntity } from 'src/core/entitys/main/recommendedPlaylistSongs.entity';
+import { PlaylistCopyLogEntity } from 'src/core/entitys/main/playlistCopyLog.entity';
+import { PlaylistSongEntity } from 'src/core/entitys/main/playlistSong.entity';
+import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
+import { RecommendedPlaylistSongEntity } from 'src/core/entitys/main/recommendedPlaylistSong.entity';
 import { RecommendedPlaylistImageEntity } from 'src/core/entitys/main/recommendedPlaylistImage.entity';
 import { UserModule } from 'src/user/user.module';
 import { PlaylistImageEntity } from 'src/core/entitys/main/playlistImage.entity';
@@ -26,15 +26,15 @@ import { UserEntity } from 'src/core/entitys/main/user.entity';
     TypeOrmModule.forFeature([
       UserEntity,
       PlaylistEntity,
-      PlaylistSongsEntity,
+      PlaylistSongEntity,
       PlaylistImageEntity,
-      UserPlaylistsEntity,
-      UserPlaylistPlaylistsEntity,
+      UserPlaylistEntity,
+      UserPlaylistPlaylistEntity,
       RecommendedPlaylistEntity,
-      RecommendedPlaylistSongsEntity,
+      RecommendedPlaylistSongEntity,
       RecommendedPlaylistImageEntity,
       PlaylistCopyEntity,
-      PlaylistCopyLogsEntity,
+      PlaylistCopyLogEntity,
     ]),
     SongsModule,
     forwardRef(() => UserModule),

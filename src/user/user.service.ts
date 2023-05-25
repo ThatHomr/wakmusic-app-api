@@ -22,10 +22,10 @@ import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
 import { moment } from '../utils/moment.utils';
 import { LikeEntity } from 'src/core/entitys/main/like.entity';
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
-import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
-import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
-import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
-import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
+import { UserPermissionEntity } from 'src/core/entitys/main/userPermission.entity';
+import { UserAccessLogEntity } from 'src/core/entitys/main/userAccessLog.entity';
+import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
 
 @Injectable()
 export class UserService {
@@ -38,14 +38,14 @@ export class UserService {
 
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(UserAccessLogsEntity)
-    private readonly userAccessLogRepository: Repository<UserAccessLogsEntity>,
-    @InjectRepository(UserPlaylistsEntity)
-    private readonly userPlaylistsRepository: Repository<UserPlaylistsEntity>,
-    @InjectRepository(UserLikesEntity)
-    private readonly userLikesRepository: Repository<UserLikesEntity>,
-    @InjectRepository(UserPermissionsEntity)
-    private readonly userPermissionsRepository: Repository<UserPermissionsEntity>,
+    @InjectRepository(UserAccessLogEntity)
+    private readonly userAccessLogRepository: Repository<UserAccessLogEntity>,
+    @InjectRepository(UserPlaylistEntity)
+    private readonly userPlaylistRepository: Repository<UserPlaylistEntity>,
+    @InjectRepository(UserLikeEntity)
+    private readonly userLikeRepository: Repository<UserLikeEntity>,
+    @InjectRepository(UserPermissionEntity)
+    private readonly userPermissionRepository: Repository<UserPermissionEntity>,
     @InjectRepository(ProfileEntity)
     private readonly profileRepository: Repository<ProfileEntity>,
 
@@ -119,21 +119,21 @@ export class UserService {
       if (!user)
         throw new InternalServerErrorException('failed to create new user.');
 
-      const userPermissions = this.userPermissionsRepository.create({
+      const userPermissions = this.userPermissionRepository.create({
         user: user,
         type: 'default',
       });
-      const userPlaylists = this.userPlaylistsRepository.create({
+      const userPlaylists = this.userPlaylistRepository.create({
         user: user,
         playlists: [],
       });
-      const userLikes = this.userLikesRepository.create({
+      const userLikes = this.userLikeRepository.create({
         user: user,
         likes: [],
       });
-      await queryRunner.manager.insert(UserPermissionsEntity, userPermissions);
-      await queryRunner.manager.insert(UserPlaylistsEntity, userPlaylists);
-      await queryRunner.manager.insert(UserLikesEntity, userLikes);
+      await queryRunner.manager.insert(UserPermissionEntity, userPermissions);
+      await queryRunner.manager.insert(UserPlaylistEntity, userPlaylists);
+      await queryRunner.manager.insert(UserLikeEntity, userLikes);
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -172,7 +172,7 @@ export class UserService {
       { id: user.id },
       { profileId: newProfile.id },
     );
-    this.cacheManager.del(`(${id}) /api/auth`);
+    await this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   async setUsername(id: string, username: string): Promise<void> {
@@ -182,7 +182,7 @@ export class UserService {
       { id: user.id },
       { displayName: username },
     );
-    this.cacheManager.del(`(${id}) /api/auth`);
+    await this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   checkFirstLogin(firstLoginTime: number): boolean {

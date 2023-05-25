@@ -13,7 +13,7 @@ import { CheckLyricsResponseDto } from './dto/response/check-lyrics.response.dto
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindNewSongsParamDto } from './dto/param/find-new-songs.param.dto';
 import { FindLyricsResponseDto } from './dto/response/find-lyrics.response.dto';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @ApiTags('songs')
 @Controller('songs')
@@ -26,11 +26,11 @@ export class SongsController {
   })
   @ApiOkResponse({
     description: '이번달의 신곡 목록',
-    type: () => SongsEntity,
+    type: () => SongEntity,
     isArray: true,
   })
   @Get('/new/monthly')
-  async findNewSongsByMonth(): Promise<Array<SongsEntity>> {
+  async findNewSongsByMonth(): Promise<Array<SongEntity>> {
     return await this.songsService.findNewSongsByMonth();
   }
 
@@ -40,13 +40,13 @@ export class SongsController {
   })
   @ApiOkResponse({
     description: '최신곡 목록',
-    type: () => SongsEntity,
+    type: () => SongEntity,
     isArray: true,
   })
   @Get('/new/:group')
   async findNewSongsByGroup(
     @Param() param: FindNewSongsParamDto,
-  ): Promise<Array<SongsEntity>> {
+  ): Promise<Array<SongEntity>> {
     return await this.songsService.findNewSongsByGroup(param.group);
   }
 
@@ -57,13 +57,13 @@ export class SongsController {
   })
   @ApiOkResponse({
     description: '지정된 기간의 start부터 start+30까지의 노래 목록 (최신순)',
-    type: () => SongsEntity,
+    type: () => SongEntity,
     isArray: true,
   })
   @Get('/list')
   async findSongsByPeriod(
     @Query() query: FindSongsByPeriodQueryDto,
-  ): Promise<Array<SongsEntity>> {
+  ): Promise<Array<SongEntity>> {
     return await this.songsService.findSongsByPeriod(query);
   }
 
@@ -73,13 +73,13 @@ export class SongsController {
   })
   @ApiOkResponse({
     description: 'keyword 검색어를 통한 노래 목록',
-    type: () => SongsEntity,
+    type: () => SongEntity,
     isArray: true,
   })
   @Get('/search')
   async findSongsBySearch(
     @Query() query: FindSongsQueryDto,
-  ): Promise<Array<SongsEntity>> {
+  ): Promise<Array<SongEntity>> {
     return await this.songsService.findSongsBySearch(query);
   }
 
@@ -90,11 +90,11 @@ export class SongsController {
   })
   @ApiOkResponse({
     description: '가사가 없는 노래 목록',
-    type: () => SongsEntity,
+    type: () => SongEntity,
     isArray: true,
   })
   @Get('/lyrics-all')
-  async findAllSongsByLyrics(): Promise<Array<SongsEntity>> {
+  async findAllSongsByLyrics(): Promise<Array<SongEntity>> {
     return await this.songsService.findSongsByLyrics();
   }
 

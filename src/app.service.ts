@@ -6,7 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsEntity } from './core/entitys/main/news.entity';
 import { Repository } from 'typeorm';
-import { TeamsEntity } from './core/entitys/main/teams.entity';
+import { TeamEntity } from './core/entitys/main/team.entity';
 import { AppCheckQueryDto } from './core/dto/query/appCheck.query.dto';
 import { VersionEntity } from './core/entitys/app/version.entity';
 import { EventEntity } from './core/entitys/app/event.entity';
@@ -18,8 +18,8 @@ export class AppService {
   constructor(
     @InjectRepository(NewsEntity)
     private readonly newsRepository: Repository<NewsEntity>,
-    @InjectRepository(TeamsEntity)
-    private readonly teamsRepository: Repository<TeamsEntity>,
+    @InjectRepository(TeamEntity)
+    private readonly teamRepository: Repository<TeamEntity>,
     @InjectRepository(VersionEntity, 'app')
     private readonly versionRepository: Repository<VersionEntity>,
     @InjectRepository(EventEntity, 'app')
@@ -37,8 +37,8 @@ export class AppService {
     return news.slice(start, start + 30);
   }
 
-  async findAllTeams(): Promise<Array<TeamsEntity>> {
-    return await this.teamsRepository.find();
+  async findAllTeams(): Promise<Array<TeamEntity>> {
+    return await this.teamRepository.find();
   }
 
   async appCheck(query: AppCheckQueryDto): Promise<AppCheckResDto> {

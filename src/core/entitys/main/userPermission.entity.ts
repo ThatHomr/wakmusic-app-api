@@ -11,7 +11,7 @@ import { UserEntity } from './user.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user_permissions' })
-export class UserPermissionsEntity extends BaseEntity {
+export class UserPermissionEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })

@@ -7,7 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SongsEntity } from './songs.entity';
+import { SongEntity } from './song.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'chart_monthly' })
@@ -17,13 +17,13 @@ export class ChartMonthlyEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => SongsEntity })
-  @OneToOne(() => SongsEntity, (song) => song.daily, {
+  @ApiProperty({ type: () => SongEntity })
+  @OneToOne(() => SongEntity, (song) => song.daily, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
-  song: SongsEntity;
+  song: SongEntity;
 
   @ApiProperty({ type: Number })
   @Column({ type: 'bigint' })

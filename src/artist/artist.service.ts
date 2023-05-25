@@ -2,21 +2,21 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindQueryDto } from './dto/query/find.query.dto';
-import { ArtistsEntity } from 'src/core/entitys/main/artists.entity';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { ArtistEntity } from 'src/core/entitys/main/artistEntity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(
-    @InjectRepository(ArtistsEntity)
-    private readonly artistsRepository: Repository<ArtistsEntity>,
+    @InjectRepository(ArtistEntity)
+    private readonly artistRepository: Repository<ArtistEntity>,
 
-    @InjectRepository(SongsEntity)
-    private readonly songsRepository: Repository<SongsEntity>,
+    @InjectRepository(SongEntity)
+    private readonly songsRepository: Repository<SongEntity>,
   ) {}
 
-  async findAll(): Promise<Array<ArtistsEntity>> {
-    return await this.artistsRepository.find({
+  async findAll(): Promise<Array<ArtistEntity>> {
+    return await this.artistRepository.find({
       order: {
         order: 'ASC',
       },
@@ -27,8 +27,8 @@ export class ArtistService {
     });
   }
 
-  async findByGroup(group: string): Promise<Array<ArtistsEntity>> {
-    return await this.artistsRepository.find({
+  async findByGroup(group: string): Promise<Array<ArtistEntity>> {
+    return await this.artistRepository.find({
       where: {
         group: {
           en: group,
@@ -50,7 +50,7 @@ export class ArtistService {
     });
   }
 
-  async find(query: FindQueryDto): Promise<Array<SongsEntity>> {
+  async find(query: FindQueryDto): Promise<Array<SongEntity>> {
     const start = query.start || 0;
 
     let sort: string;

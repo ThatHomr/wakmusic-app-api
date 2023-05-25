@@ -3,37 +3,35 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FindChartsQueryDto } from './dto/query/find-charts.query.dto';
 import { ChartUpdatedEntity } from 'src/core/entitys/main/chartUpdated.entity';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @Injectable()
 export class ChartsService {
   constructor(
-    @InjectRepository(SongsEntity)
-    private readonly songsRepository: Repository<SongsEntity>,
+    @InjectRepository(SongEntity)
+    private readonly songRepository: Repository<SongEntity>,
     @InjectRepository(ChartUpdatedEntity)
     private readonly updatedRepository: Repository<ChartUpdatedEntity>,
   ) {}
 
-  async findOne(id: string): Promise<SongsEntity> {
-    return await this.songsRepository.findOne({
+  async findOne(id: string): Promise<SongEntity> {
+    return await this.songRepository.findOne({
       where: {
         songId: id,
       },
     });
   }
 
-  async findCharts(query: FindChartsQueryDto): Promise<Array<SongsEntity>> {
+  async findCharts(query: FindChartsQueryDto): Promise<Array<SongEntity>> {
     const type = query.type;
     const limit = query.limit || 10;
 
-    const songs = await this.songsRepository
+    return await this.songRepository
       .createQueryBuilder('songs')
       .innerJoinAndSelect(`songs.${type}`, type)
       .orderBy(type === 'total' ? `${type}.views` : `${type}.increase`, 'DESC')
       .limit(limit)
       .getMany();
-
-    return songs;
   }
 
   async findUpdated(): Promise<number> {

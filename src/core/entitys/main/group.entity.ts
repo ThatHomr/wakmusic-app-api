@@ -7,7 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ArtistsEntity } from './artists.entity';
+import { ArtistEntity } from './artistEntity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'group' })
@@ -17,13 +17,13 @@ export class GroupEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => ArtistsEntity })
-  @OneToOne(() => ArtistsEntity, (artist) => artist.group, {
+  @ApiProperty({ type: () => ArtistEntity })
+  @OneToOne(() => ArtistEntity, (artist) => artist.group, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'artist_id', referencedColumnName: 'id' })
-  artist: ArtistsEntity;
+  artist: ArtistEntity;
 
   @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })

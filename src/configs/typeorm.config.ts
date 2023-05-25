@@ -1,10 +1,10 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ArtistsEntity } from '../core/entitys/main/artists.entity';
+import { ArtistEntity } from '../core/entitys/main/artistEntity';
 import { NewsEntity } from '../core/entitys/main/news.entity';
-import { TeamsEntity } from '../core/entitys/main/teams.entity';
+import { TeamEntity } from '../core/entitys/main/team.entity';
 import { QnaEntity } from '../core/entitys/main/qna.entity';
 import { NoticeEntity } from '../core/entitys/main/notice.entity';
-import { CategoriesEntity } from '../core/entitys/main/categories.entity';
+import { CategoryEntity } from '../core/entitys/main/category.entity';
 import { ArtistImageVersionEntity } from 'src/core/entitys/main/artistImageVersion.entity';
 import { ChartDailyEntity } from 'src/core/entitys/main/chartDaily.entity';
 import { ChartHourlyEntity } from 'src/core/entitys/main/chartHourly.entity';
@@ -16,21 +16,21 @@ import { GroupEntity } from 'src/core/entitys/main/group.entity';
 import { LikeEntity } from 'src/core/entitys/main/like.entity';
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
 import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
-import { PlaylistCopyLogsEntity } from 'src/core/entitys/main/playlistCopyLogs.entity';
+import { PlaylistCopyLogEntity } from 'src/core/entitys/main/playlistCopyLog.entity';
 import { PlaylistImageEntity } from 'src/core/entitys/main/playlistImage.entity';
-import { PlaylistSongsEntity } from 'src/core/entitys/main/playlistSongs.entity';
+import { PlaylistSongEntity } from 'src/core/entitys/main/playlistSong.entity';
 import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
 import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
 import { RecommendedPlaylistImageEntity } from 'src/core/entitys/main/recommendedPlaylistImage.entity';
-import { RecommendedPlaylistSongsEntity } from 'src/core/entitys/main/recommendedPlaylistSongs.entity';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { RecommendedPlaylistSongEntity } from 'src/core/entitys/main/recommendedPlaylistSong.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 import { UserEntity } from 'src/core/entitys/main/user.entity';
-import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
-import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
-import { UserLikesSongsEntity } from 'src/core/entitys/main/userLikesSongs.entity';
-import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
-import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
-import { UserPlaylistPlaylistsEntity } from 'src/core/entitys/main/userPlaylistsPlaylists.entity';
+import { UserAccessLogEntity } from 'src/core/entitys/main/userAccessLog.entity';
+import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
+import { UserLikeSongEntity } from 'src/core/entitys/main/userLikeSong.entity';
+import { UserPermissionEntity } from 'src/core/entitys/main/userPermission.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
+import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
 import { EventEntity } from 'src/core/entitys/app/event.entity';
 import { VersionEntity } from 'src/core/entitys/app/version.entity';
 
@@ -43,8 +43,8 @@ export const mainDataSource: TypeOrmModuleOptions = {
   database: 'main',
   entities: [
     ArtistImageVersionEntity,
-    ArtistsEntity,
-    CategoriesEntity,
+    ArtistEntity,
+    CategoryEntity,
     ChartDailyEntity,
     ChartHourlyEntity,
     ChartMonthlyEntity,
@@ -57,23 +57,23 @@ export const mainDataSource: TypeOrmModuleOptions = {
     NoticeEntity,
     PlaylistEntity,
     PlaylistCopyEntity,
-    PlaylistCopyLogsEntity,
+    PlaylistCopyLogEntity,
     PlaylistImageEntity,
-    PlaylistSongsEntity,
+    PlaylistSongEntity,
     ProfileEntity,
     QnaEntity,
     RecommendedPlaylistEntity,
     RecommendedPlaylistImageEntity,
-    RecommendedPlaylistSongsEntity,
-    SongsEntity,
-    TeamsEntity,
+    RecommendedPlaylistSongEntity,
+    SongEntity,
+    TeamEntity,
     UserEntity,
-    UserAccessLogsEntity,
-    UserLikesEntity,
-    UserLikesSongsEntity,
-    UserPermissionsEntity,
-    UserPlaylistsEntity,
-    UserPlaylistPlaylistsEntity,
+    UserAccessLogEntity,
+    UserLikeEntity,
+    UserLikeSongEntity,
+    UserPermissionEntity,
+    UserPlaylistEntity,
+    UserPlaylistPlaylistEntity,
   ],
   bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,

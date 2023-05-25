@@ -8,20 +8,20 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserPlaylistsEntity } from './userPlaylists.entity';
+import { UserPlaylistEntity } from './userPlaylist.entity';
 import { PlaylistEntity } from './playlist.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user_playlist_playlists' })
-export class UserPlaylistPlaylistsEntity extends BaseEntity {
+export class UserPlaylistPlaylistEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => UserPlaylistsEntity })
+  @ApiProperty({ type: () => UserPlaylistEntity })
   @ManyToOne(
-    () => UserPlaylistsEntity,
+    () => UserPlaylistEntity,
     (userPlaylists) => userPlaylists.playlists,
     {
       onUpdate: 'CASCADE',
@@ -29,12 +29,12 @@ export class UserPlaylistPlaylistsEntity extends BaseEntity {
     },
   )
   @JoinColumn({ name: 'user_playlists_id', referencedColumnName: 'id' })
-  userPlaylists: UserPlaylistsEntity;
+  userPlaylist: UserPlaylistEntity;
 
   @Exclude()
   @ApiProperty({ type: Number })
   @Column({ name: 'user_playlists_id', type: 'bigint' })
-  userPlaylistsId: number;
+  userPlaylistId: number;
 
   @ApiProperty({ type: () => PlaylistEntity })
   @OneToOne(() => PlaylistEntity, (playlist) => playlist.id, {

@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -14,7 +13,7 @@ import { CheckLyricsQueryDto } from './dto/query/check-lyrics.query.dto';
 import { FindSongsByPeriodQueryDto } from './dto/query/find-songs-by-period.query.dto';
 import { ArtistService } from '../artist/artist.service';
 import * as vttParser from 'node-webvtt';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @Injectable()
 export class SongsService {
@@ -22,21 +21,12 @@ export class SongsService {
     @Inject(ArtistService)
     private readonly artistService: ArtistService,
 
-    @InjectRepository(SongsEntity)
-    private readonly songsRepositroy: Repository<SongsEntity>,
+    @InjectRepository(SongEntity)
+    private readonly songRepository: Repository<SongEntity>,
   ) {}
 
-  async findOne(id: string): Promise<SongsEntity> {
-    return await this.songsRepositroy.findOne({
-      where: { songId: id },
-      relations: {
-        total: true,
-      },
-    });
-  }
-
-  async findByIds(ids: Array<string>): Promise<Array<SongsEntity>> {
-    const unsortedSongs = await this.songsRepositroy.find({
+  async findByIds(ids: Array<string>): Promise<Array<SongEntity>> {
+    const unsortedSongs = await this.songRepository.find({
       where: {
         songId: In(ids),
       },
@@ -45,7 +35,7 @@ export class SongsService {
       },
     });
 
-    const sortedSongs: Map<number, SongsEntity> = new Map();
+    const sortedSongs: Map<number, SongEntity> = new Map();
 
     for (const song of unsortedSongs) {
       const idx = ids.indexOf(song.songId);
@@ -60,8 +50,8 @@ export class SongsService {
   }
 
   private handleTotalSongsSort(
-    a: [number, SongsEntity],
-    b: [number, SongsEntity],
+    a: [number, SongEntity],
+    b: [number, SongEntity],
   ): number {
     return a[0] - b[0];
   }
@@ -69,8 +59,8 @@ export class SongsService {
   async findNewSongs(
     artist?: string | FindOperator<any>,
     limit = 10,
-  ): Promise<Array<SongsEntity>> {
-    return await this.songsRepositroy.find({
+  ): Promise<Array<SongEntity>> {
+    return await this.songRepository.find({
       where: {
         artists: {
           artistId: artist || null,
@@ -86,11 +76,11 @@ export class SongsService {
     });
   }
 
-  async findNewSongsByMonth(): Promise<Array<SongsEntity>> {
+  async findNewSongsByMonth(): Promise<Array<SongEntity>> {
     const time = moment();
     const dateNow = time.format('YYMMDD');
     const dateStart = time.subtract(1, 'months').format('YYMMDD');
-    const newSongs = this.songsRepositroy
+    const newSongs = this.songRepository
       .createQueryBuilder('song')
       .leftJoinAndSelect('song.total', 'total')
       .where('song.date <= :dateNow', { dateNow })
@@ -100,19 +90,16 @@ export class SongsService {
     return await newSongs.getMany();
   }
 
-  async findNewSongsByGroup(group: string): Promise<Array<SongsEntity>> {
+  async findNewSongsByGroup(group: string): Promise<Array<SongEntity>> {
     if (group == 'all') return await this.findNewSongs();
 
     const artists = await this.artistService.findByGroup(group);
 
-    const artistsSongs = artists.reduce<Array<SongsEntity>>(
-      (songs, current) => {
-        songs.push(...current.songs);
+    const artistsSongs = artists.reduce<Array<SongEntity>>((songs, current) => {
+      songs.push(...current.songs);
 
-        return songs;
-      },
-      [],
-    );
+      return songs;
+    }, []);
 
     if (artistsSongs.length < 10) return artistsSongs;
 
@@ -121,7 +108,7 @@ export class SongsService {
 
   async findSongsByPeriod(
     query: FindSongsByPeriodQueryDto,
-  ): Promise<Array<SongsEntity>> {
+  ): Promise<Array<SongEntity>> {
     let startDate: string;
     let endDate: string;
 
@@ -136,7 +123,7 @@ export class SongsService {
       endDate = `${period}1232`;
     }
 
-    const songs = await this.songsRepositroy
+    const songs = await this.songRepository
       .createQueryBuilder('song')
       .leftJoinAndSelect('song.total', 'total')
       .where(`song.date >= :startDate`, { startDate })
@@ -148,7 +135,7 @@ export class SongsService {
 
   async findSongsBySearch(
     query: FindSongsQueryDto,
-  ): Promise<Array<SongsEntity>> {
+  ): Promise<Array<SongEntity>> {
     const keyword = decodeURI(query.keyword);
 
     let sort: string;
@@ -164,7 +151,7 @@ export class SongsService {
       order = true;
     }
 
-    const songsQueryBuilder = this.songsRepositroy
+    const songsQueryBuilder = this.songRepository
       .createQueryBuilder('song')
       .leftJoinAndSelect('song.total', 'total');
 
@@ -182,10 +169,10 @@ export class SongsService {
     return await songsQueryBuilder.getMany();
   }
 
-  async findSongsByLyrics(): Promise<Array<SongsEntity>> {
+  async findSongsByLyrics(): Promise<Array<SongEntity>> {
     const lyrics = fs.readdirSync(lyricsPath);
 
-    const songs = await this.songsRepositroy.find({
+    const songs = await this.songRepository.find({
       select: {
         id: true,
         songId: true,
@@ -222,35 +209,12 @@ export class SongsService {
     return vttParser.parse(lyricsFile, { strict: false }).cues;
   }
 
-  async validateSongs(
-    oldSongs: Array<string>,
-    editSongs: Array<string>,
-  ): Promise<void> {
-    if (oldSongs.length !== editSongs.length)
-      throw new BadRequestException('songs length not matching');
-
-    for (const song of editSongs) {
-      if (!oldSongs.includes(song))
-        throw new BadRequestException('invalid song included');
-    }
-
-    const songs = await this.songsRepositroy.find({
-      where: {
-        songId: In(editSongs),
-      },
-    });
-    if (songs.length !== editSongs.length)
-      throw new BadRequestException('invalid song included');
-  }
-
   async checkSongs(songIds: Array<string>): Promise<boolean> {
-    const songs = await this.songsRepositroy.find({
+    const songs = await this.songRepository.find({
       where: {
         songId: In(songIds),
       },
     });
-    if (songs.length !== songIds.length) return false;
-
-    return true;
+    return songs.length === songIds.length;
   }
 }

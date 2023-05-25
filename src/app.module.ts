@@ -11,7 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { appDataSource, mainDataSource } from './configs/typeorm.config';
 import { AuthModule } from './auth/auth.module';
 import { NewsEntity } from './core/entitys/main/news.entity';
-import { TeamsEntity } from './core/entitys/main/teams.entity';
+import { TeamEntity } from './core/entitys/main/team.entity';
 import { DataSource } from 'typeorm';
 import { ChartsModule } from './charts/charts.module';
 import { SongsModule } from './songs/songs.module';
@@ -71,7 +71,7 @@ import { EventEntity } from './core/entitys/app/event.entity';
     }),
     TypeOrmModule.forRoot(mainDataSource),
     TypeOrmModule.forRoot(appDataSource),
-    TypeOrmModule.forFeature([NewsEntity, TeamsEntity]),
+    TypeOrmModule.forFeature([NewsEntity, TeamEntity]),
     TypeOrmModule.forFeature([VersionEntity, EventEntity], 'app'),
     ChartsModule,
     SongsModule,

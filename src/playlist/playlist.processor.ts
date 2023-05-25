@@ -12,7 +12,7 @@ import { moment } from '../utils/moment.utils';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
-import { PlaylistCopyLogsEntity } from 'src/core/entitys/main/playlistCopyLogs.entity';
+import { PlaylistCopyLogEntity } from 'src/core/entitys/main/playlistCopyLog.entity';
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
 import { UserEntity } from 'src/core/entitys/main/user.entity';
 
@@ -28,8 +28,8 @@ export class PlaylistProcessor {
 
     @InjectRepository(PlaylistCopyEntity)
     private readonly playlistCopyRepository: Repository<PlaylistCopyEntity>,
-    @InjectRepository(PlaylistCopyLogsEntity)
-    private readonly playlistCopyLogRepository: Repository<PlaylistCopyLogsEntity>,
+    @InjectRepository(PlaylistCopyLogEntity)
+    private readonly playlistCopyLogRepository: Repository<PlaylistCopyLogEntity>,
   ) {}
 
   @Process('add_to_my_playlist')

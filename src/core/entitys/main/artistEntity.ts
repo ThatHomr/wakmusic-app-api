@@ -11,10 +11,10 @@ import { Exclude, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { GroupEntity } from './group.entity';
 import { ArtistImageVersionEntity } from './artistImageVersion.entity';
-import { SongsEntity } from './songs.entity';
+import { SongEntity } from './song.entity';
 
 @Entity({ name: 'artists' })
-export class ArtistsEntity extends BaseEntity {
+export class ArtistEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
@@ -45,8 +45,8 @@ export class ArtistsEntity extends BaseEntity {
   @OneToOne(() => GroupEntity, (group) => group.artist)
   group: GroupEntity;
 
-  @ApiProperty({ type: () => SongsEntity, isArray: true })
-  @ManyToMany(() => SongsEntity, (song) => song.artists, {
+  @ApiProperty({ type: () => SongEntity, isArray: true })
+  @ManyToMany(() => SongEntity, (song) => song.artists, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
@@ -61,7 +61,7 @@ export class ArtistsEntity extends BaseEntity {
       referencedColumnName: 'id',
     },
   })
-  songs: Array<SongsEntity>;
+  songs: Array<SongEntity>;
 
   @ApiProperty({ type: String, description: '한 줄 소개' })
   @Column({ type: 'longtext', nullable: true })

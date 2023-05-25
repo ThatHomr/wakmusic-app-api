@@ -9,18 +9,18 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserEntity } from './user.entity';
-import { UserPlaylistPlaylistsEntity } from './userPlaylistsPlaylists.entity';
+import { UserLikeSongEntity } from './userLikeSong.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'user_playlists' })
-export class UserPlaylistsEntity extends BaseEntity {
+@Entity({ name: 'user_likes' })
+export class UserLikeEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
   @ApiProperty({ type: () => UserEntity })
-  @OneToOne(() => UserEntity, (user) => user.playlists, {
+  @OneToOne(() => UserEntity, (user) => user.likes, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
@@ -32,10 +32,9 @@ export class UserPlaylistsEntity extends BaseEntity {
   @Column({ name: 'user_id', type: 'bigint', unique: true })
   userId: number;
 
-  @ApiProperty({ type: () => UserPlaylistPlaylistsEntity, isArray: true })
-  @OneToMany(
-    () => UserPlaylistPlaylistsEntity,
-    (playlists) => playlists.userPlaylists,
-  )
-  playlists: Array<UserPlaylistPlaylistsEntity>;
+  @ApiProperty({ type: () => UserLikeSongEntity, isArray: true })
+  @OneToMany(() => UserLikeSongEntity, (songs) => songs.userLike, {
+    eager: true,
+  })
+  likes: Array<UserLikeSongEntity>;
 }

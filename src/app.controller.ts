@@ -7,7 +7,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { NewsEntity } from './core/entitys/main/news.entity';
-import { TeamsEntity } from './core/entitys/main/teams.entity';
+import { TeamEntity } from './core/entitys/main/team.entity';
 import { SuccessDto } from './core/dto/success.dto';
 import { AppCheckQueryDto } from './core/dto/query/appCheck.query.dto';
 import { AppCheckResDto } from './core/dto/response/appCheck.res';
@@ -37,11 +37,11 @@ export class AppController {
   })
   @ApiCreatedResponse({
     description: '팀원 목록입니다.',
-    type: () => TeamsEntity,
+    type: () => TeamEntity,
     isArray: true,
   })
   @Get('/teams')
-  async findAllTeams(): Promise<Array<TeamsEntity>> {
+  async findAllTeams(): Promise<Array<TeamEntity>> {
     return await this.appService.findAllTeams();
   }
 

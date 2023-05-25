@@ -2,8 +2,8 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { FindQueryDto } from './dto/query/find.query.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ArtistsEntity } from 'src/core/entitys/main/artists.entity';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { ArtistEntity } from 'src/core/entitys/main/artistEntity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 const ARTIST_EXAMPLE = {
   id: 'woowakgood',
@@ -48,7 +48,7 @@ export class ArtistController {
     },
   })
   @Get('/list')
-  async findAll(): Promise<Array<ArtistsEntity>> {
+  async findAll(): Promise<Array<ArtistEntity>> {
     return await this.artistService.findAll();
   }
 
@@ -58,11 +58,11 @@ export class ArtistController {
   })
   @ApiOkResponse({
     description: '아티스트 노래 목록',
-    type: () => SongsEntity,
+    type: () => SongEntity,
     isArray: true,
   })
   @Get('/albums')
-  async find(@Query() query: FindQueryDto): Promise<Array<SongsEntity>> {
+  async find(@Query() query: FindQueryDto): Promise<Array<SongEntity>> {
     return await this.artistService.find(query);
   }
 }

@@ -10,7 +10,7 @@ import {
 import { UserEntity } from './user.entity';
 
 @Entity({ name: 'user_access_logs' })
-export class UserAccessLogsEntity extends BaseEntity {
+export class UserAccessLogEntity extends BaseEntity {
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;

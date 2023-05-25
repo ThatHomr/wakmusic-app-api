@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { PlaylistImageEntity } from './playlistImage.entity';
-import { PlaylistSongsEntity } from './playlistSongs.entity';
+import { PlaylistSongEntity } from './playlistSong.entity';
 import { Exclude, Transform } from 'class-transformer';
 
 @Entity({ name: 'playlist' })
@@ -44,12 +44,12 @@ export class PlaylistEntity extends BaseEntity {
   @JoinColumn({ name: 'image_id', referencedColumnName: 'id' })
   image: PlaylistImageEntity;
 
-  @Transform(({ value }: { value: Array<PlaylistSongsEntity> }) =>
+  @Transform(({ value }: { value: Array<PlaylistSongEntity> }) =>
     value.map((song) => song.song),
   )
-  @ApiProperty({ type: () => PlaylistSongsEntity, isArray: true })
-  @OneToMany(() => PlaylistSongsEntity, (songs) => songs.playlist)
-  songs: Array<PlaylistSongsEntity>;
+  @ApiProperty({ type: () => PlaylistSongEntity, isArray: true })
+  @OneToMany(() => PlaylistSongEntity, (songs) => songs.playlist)
+  songs: Array<PlaylistSongEntity>;
 
   @ApiProperty({ type: Number })
   @Column({ name: 'create_at', type: 'bigint' })

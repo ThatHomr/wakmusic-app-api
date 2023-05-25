@@ -7,7 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { SongsEntity } from './songs.entity';
+import { SongEntity } from './song.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'like' })
@@ -17,13 +17,13 @@ export class LikeEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => SongsEntity })
-  @OneToOne(() => SongsEntity, (song) => song.like, {
+  @ApiProperty({ type: () => SongEntity })
+  @OneToOne(() => SongEntity, (song) => song.like, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
-  song: SongsEntity;
+  song: SongEntity;
 
   @Exclude()
   @ApiProperty({ type: Number })

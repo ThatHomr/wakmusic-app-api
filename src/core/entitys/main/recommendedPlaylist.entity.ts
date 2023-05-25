@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { RecommendedPlaylistImageEntity } from './recommendedPlaylistImage.entity';
-import { RecommendedPlaylistSongsEntity } from './recommendedPlaylistSongs.entity';
+import { RecommendedPlaylistSongEntity } from './recommendedPlaylistSong.entity';
 import { Exclude, Transform } from 'class-transformer';
 
 @Entity({ name: 'recommended_playlist' })
@@ -26,12 +26,12 @@ export class RecommendedPlaylistEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   title: string;
 
-  @Transform(({ value }: { value: Array<RecommendedPlaylistSongsEntity> }) =>
+  @Transform(({ value }: { value: Array<RecommendedPlaylistSongEntity> }) =>
     value.map((song) => song.song),
   )
-  @ApiProperty({ type: () => RecommendedPlaylistSongsEntity, isArray: true })
-  @OneToMany(() => RecommendedPlaylistSongsEntity, (songs) => songs.playlist)
-  songs: Array<RecommendedPlaylistSongsEntity>;
+  @ApiProperty({ type: () => RecommendedPlaylistSongEntity, isArray: true })
+  @OneToMany(() => RecommendedPlaylistSongEntity, (songs) => songs.playlist)
+  songs: Array<RecommendedPlaylistSongEntity>;
 
   @ApiProperty({ type: () => RecommendedPlaylistImageEntity })
   @OneToOne(() => RecommendedPlaylistImageEntity, (image) => image.playlist, {

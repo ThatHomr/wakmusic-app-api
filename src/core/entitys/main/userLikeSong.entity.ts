@@ -7,24 +7,24 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserLikesEntity } from './userLikes.entity';
+import { UserLikeEntity } from './userLike.entity';
 import { LikeEntity } from './like.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'user_likes_songs' })
-export class UserLikesSongsEntity extends BaseEntity {
+export class UserLikeSongEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => UserLikesEntity })
-  @ManyToOne(() => UserLikesEntity, (userLikes) => userLikes.likes, {
+  @ApiProperty({ type: () => UserLikeEntity })
+  @ManyToOne(() => UserLikeEntity, (userLikes) => userLikes.likes, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'user_likes_id', referencedColumnName: 'id' })
-  userLikes: UserLikesEntity;
+  userLike: UserLikeEntity;
 
   @ApiProperty({ type: () => LikeEntity })
   @ManyToOne(() => LikeEntity, (like) => like.id, {

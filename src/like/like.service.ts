@@ -10,14 +10,13 @@ import {
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
 import { ChartsService } from '../charts/charts.service';
-import { LikeDto } from './dto/like.dto';
 import { SongsService } from '../songs/songs.service';
 import { Cache } from 'cache-manager';
 import { LikeEntity } from 'src/core/entitys/main/like.entity';
-import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
-import { UserLikesSongsEntity } from 'src/core/entitys/main/userLikesSongs.entity';
+import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
+import { UserLikeSongEntity } from 'src/core/entitys/main/userLikeSong.entity';
 import { UserService } from 'src/user/user.service';
-import { SongsEntity } from 'src/core/entitys/main/songs.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @Injectable()
 export class LikeService {
@@ -32,10 +31,10 @@ export class LikeService {
 
     @InjectRepository(LikeEntity)
     private readonly likeRepository: Repository<LikeEntity>,
-    @InjectRepository(UserLikesEntity)
-    private readonly userLikesRepository: Repository<UserLikesEntity>,
-    @InjectRepository(UserLikesSongsEntity)
-    private readonly userLikesSongsRepository: Repository<UserLikesSongsEntity>,
+    @InjectRepository(UserLikeEntity)
+    private readonly userLikeRepository: Repository<UserLikeEntity>,
+    @InjectRepository(UserLikeSongEntity)
+    private readonly userLikeSongRepository: Repository<UserLikeSongEntity>,
 
     @InjectDataSource()
     private readonly dataSource: DataSource,
@@ -62,42 +61,14 @@ export class LikeService {
     return like;
   }
 
-  async findByIds(songIds: Array<string>): Promise<Array<LikeDto>> {
-    const unsortedLikes = await this.likeRepository.find({
-      where: {
-        song: {
-          songId: In(songIds),
-        },
-      },
-      relations: {
-        song: {
-          total: true,
-        },
-      },
-    });
-
-    const sortedLikes: Map<number, LikeDto> = new Map();
-
-    for (const like of unsortedLikes) {
-      const idx = songIds.indexOf(like.song.songId);
-      if (idx < 0) throw new InternalServerErrorException();
-
-      sortedLikes.set(idx, like);
-    }
-
-    return Array.from(
-      new Map([...sortedLikes].sort((a, b) => a[0] - b[0])).values(),
-    );
-  }
-
-  async create(song: SongsEntity): Promise<LikeEntity> {
+  async create(song: SongEntity): Promise<LikeEntity> {
     const like = this.likeRepository.create();
     like.songId = song.id;
     like.likes = 0;
 
     await this.likeRepository.insert(like);
 
-    const savedLike = await this.likeRepository.findOne({
+    return await this.likeRepository.findOne({
       relations: {
         song: {
           total: true,
@@ -107,8 +78,6 @@ export class LikeService {
         songId: song.id,
       },
     });
-
-    return savedLike;
   }
 
   async deleteByIds(songIds: Array<string>): Promise<void> {
@@ -156,8 +125,8 @@ export class LikeService {
           ).order
         : 0;
 
-    const userLikeSongs = this.userLikesSongsRepository.create({
-      userLikes: userLikes,
+    const userLikeSongs = this.userLikeSongRepository.create({
+      userLike: userLikes,
       like: like,
       order: maxOrder + 1,
     });
@@ -167,7 +136,7 @@ export class LikeService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.insert(UserLikesSongsEntity, userLikeSongs);
+      await queryRunner.manager.insert(UserLikeSongEntity, userLikeSongs);
       await queryRunner.manager.update(
         LikeEntity,
         { id: like.id },
@@ -233,8 +202,8 @@ export class LikeService {
     return like;
   }
 
-  async getUserLikes(userId: string): Promise<UserLikesEntity> {
-    let userLikes = await this.userLikesRepository.findOne({
+  async getUserLikes(userId: string): Promise<UserLikeEntity> {
+    let userLikes = await this.userLikeRepository.findOne({
       where: {
         user: {
           userId: userId,
@@ -261,14 +230,14 @@ export class LikeService {
     return userLikes;
   }
 
-  async createUserLikes(userId: string): Promise<UserLikesEntity> {
+  async createUserLikes(userId: string): Promise<UserLikeEntity> {
     const user = await this.userService.findOneById(userId);
-    const newUserLikes = this.userLikesRepository.create({
+    const newUserLikes = this.userLikeRepository.create({
       user: user,
       likes: [],
     });
-    await this.userLikesRepository.insert(newUserLikes);
-    return await this.userLikesRepository.findOne({
+    await this.userLikeRepository.insert(newUserLikes);
+    return await this.userLikeRepository.findOne({
       relations: {
         user: true,
         likes: {
@@ -297,7 +266,7 @@ export class LikeService {
       if (order === 0)
         throw new InternalServerErrorException('error while sorting songs.');
 
-      await this.userLikesSongsRepository.update(
+      await this.userLikeSongRepository.update(
         {
           id: userLikeSongs.id,
         },
@@ -335,7 +304,7 @@ export class LikeService {
 
     await this.deleteByIds(songs);
 
-    const removedEntitys: Array<UserLikesSongsEntity> = [];
+    const removedEntitys: Array<UserLikeSongEntity> = [];
 
     for (const song of songs) {
       const songIdx = userSongs.indexOf(song);
@@ -345,7 +314,7 @@ export class LikeService {
       removedEntitys.push(deletedEntitys);
     }
 
-    await this.userLikesSongsRepository.delete({
+    await this.userLikeSongRepository.delete({
       id: In(removedEntitys.map((entity) => entity.id)),
     });
     await Promise.all(
@@ -360,7 +329,7 @@ export class LikeService {
   ): void {
     for (const song of deleteSongs) {
       if (!currentSongs.includes(song))
-        throw new BadRequestException('invaild song included');
+        throw new BadRequestException('invalid song included');
     }
   }
 

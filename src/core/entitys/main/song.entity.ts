@@ -7,7 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ArtistsEntity } from './artists.entity';
+import { ArtistEntity } from './artistEntity';
 import { LikeEntity } from './like.entity';
 import { ChartHourlyEntity } from './chartHourly.entity';
 import { ChartDailyEntity } from './chartDaily.entity';
@@ -17,7 +17,7 @@ import { ChartTotalEntity } from './chartTotal.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'songs' })
-export class SongsEntity extends BaseEntity {
+export class SongEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
@@ -35,9 +35,9 @@ export class SongsEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   artist: string;
 
-  @ApiProperty({ type: () => ArtistsEntity, isArray: true })
-  @ManyToMany(() => ArtistsEntity, (artist) => artist.songs, {})
-  artists: Array<ArtistsEntity>;
+  @ApiProperty({ type: () => ArtistEntity, isArray: true })
+  @ManyToMany(() => ArtistEntity, (artist) => artist.songs, {})
+  artists: Array<ArtistEntity>;
 
   @ApiProperty({ type: () => LikeEntity })
   @OneToOne(() => LikeEntity, (like) => like.song)

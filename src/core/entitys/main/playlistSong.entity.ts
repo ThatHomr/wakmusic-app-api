@@ -7,33 +7,39 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { RecommendedPlaylistEntity } from './recommendedPlaylist.entity';
-import { SongsEntity } from './songs.entity';
+import { PlaylistEntity } from './playlist.entity';
+import { SongEntity } from './song.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'recommended_playlist_songs' })
-export class RecommendedPlaylistSongsEntity extends BaseEntity {
+@Entity({ name: 'playlist_songs' })
+export class PlaylistSongEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => RecommendedPlaylistEntity })
-  @ManyToOne(() => RecommendedPlaylistEntity, (playlist) => playlist.songs, {
+  @ApiProperty({ type: () => PlaylistEntity })
+  @ManyToOne(() => PlaylistEntity, (playlist) => playlist.songs, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'playlist_id', referencedColumnName: 'id' })
-  playlist: RecommendedPlaylistEntity;
+  playlist: PlaylistEntity;
 
-  @ApiProperty({ type: () => SongsEntity })
-  @ManyToOne(() => SongsEntity, (song) => song.id, {
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ name: 'playlist_id', type: 'bigint' })
+  playlistId: number;
+
+  @ApiProperty({ type: () => SongEntity })
+  @ManyToOne(() => SongEntity, (song) => song.id, {
     onUpdate: 'CASCADE',
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'song_id', referencedColumnName: 'id' })
-  song: SongsEntity;
+  song: SongEntity;
 
+  @Exclude()
   @ApiProperty({ type: Number })
   @Column({ type: 'bigint' })
   order: number;

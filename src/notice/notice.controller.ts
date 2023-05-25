@@ -3,7 +3,7 @@ import { NoticeService } from './notice.service';
 import { NoticeEntity } from '../core/entitys/main/notice.entity';
 import { CategoriesService } from '../categories/categories.service';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CategoriesEntity } from 'src/core/entitys/main/categories.entity';
+import { CategoryEntity } from 'src/core/entitys/main/category.entity';
 
 @ApiTags('notice')
 @Controller('notice')
@@ -60,11 +60,11 @@ export class NoticeController {
   })
   @ApiOkResponse({
     description: '카테고리들',
-    type: () => CategoriesEntity,
+    type: () => CategoryEntity,
     isArray: true,
   })
   @Get('/categories')
-  async getAllCategories(): Promise<Array<CategoriesEntity>> {
+  async getAllCategories(): Promise<Array<CategoryEntity>> {
     return await this.categoriesService.findCategoriesByType('notice');
   }
 }

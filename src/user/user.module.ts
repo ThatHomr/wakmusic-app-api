@@ -8,20 +8,20 @@ import { SongsModule } from '../songs/songs.module';
 import { CategoriesModule } from '../categories/categories.module';
 import { UserEntity } from 'src/core/entitys/main/user.entity';
 import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
-import { UserPlaylistsEntity } from 'src/core/entitys/main/userPlaylists.entity';
-import { UserPermissionsEntity } from 'src/core/entitys/main/userPermissions.entity';
-import { UserAccessLogsEntity } from 'src/core/entitys/main/userAccessLogs.entity';
-import { UserLikesEntity } from 'src/core/entitys/main/userLikes.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
+import { UserPermissionEntity } from 'src/core/entitys/main/userPermission.entity';
+import { UserAccessLogEntity } from 'src/core/entitys/main/userAccessLog.entity';
+import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       UserEntity,
       ProfileEntity,
-      UserPlaylistsEntity,
-      UserLikesEntity,
-      UserPermissionsEntity,
-      UserAccessLogsEntity,
+      UserPlaylistEntity,
+      UserLikeEntity,
+      UserPermissionEntity,
+      UserAccessLogEntity,
     ]),
     PlaylistModule,
     LikeModule,

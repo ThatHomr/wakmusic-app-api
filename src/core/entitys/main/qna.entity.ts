@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { CategoriesEntity } from './categories.entity';
+import { CategoryEntity } from './category.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'qna' })
@@ -17,13 +17,13 @@ export class QnaEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => CategoriesEntity })
-  @ManyToOne(() => CategoriesEntity, (category) => category.id, {
+  @ApiProperty({ type: () => CategoryEntity })
+  @ManyToOne(() => CategoryEntity, (category) => category.id, {
     onUpdate: 'CASCADE',
     onDelete: 'SET NULL',
   })
   @JoinColumn({ name: 'category_id', referencedColumnName: 'id' })
-  category: CategoriesEntity;
+  category: CategoryEntity;
 
   @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255, unique: true })
