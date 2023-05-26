@@ -27,6 +27,7 @@ import { UserService } from 'src/user/user.service';
 import { PlaylistSongEntity } from 'src/core/entitys/main/playlistSong.entity';
 import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
+import { getError } from 'src/utils/error.utils';
 
 @Injectable()
 export class PlaylistService {
@@ -318,13 +319,17 @@ export class PlaylistService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+
+      this.logger.error(getError(err));
       throw new InternalServerErrorException('failed to create playlist.');
     } finally {
       await queryRunner.release();
     }
 
-    if (!savedPlaylist)
+    if (!savedPlaylist) {
+      this.logger.error(getError('failed to create playlist.'));
       throw new InternalServerErrorException('failed to create playlist.');
+    }
 
     await this.cacheManager.del(`(${user.userId}) /api/user/playlists`);
 
@@ -523,7 +528,7 @@ export class PlaylistService {
     } catch (err) {
       await queryRunner.rollbackTransaction();
 
-      this.logger.error(err);
+      this.logger.error(getError(err));
       throw new InternalServerErrorException('failed to save edited playlist.');
     } finally {
       await queryRunner.release();
@@ -577,6 +582,9 @@ export class PlaylistService {
       playlist.songs.map((song) => song.song),
     );
     if (newPlaylist === null) {
+      this.logger.error(
+        getError('Failed to create playlist. please try again.'),
+      );
       throw new InternalServerErrorException(
         'Failed to create playlist. please try again.',
       );
