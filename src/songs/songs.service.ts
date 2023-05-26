@@ -2,6 +2,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { moment } from '../utils/moment.utils';
 import { FindOperator, In, Repository } from 'typeorm';
@@ -17,6 +18,8 @@ import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @Injectable()
 export class SongsService {
+  private logger = new Logger(SongsService.name);
+
   constructor(
     @Inject(ArtistService)
     private readonly artistService: ArtistService,
@@ -39,7 +42,10 @@ export class SongsService {
 
     for (const song of unsortedSongs) {
       const idx = ids.indexOf(song.songId);
-      if (idx < 0) throw new InternalServerErrorException();
+      if (idx < 0) {
+        this.logger.error('error while sorting songs.');
+        throw new InternalServerErrorException('unexpected error occurred.');
+      }
 
       sortedSongs.set(idx, song);
     }

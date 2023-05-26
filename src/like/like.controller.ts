@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   InternalServerErrorException,
+  Logger,
   Param,
   Post,
   Req,
@@ -18,10 +19,12 @@ import {
 } from '@nestjs/swagger';
 import { LikeResponseDto } from './dto/response/like.response.dto';
 import { LikeEntity } from 'src/core/entitys/main/like.entity';
+import { getError } from 'src/utils/error.utils';
 
 @ApiTags('like')
 @Controller('like')
 export class LikeController {
+  private logger = new Logger(LikeController.name);
   constructor(private readonly likeService: LikeService) {}
 
   @ApiOperation({ summary: '좋아요 수', description: '좋아요를 가져옵니다.' })
@@ -47,7 +50,10 @@ export class LikeController {
       songId,
       (req.user as JwtPayload).id,
     );
-    if (!like) throw new InternalServerErrorException();
+    if (!like) {
+      this.logger.error(getError(`failed to add ${songId} like.`));
+      throw new InternalServerErrorException(`failed to add ${songId} like.`);
+    }
 
     return {
       status: 200,
@@ -71,7 +77,12 @@ export class LikeController {
       songId,
       (req.user as JwtPayload).id,
     );
-    if (!like) throw new InternalServerErrorException();
+    if (!like) {
+      this.logger.error(getError(`failed to remove ${songId} like.`));
+      throw new InternalServerErrorException(
+        `failed to remove ${songId} like.`,
+      );
+    }
 
     return {
       status: 200,

@@ -10,6 +10,7 @@ import {
   Req,
   Patch,
   Delete,
+  Logger,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
@@ -33,10 +34,12 @@ import { PlaylistAddSongsBodyDto } from './dto/body/playlist-add-songs.body.dto'
 import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.response.dto';
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
 import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
+import { getError } from 'src/utils/error.utils';
 
 @ApiTags('playlist')
 @Controller('playlist')
 export class PlaylistController {
+  private logger = new Logger(PlaylistController.name);
   constructor(private readonly playlistService: PlaylistService) {}
 
   @ApiOperation({
@@ -119,10 +122,12 @@ export class PlaylistController {
     @Body() body: PlaylistCreateBodyDto,
   ): Promise<PlaylistCreateResponseDto> {
     const playlist = await this.playlistService.create(user.id, body);
-    if (!playlist)
+    if (!playlist) {
+      this.logger.error(getError('failed to generate playlist key.'));
       throw new InternalServerErrorException(
         '플레이리스트를 생성하는데 실패하였습니다.',
       );
+    }
 
     return {
       status: 200,
@@ -252,7 +257,10 @@ export class PlaylistController {
       key,
       (req.user as JwtPayload).id,
     );
-    if (!playlist) throw new InternalServerErrorException();
+    if (!playlist) {
+      this.logger.error(getError('failed to delete playlist.'));
+      throw new InternalServerErrorException('failed to delete playlist.');
+    }
 
     return {
       status: 200,
@@ -276,7 +284,12 @@ export class PlaylistController {
   ): Promise<PlaylistCreateResponseDto> {
     const playlist = await this.playlistService.addToMyPlaylist(key, user.id);
 
-    if (!playlist) throw new InternalServerErrorException();
+    if (!playlist) {
+      this.logger.error('failed to copy playlist to my playlists.');
+      throw new InternalServerErrorException(
+        'failed to copy playlist to my playlists.',
+      );
+    }
 
     return {
       status: 200,

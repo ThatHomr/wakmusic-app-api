@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
@@ -17,9 +18,12 @@ import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
 import { UserLikeSongEntity } from 'src/core/entitys/main/userLikeSong.entity';
 import { UserService } from 'src/user/user.service';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
+import { getError } from 'src/utils/error.utils';
 
 @Injectable()
 export class LikeService {
+  private logger = new Logger(LikeService.name);
+
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -146,6 +150,8 @@ export class LikeService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+
+      this.logger.error(getError(err));
       throw new InternalServerErrorException('failed to add like.');
     } finally {
       await queryRunner.release();
@@ -189,6 +195,8 @@ export class LikeService {
       await queryRunner.commitTransaction();
     } catch (err) {
       await queryRunner.rollbackTransaction();
+
+      this.logger.error(getError(err));
       throw new InternalServerErrorException('failed to remove like.');
     } finally {
       await queryRunner.release();
@@ -263,8 +271,10 @@ export class LikeService {
 
     for (const userLikeSongs of userLikes.likes) {
       const order = songs.indexOf(userLikeSongs.like.song.songId) + 1;
-      if (order === 0)
-        throw new InternalServerErrorException('error while sorting songs.');
+      if (order === 0) {
+        this.logger.error(getError('error while sorting songs.'));
+        throw new InternalServerErrorException('unexpected error occurred.');
+      }
 
       await this.userLikeSongRepository.update(
         {
@@ -308,7 +318,10 @@ export class LikeService {
 
     for (const song of songs) {
       const songIdx = userSongs.indexOf(song);
-      if (songIdx < 0) throw new InternalServerErrorException();
+      if (songIdx < 0) {
+        this.logger.error(getError('error while deleting songs.'));
+        throw new InternalServerErrorException('unexpected error occurred.');
+      }
 
       const deletedEntitys = userLikes.likes[songIdx];
       removedEntitys.push(deletedEntitys);

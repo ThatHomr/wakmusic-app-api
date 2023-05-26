@@ -3,6 +3,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
@@ -29,6 +30,8 @@ import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
 
 @Injectable()
 export class UserService {
+  private logger = new Logger(UserService.name);
+
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -91,8 +94,10 @@ export class UserService {
         type: 'panchi',
       },
     });
-    if (!profile)
-      throw new InternalServerErrorException('failed to find profile entity.');
+    if (!profile) {
+      this.logger.error('failed to find profile entity.');
+      throw new InternalServerErrorException('unexpected error occurred.');
+    }
 
     const newUser = this.userRepository.create();
     newUser.userId = OAuthUser.id;
@@ -116,8 +121,10 @@ export class UserService {
           userId: newUser.userId,
         },
       });
-      if (!user)
+      if (!user) {
+        this.logger.error('failed to create new user.');
         throw new InternalServerErrorException('failed to create new user.');
+      }
 
       const userPermissions = this.userPermissionRepository.create({
         user: user,
@@ -141,8 +148,10 @@ export class UserService {
       await queryRunner.release();
     }
 
-    if (!user)
+    if (!user) {
+      this.logger.error('failed to create new user.');
       throw new InternalServerErrorException('failed to create new user.');
+    }
 
     return user;
   }
@@ -226,7 +235,10 @@ export class UserService {
 
     for (const playlist of unsortedPlaylistsDetail) {
       const idx = playlistKeys.indexOf(playlist.key);
-      if (idx < 0) throw new InternalServerErrorException();
+      if (idx < 0) {
+        this.logger.error('error while sorting songs.');
+        throw new InternalServerErrorException('unexpected error occurred.');
+      }
 
       sortedPlaylists.set(idx, playlist);
     }

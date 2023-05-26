@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { NewsEntity } from './core/entitys/main/news.entity';
@@ -12,9 +13,12 @@ import { VersionEntity } from './core/entitys/app/version.entity';
 import { EventEntity } from './core/entitys/app/event.entity';
 import { AppCheckResDto } from './core/dto/response/appCheck.res';
 import { AppCheckFlagTypes } from './core/constants';
+import { getError } from './utils/error.utils';
 
 @Injectable()
 export class AppService {
+  private logger = new Logger(AppService.name);
+
   constructor(
     @InjectRepository(NewsEntity)
     private readonly newsRepository: Repository<NewsEntity>,
@@ -68,6 +72,7 @@ export class AppService {
     });
 
     if (versions.length === 0) {
+      this.logger.error(getError('an unexpected error occurred.'));
       throw new InternalServerErrorException('an unexpected error occurred.');
     }
 
