@@ -269,6 +269,8 @@ export class LikeService {
       songs,
     );
 
+    const orderData: Array<[number, number]> = [];
+
     for (const userLikeSongs of userLikes.likes) {
       const order = songs.indexOf(userLikeSongs.like.song.songId) + 1;
       if (order === 0) {
@@ -276,15 +278,31 @@ export class LikeService {
         throw new InternalServerErrorException('unexpected error occurred.');
       }
 
-      await this.userLikeSongRepository.update(
-        {
-          id: userLikeSongs.id,
-        },
-        {
-          order: order,
-        },
-      );
-      userLikeSongs.order = order;
+      orderData.push([userLikeSongs.id, order]);
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      for (const data of orderData) {
+        await queryRunner.manager.update(
+          UserLikeSongEntity,
+          { id: data[0] },
+          { order: data[1] },
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+
+      this.logger.error(getError(err));
+      throw new InternalServerErrorException('unexpected error occurred.');
+    } finally {
+      await queryRunner.release();
     }
 
     await this.cacheManager.del(`(${userId}) /api/user/likes`);

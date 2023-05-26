@@ -659,18 +659,37 @@ export class PlaylistService {
       (playlist) => playlist.playlist.key,
     );
 
+    const orderData: Array<[number, number]> = [];
+
     for (let i = 0; i < playlists.length; i++) {
       const playlistIdx = userPlaylists.indexOf(playlists[i]);
       userPlaylistPlaylistsEntities[playlistIdx].order = i + 1;
 
-      await this.userPlaylistPlaylistRepository.update(
-        {
-          id: userPlaylistPlaylistsEntities[playlistIdx].id,
-        },
-        {
-          order: userPlaylistPlaylistsEntities[playlistIdx].order,
-        },
-      );
+      orderData.push([userPlaylistPlaylistsEntities[playlistIdx].id, i + 1]);
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      for (const data of orderData) {
+        await queryRunner.manager.update(
+          UserPlaylistPlaylistEntity,
+          { id: data[0] },
+          { order: data[1] },
+        );
+      }
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+
+      this.logger.error(getError(err));
+      throw new InternalServerErrorException('unexpected error occurred.');
+    } finally {
+      await queryRunner.release();
     }
 
     await this.cacheManager.del(`(${id}) /api/user/playlists`);
