@@ -370,18 +370,18 @@ export class PlaylistService {
     );
     if (validSongIds.length !== songIds.length) duplicated = true;
 
-    const addedSongs = await this.createPlaylistSongs(
+    const addedSongsCount = await this.createPlaylistSongs(
       playlistEntity,
       validSongIds,
     );
-    if (addedSongs.length == 0) throw new BadRequestException('no songs added');
+    if (addedSongsCount == 0) throw new BadRequestException('no songs added');
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
     await this.cacheManager.del(`(${userId}) /api/user/playlists`);
 
     return {
       status: 200,
-      addedSongsLength: addedSongs.length,
+      addedSongsLength: addedSongsCount,
       duplicated: duplicated,
     };
   }
@@ -389,7 +389,7 @@ export class PlaylistService {
   async createPlaylistSongs(
     playlist: PlaylistEntity,
     songIds: Array<string>,
-  ): Promise<Array<PlaylistSongEntity>> {
+  ): Promise<number> {
     const prevMaxOrder =
       playlist.songs.length !== 0
         ? playlist.songs.reduce((prev, current) =>
@@ -408,12 +408,11 @@ export class PlaylistService {
       playlistSongEntities.push(playlistSongEntity);
     }
 
-    await this.playlistSongRepository.insert(playlistSongEntities);
+    const insertResult = await this.playlistSongRepository.insert(
+      playlistSongEntities,
+    );
 
-    return await this.playlistSongRepository.find({
-      relations: { song: { total: true } },
-      where: { playlistId: playlist.id },
-    });
+    return insertResult.generatedMaps.length;
   }
 
   // async removeSongsToPlaylist(
