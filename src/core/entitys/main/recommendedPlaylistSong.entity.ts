@@ -11,7 +11,7 @@ import { RecommendedPlaylistEntity } from './recommendedPlaylist.entity';
 import { SongEntity } from './song.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'recommended_playlist_songs' })
+@Entity({ name: 'recommended_playlist_song' })
 export class RecommendedPlaylistSongEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })

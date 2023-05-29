@@ -10,7 +10,7 @@ import {
 import { UserEntity } from './user.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'user_permissions' })
+@Entity({ name: 'user_permission' })
 export class UserPermissionEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })

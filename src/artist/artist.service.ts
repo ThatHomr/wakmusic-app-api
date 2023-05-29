@@ -12,7 +12,7 @@ export class ArtistService {
     private readonly artistRepository: Repository<ArtistEntity>,
 
     @InjectRepository(SongEntity)
-    private readonly songsRepository: Repository<SongEntity>,
+    private readonly songRepository: Repository<SongEntity>,
   ) {}
 
   async findAll(): Promise<Array<ArtistEntity>> {
@@ -57,20 +57,20 @@ export class ArtistService {
     let desc: boolean;
 
     if (query.sort == 'new') {
-      sort = 'songs.date';
+      sort = 'song.date';
       desc = true;
     } else if (query.sort == 'old') {
-      sort = 'songs.date';
+      sort = 'song.date';
       desc = false;
     } else if (query.sort == 'popular') {
       sort = 'total.views';
       desc = true;
     }
 
-    const songs = await this.songsRepository
-      .createQueryBuilder('songs')
-      .leftJoin('songs.artists', 'artists')
-      .leftJoinAndSelect('songs.total', 'total')
+    const songs = await this.songRepository
+      .createQueryBuilder('song')
+      .leftJoin('song.artists', 'artists')
+      .leftJoinAndSelect('song.total', 'total')
       .where('artists.artistId = :artistId', { artistId: query.id })
       .orderBy(sort, desc ? 'DESC' : 'ASC')
       .getMany();

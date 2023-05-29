@@ -11,7 +11,7 @@ import { UserLikeEntity } from './userLike.entity';
 import { LikeEntity } from './like.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'user_likes_songs' })
+@Entity({ name: 'user_like_song' })
 export class UserLikeSongEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })

@@ -16,7 +16,7 @@ import { ChartMonthlyEntity } from './chartMonthly.entity';
 import { ChartTotalEntity } from './chartTotal.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'songs' })
+@Entity({ name: 'song' })
 export class SongEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })

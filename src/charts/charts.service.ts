@@ -27,8 +27,8 @@ export class ChartsService {
     const limit = query.limit || 10;
 
     return await this.songRepository
-      .createQueryBuilder('songs')
-      .innerJoinAndSelect(`songs.${type}`, type)
+      .createQueryBuilder('song')
+      .innerJoinAndSelect(`song.${type}`, type)
       .orderBy(type === 'total' ? `${type}.views` : `${type}.increase`, 'DESC')
       .limit(limit)
       .getMany();

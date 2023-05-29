@@ -2,7 +2,7 @@ import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'categories' })
+@Entity({ name: 'category' })
 export class CategoryEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })

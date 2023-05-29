@@ -13,7 +13,7 @@ import { GroupEntity } from './group.entity';
 import { ArtistImageVersionEntity } from './artistImageVersion.entity';
 import { SongEntity } from './song.entity';
 
-@Entity({ name: 'artists' })
+@Entity({ name: 'artist' })
 export class ArtistEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })

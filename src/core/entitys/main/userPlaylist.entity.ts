@@ -12,7 +12,7 @@ import { UserEntity } from './user.entity';
 import { UserPlaylistPlaylistEntity } from './userPlaylistPlaylist.entity';
 import { Exclude } from 'class-transformer';
 
-@Entity({ name: 'user_playlists' })
+@Entity({ name: 'user_playlist' })
 export class UserPlaylistEntity extends BaseEntity {
   @Exclude()
   @ApiProperty({ type: Number })
