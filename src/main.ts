@@ -33,6 +33,10 @@ async function bootstrap() {
         method: RequestMethod.ALL,
       },
       {
+        path: 'charts/(.*)',
+        method: RequestMethod.ALL,
+      },
+      {
         path: 'like/(.*)',
         method: RequestMethod.ALL,
       },
