@@ -29,47 +29,47 @@ async function bootstrap() {
   if (process.env.NODE_ENV === 'maintainance') {
     prefixOptions.exclude = [
       {
-        path: 'artist/(.*)',
+        path: '/artist/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'charts/(.*)',
+        path: '/charts/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'like/(.*)',
+        path: '/like/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'notice/(.*)',
+        path: '/notice/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'qna/(.*)',
+        path: '/qna/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'playlist/(.*)',
+        path: '/playlist/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'user/(.*)',
+        path: '/user/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'auth/(.*)',
+        path: '/auth/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'songs/(.*)',
+        path: '/songs/(.*)',
         method: RequestMethod.ALL,
       },
       {
-        path: 'teams/(.*)',
+        path: '/teams',
         method: RequestMethod.ALL,
       },
       {
-        path: 'news/(.*)',
+        path: '/news',
         method: RequestMethod.ALL,
       },
     ];
