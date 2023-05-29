@@ -25,7 +25,7 @@ async function bootstrap() {
     }),
   );
 
-  const prefixOptions: GlobalPrefixOptions = {};
+  const prefixOptions: GlobalPrefixOptions = { exclude: [] };
   if (process.env.NODE_ENV === 'maintainance') {
     prefixOptions.exclude = [
       {
