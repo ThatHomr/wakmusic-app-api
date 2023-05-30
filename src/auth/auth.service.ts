@@ -29,7 +29,7 @@ export class AuthService {
 
   private getToken(payload: JwtPayload) {
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: '7d',
+      expiresIn: process.env.JWT_EXPIRE_IN,
       secret: process.env.JWT_SECRET,
     });
 
