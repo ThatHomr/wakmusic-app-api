@@ -272,17 +272,15 @@ export class PlaylistService {
       });
 
       if (songs) {
-        const playlistSongs: Array<PlaylistSongEntity> = [];
+        const playlistSongs: Array<Partial<PlaylistSongEntity>> = [];
         let idx = 0;
         for (const song of songs) {
           idx += 1;
-          playlistSongs.push(
-            this.playlistSongRepository.create({
-              playlist: savedPlaylist,
-              song: song,
-              order: idx,
-            }),
-          );
+          playlistSongs.push({
+            playlistId: savedPlaylist.id,
+            song: song,
+            order: idx,
+          });
         }
         await queryRunner.manager.insert(PlaylistSongEntity, playlistSongs);
       }
