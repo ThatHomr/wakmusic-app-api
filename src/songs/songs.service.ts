@@ -99,17 +99,17 @@ export class SongsService {
   async findNewSongsByGroup(group: string): Promise<Array<SongEntity>> {
     if (group == 'all') return await this.findNewSongs();
 
-    const artists = await this.artistService.findByGroup(group);
+    const songs = await this.songRepository
+      .createQueryBuilder('song')
+      .leftJoinAndSelect('song.total', 'total')
+      .leftJoin('song.artists', 'artists')
+      .leftJoin('artists.group', 'group')
+      .where('group.en = :groupId', { groupId: group })
+      .orderBy('song.date', 'DESC')
+      .take(10)
+      .getMany();
 
-    const artistsSongs = artists.reduce<Array<SongEntity>>((songs, current) => {
-      songs.push(...current.songs);
-
-      return songs;
-    }, []);
-
-    if (artistsSongs.length < 10) return artistsSongs;
-
-    return artistsSongs.slice(0, 10);
+    return songs;
   }
 
   async findSongsByPeriod(
