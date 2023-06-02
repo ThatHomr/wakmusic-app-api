@@ -396,16 +396,17 @@ export class PlaylistService {
             prev.order > current.order ? prev : current,
           ).order
         : 0;
-    const playlistSongEntities: Array<PlaylistSongEntity> = [];
+
+    const playlistSongEntities: Array<Partial<PlaylistSongEntity>> = [];
     const songs = await this.songsService.findByIds(songIds);
 
+    const playlistId = playlist.id;
     for (let i = 0; i < songIds.length; i++) {
-      const playlistSongEntity = this.playlistSongRepository.create({
-        playlist: playlist,
+      playlistSongEntities.push({
+        playlistId: playlistId,
         song: songs[i],
         order: prevMaxOrder + i + 1,
       });
-      playlistSongEntities.push(playlistSongEntity);
     }
 
     const insertResult = await this.playlistSongRepository.insert(
