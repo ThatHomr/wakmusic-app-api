@@ -18,6 +18,6 @@ export class ChartUpdatedEntity extends BaseEntity {
   type: string;
 
   @ApiProperty({ type: Number })
-  @PrimaryColumn({ type: 'bigint' })
+  @Column({ type: 'bigint' })
   time: number;
 }
