@@ -35,7 +35,21 @@ export class ChartsService {
   }
 
   async findUpdated(): Promise<number> {
-    const updated = await this.updatedRepository.findOne({ where: {} });
+    const updated = await this.updatedRepository.findOne({
+      where: {
+        type: 'hourly',
+      },
+    });
+    return updated.time;
+  }
+
+  async findUpdatedByType(chartType: string): Promise<number> {
+    const updated = await this.updatedRepository.findOne({
+      where: {
+        type: chartType,
+      },
+    });
+
     return updated.time;
   }
 }
