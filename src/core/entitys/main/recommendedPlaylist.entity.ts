@@ -43,6 +43,11 @@ export class RecommendedPlaylistEntity extends BaseEntity {
   @Column({ type: 'boolean' })
   public: boolean;
 
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ type: 'bigint' })
+  order: number;
+
   @ApiProperty({ type: Number })
   @Column({ name: 'create_at', type: 'bigint' })
   createAt: number;

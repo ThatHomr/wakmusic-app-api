@@ -142,6 +142,9 @@ export class PlaylistService {
       where: {
         public: true,
       },
+      order: {
+        order: 'ASC',
+      },
     });
   }
 
