@@ -166,7 +166,11 @@ export class UserService {
   }
 
   async getProfileImages(): Promise<Array<ProfileEntity>> {
-    return this.profileRepository.find();
+    return this.profileRepository.find({
+      order: {
+        order: 'ASC',
+      },
+    });
   }
 
   async setProfile(id: string, image: string): Promise<void> {

@@ -16,4 +16,9 @@ export class ProfileEntity extends BaseEntity {
   @ApiProperty({ type: Number })
   @Column({ type: 'int' })
   version: number;
+
+  @Exclude()
+  @ApiProperty({ type: Number })
+  @Column({ type: 'bigint' })
+  order: number;
 }
