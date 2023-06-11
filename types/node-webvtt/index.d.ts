@@ -16,6 +16,6 @@ declare module 'node-webvtt' {
     start: number;
     end: number;
     text: string;
-    style: string;
+    styles: string;
   }
 }
