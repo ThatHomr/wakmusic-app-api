@@ -14,7 +14,7 @@ export class LyricsEntity extends BaseEntity {
   @ApiProperty({ type: Date })
   @Column({
     name: 'create_at',
-    type: 'timestamp with time zone',
+    type: 'timestamp',
     default: () => 'CURRENT_TIMESTAMP',
   })
   createAt: Date;
