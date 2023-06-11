@@ -22,13 +22,17 @@ export class FileService {
   async lyricsFindOne(key: string): Promise<vttParser.ParseResult | null> {
     try {
       const data = await this.r2Client.send(
-        new GetObjectCommand({ Bucket: process.env.R2_BUCKET_NAME, Key: key }),
+        new GetObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: `static/lyrics/${key}.vtt`,
+        }),
       );
       const stringData = await data.Body.transformToString('utf-8');
 
       return vttParser.parse(stringData, { strict: false });
     } catch (error) {
       this.logger.error(getError(error));
+
       return null;
     }
   }

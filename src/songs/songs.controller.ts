@@ -15,6 +15,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FindNewSongsParamDto } from './dto/param/find-new-songs.param.dto';
 import { FindLyricsResponseDto } from './dto/response/find-lyrics.response.dto';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
+import { Cue } from 'node-webvtt';
 
 @ApiTags('songs')
 @Controller('songs')
@@ -130,9 +131,7 @@ export class SongsController {
   })
   @Get('lyrics/:id')
   @CacheTTL(60 * 60 * 5)
-  async findLyrics(
-    @Param('id') id: string,
-  ): Promise<Array<FindLyricsResponseDto>> {
+  async findLyrics(@Param('id') id: string): Promise<Array<Cue>> {
     const lyrics = await this.songsService.findLyrics(id);
 
     if (!lyrics) throw new NotFoundException();

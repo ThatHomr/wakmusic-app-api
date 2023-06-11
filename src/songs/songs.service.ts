@@ -3,29 +3,31 @@ import {
   Injectable,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { moment } from '../utils/moment.utils';
 import { FindOperator, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindSongsQueryDto } from './dto/query/find-songs.query.dto';
-import * as fs from 'fs';
-import { lyricsPath } from '../utils/path.utils';
 import { CheckLyricsQueryDto } from './dto/query/check-lyrics.query.dto';
 import { FindSongsByPeriodQueryDto } from './dto/query/find-songs-by-period.query.dto';
-import { ArtistService } from '../artist/artist.service';
 import * as vttParser from 'node-webvtt';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
+import { LyricsEntity } from 'src/core/entitys/main/lyrics.entity';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class SongsService {
   private logger = new Logger(SongsService.name);
 
   constructor(
-    @Inject(ArtistService)
-    private readonly artistService: ArtistService,
+    @Inject(FileService)
+    private readonly fileSerivce: FileService,
 
     @InjectRepository(SongEntity)
     private readonly songRepository: Repository<SongEntity>,
+    @InjectRepository(LyricsEntity)
+    private readonly lyricsRepository: Repository<LyricsEntity>,
   ) {}
 
   async findByIds(ids: Array<string>): Promise<Array<SongEntity>> {
@@ -176,8 +178,6 @@ export class SongsService {
   }
 
   async findSongsByLyrics(): Promise<Array<SongEntity>> {
-    const lyrics = fs.readdirSync(lyricsPath);
-
     const songs = await this.songRepository.find({
       select: {
         id: true,
@@ -192,27 +192,33 @@ export class SongsService {
         },
       },
     });
+    const allLyrics = await this.lyricsRepository.find({});
+    const lyricsMap = new Map<string, string>();
+    for (const lyrics of allLyrics) {
+      lyricsMap.set(lyrics.key, lyrics.key);
+    }
 
-    return songs.filter((song) => !lyrics.includes(song.songId + '.vtt'));
+    return songs.filter((song) => lyricsMap.get(song.songId) !== undefined);
   }
 
   async checkLyrics(query: CheckLyricsQueryDto): Promise<boolean> {
-    try {
-      return fs.existsSync(`${lyricsPath}/${query.id}.vtt`);
-    } catch (err) {
-      console.log(err);
-      return false;
-    }
+    return await this.lyricsRepository.exist({
+      where: {
+        key: query.id,
+      },
+    });
   }
 
-  async findLyrics(id: string): Promise<any> {
+  async findLyrics(id: string): Promise<Array<vttParser.Cue>> {
     const isLyricsExist = await this.checkLyrics({ id: id });
 
-    if (!isLyricsExist) return null;
+    if (!isLyricsExist) throw new NotFoundException('lyrics not exist.');
 
-    const lyricsFile = fs.readFileSync(`${lyricsPath}/${id}.vtt`, 'utf8');
+    const lyricsVtt = await this.fileSerivce.lyricsFindOne(id);
+    if (lyricsVtt === null)
+      throw new NotFoundException('failed to get lyrics.');
 
-    return vttParser.parse(lyricsFile, { strict: false }).cues;
+    return lyricsVtt.cues;
   }
 
   async checkSongs(songIds: Array<string>): Promise<boolean> {
