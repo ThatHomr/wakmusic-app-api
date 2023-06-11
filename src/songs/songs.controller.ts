@@ -1,4 +1,5 @@
 import {
+  CacheTTL,
   Controller,
   Get,
   NotFoundException,
@@ -128,6 +129,7 @@ export class SongsController {
     isArray: true,
   })
   @Get('lyrics/:id')
+  @CacheTTL(60 * 60 * 5)
   async findLyrics(
     @Param('id') id: string,
   ): Promise<Array<FindLyricsResponseDto>> {
