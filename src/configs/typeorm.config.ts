@@ -33,6 +33,7 @@ import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
 import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
 import { EventEntity } from 'src/core/entitys/app/event.entity';
 import { VersionEntity } from 'src/core/entitys/app/version.entity';
+import { LyricsEntity } from 'src/core/entitys/main/lyrics.entity';
 
 export const mainDataSource: TypeOrmModuleOptions = {
   type: 'mariadb',
@@ -74,6 +75,7 @@ export const mainDataSource: TypeOrmModuleOptions = {
     UserPermissionEntity,
     UserPlaylistEntity,
     UserPlaylistPlaylistEntity,
+    LyricsEntity,
   ],
   bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
