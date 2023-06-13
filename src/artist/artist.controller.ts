@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ArtistService } from './artist.service';
 import { FindQueryDto } from './dto/query/find.query.dto';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ArtistEntity } from 'src/core/entitys/main/artistEntity';
+import { ArtistEntity } from 'src/core/entitys/main/artist.entity';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 const ARTIST_EXAMPLE = {

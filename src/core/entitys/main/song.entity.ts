@@ -7,7 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ArtistEntity } from './artistEntity';
+import { ArtistEntity } from './artist.entity';
 import { LikeEntity } from './like.entity';
 import { ChartHourlyEntity } from './chartHourly.entity';
 import { ChartDailyEntity } from './chartDaily.entity';

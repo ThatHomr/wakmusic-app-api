@@ -7,7 +7,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ArtistEntity } from './artistEntity';
+import { ArtistEntity } from './artist.entity';
 import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'artist_image_version' })
