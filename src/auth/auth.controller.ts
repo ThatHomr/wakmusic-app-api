@@ -101,10 +101,7 @@ export class AuthController {
   async loginMobile(
     @Body() body: LoginMobileBodyDto,
   ): Promise<LoginMobileResponseDto> {
-    const { accessToken } = await this.authService.login({
-      id: body.id,
-      provider: body.provider,
-    });
+    const { accessToken } = await this.authService.loginMobile(body);
 
     return {
       token: accessToken,

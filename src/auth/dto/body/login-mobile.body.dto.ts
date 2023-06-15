@@ -5,7 +5,7 @@ export class LoginMobileBodyDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  id: string;
+  token: string;
 
   @ApiProperty()
   @IsString()
