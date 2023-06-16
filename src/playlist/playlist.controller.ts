@@ -35,6 +35,7 @@ import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.r
 import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
 import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
 import { getError } from 'src/utils/error.utils';
+import { PlaylistOwnerResDto } from './dto/response/playlist-owner.response.dto';
 
 @ApiTags('playlist')
 @Controller('playlist')
@@ -149,6 +150,27 @@ export class PlaylistController {
     if (!playlist) throw new NotFoundException();
 
     return playlist;
+  }
+
+  @ApiOperation({
+    summary: '플레이리스트 소유 여부',
+    description: '플레이리스트의 소유자인지 확인합니다.',
+  })
+  @ApiCreatedResponse({
+    description: '소유자 여부',
+    type: () => PlaylistAddSongsResponseDto,
+  })
+  @Get('/:key/isOwner')
+  @UseGuards(JwtAuthGuard)
+  async isOwner(
+    @Req() { user }: { user: JwtPayload },
+    @Param('key') key: string,
+  ): Promise<PlaylistOwnerResDto> {
+    const isOwner = await this.playlistService.isOwner(user.id, key);
+
+    return {
+      owner: isOwner,
+    };
   }
 
   @ApiOperation({
