@@ -99,6 +99,8 @@ export class AuthService {
           throw new Error('invaild token.');
         }
         this.logger.debug(key);
+        this.logger.debug(this.decodeBase64(key.n).toString('utf-8'));
+        this.logger.debug(this.decodeBase64(key.e).toString('utf-8'));
 
         const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
         const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
