@@ -102,24 +102,16 @@ export class AuthService {
         }
         // this.logger.debug(key);
 
-        const publicKey = rsaPublicKeyPem(key.n, key.e);
-        this.logger.debug(publicKey);
+        const m = this.decodeBase64(key.n).toString('hex').length;
+        const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
+        this.logger.debug(m);
+        this.logger.debug(e);
+
+        const publicKey = await this.generatePublicKey(m, e);
 
         const decodedToken = this.jwtService.verify<AppleInfo>(token, {
-          publicKey: publicKey,
-          algorithms: ['RS256'],
+          publicKey: publicKey.export({ format: 'pem', type: 'pkcs8' }),
         });
-
-        // const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
-        // const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
-        // this.logger.debug(m);
-        // this.logger.debug(e);
-
-        // const publicKey = await this.generatePublicKey(m, e);
-
-        // const decodedToken = this.jwtService.verify<AppleInfo>(token, {
-        //   publicKey: publicKey.export({ format: 'pem', type: 'pkcs8' }),
-        // });
 
         return decodedToken.sub;
       default:
