@@ -103,10 +103,11 @@ export class AuthService {
         // this.logger.debug(key);
 
         const publicKey = rsaPublicKeyPem(key.n, key.e);
-        // this.logger.debug(publicKey);
+        this.logger.debug(publicKey);
 
         const decodedToken = this.jwtService.verify<AppleInfo>(token, {
           publicKey: publicKey,
+          algorithms: ['RS256'],
         });
 
         // const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
