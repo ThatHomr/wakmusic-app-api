@@ -98,9 +98,12 @@ export class AuthService {
         if (key === undefined) {
           throw new Error('invaild token.');
         }
+        this.logger.debug(key);
 
         const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
         const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
+        this.logger.debug(m);
+        this.logger.debug(e);
 
         const publicKey = await this.generatePublicKey(m, e);
 
