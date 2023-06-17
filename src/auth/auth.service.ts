@@ -69,12 +69,10 @@ export class AuthService {
   async verify(type: string, token: string): Promise<string> {
     switch (type) {
       case 'google':
-        const ticket = await this.googleClient.verifyIdToken({
-          idToken: token,
-          audience: process.env.OAUTH_GOOGLE_ID,
-        });
-        const payload = ticket.getPayload();
-        return payload.sub;
+        const ticket = await this.googleClient.getTokenInfo(token);
+        const userId = ticket.sub;
+        if (!userId) throw new Error('invaild token.');
+        return userId;
       case 'naver':
         const result = await this.httpService.axiosRef.get<NaverResponseDto>(
           'https://openapi.naver.com/v1/nid/me',
