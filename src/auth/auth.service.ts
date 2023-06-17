@@ -110,7 +110,10 @@ export class AuthService {
         const publicKey = await this.generatePublicKey(m, e);
 
         const decodedToken = this.jwtService.verify<AppleInfo>(token, {
-          publicKey: publicKey.export({ format: 'pem', type: 'pkcs8' }),
+          publicKey: publicKey.export({
+            format: 'pem',
+            type: 'spki',
+          }),
         });
 
         return decodedToken.sub;
