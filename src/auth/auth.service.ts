@@ -99,8 +99,8 @@ export class AuthService {
           throw new Error('invaild token.');
         }
 
-        const m = parseInt(this.decodeBase64(key['n']).toString('hex'), 16);
-        const e = parseInt(this.decodeBase64(key['e']).toString('hex'), 16);
+        const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
+        const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
 
         const publicKey = await this.generatePublicKey(m, e);
 
