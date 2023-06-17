@@ -11,6 +11,7 @@ import { BadRequestException } from '@nestjs/common';
 import { NaverResponseDto } from './dto/naver-response.dto';
 import { AppleInfo, AppleKey, AppleKeyResponseDto } from './dto/apple.dto';
 import { generateKeyPair, KeyObject } from 'crypto';
+import { rsaPublicKeyPem } from 'src/utils/rsa.utils';
 
 export interface JwtPayload {
   id: string;
@@ -88,6 +89,7 @@ export class AuthService {
           await this.httpService.axiosRef.get<AppleKeyResponseDto>(
             'https://appleid.apple.com/auth/keys',
           );
+        // const key = publicKeys.data.keys[1];
         const header = this.headerDecode(token);
 
         const key = this.findKey(
@@ -98,20 +100,25 @@ export class AuthService {
         if (key === undefined) {
           throw new Error('invaild token.');
         }
-        this.logger.debug(key);
-        this.logger.debug(this.decodeBase64(key.n).toString('hex'));
-        this.logger.debug(this.decodeBase64(key.e).toString('hex'));
+        // this.logger.debug(key);
 
-        const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
-        const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
-        this.logger.debug(m);
-        this.logger.debug(e);
-
-        const publicKey = await this.generatePublicKey(m, e);
+        const publicKey = rsaPublicKeyPem(key.n, key.e);
+        // this.logger.debug(publicKey);
 
         const decodedToken = this.jwtService.verify<AppleInfo>(token, {
-          publicKey: publicKey.export({ format: 'pem', type: 'pkcs8' }),
+          publicKey: publicKey,
         });
+
+        // const m = parseInt(this.decodeBase64(key.n).toString('hex'), 16);
+        // const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
+        // this.logger.debug(m);
+        // this.logger.debug(e);
+
+        // const publicKey = await this.generatePublicKey(m, e);
+
+        // const decodedToken = this.jwtService.verify<AppleInfo>(token, {
+        //   publicKey: publicKey.export({ format: 'pem', type: 'pkcs8' }),
+        // });
 
         return decodedToken.sub;
       default:
@@ -133,14 +140,7 @@ export class AuthService {
   }
 
   private decodeBase64(base64: string): Buffer {
-    // Add removed at end '='
-    base64 += Array(5 - (base64.length % 4)).join('=');
-
-    base64 = base64
-      .replace(/\-/g, '+') // Convert '-' to '+'
-      .replace(/\_/g, '/'); // Convert '_' to '/'
-
-    return Buffer.from(base64, 'base64');
+    return Buffer.from(base64, 'base64url');
   }
 
   private generatePublicKey(m: number, e: number): Promise<KeyObject> {
