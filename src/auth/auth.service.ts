@@ -9,8 +9,7 @@ import { HttpService } from '@nestjs/axios';
 import { getError } from 'src/utils/error.utils';
 import { BadRequestException } from '@nestjs/common';
 import { NaverResponseDto } from './dto/naver-response.dto';
-import { AppleInfo, AppleKey, AppleKeyResponseDto } from './dto/apple.dto';
-import { createPublicKey, generateKeyPair, KeyObject } from 'crypto';
+import { AppleInfo } from './dto/apple.dto';
 import { verify } from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
 
@@ -90,11 +89,6 @@ export class AuthService {
         );
         return result.data.response.id;
       case 'apple':
-        // const publicKeys =
-        //   await this.httpService.axiosRef.get<AppleKeyResponseDto>(
-        //     'https://appleid.apple.com/auth/keys',
-        //   );
-        // const key = publicKeys.data.keys[1];
         const header = this.headerDecode(token);
 
         const key = await this.jwksClient.getSigningKey(header['kid']);
@@ -104,22 +98,9 @@ export class AuthService {
 
         const publicKey = key.getPublicKey();
 
-        // const publicKeyObj = await this.generatePublicKey(m, e);
-        // const publicKey = publicKeyObj.export({
-        //   format: 'pem',
-        //   type: 'pkcs1',
-        // });
-
-        this.logger.debug(createPublicKey(publicKey).type);
-
         const decodedToken = verify(token, publicKey, {
           algorithms: ['RS256'],
         }) as AppleInfo;
-
-        // const decodedToken = this.jwtService.verify<AppleInfo>(token, {
-        //   publicKey: publicKey,
-        //   algorithms: ['RS256'],
-        // });
 
         return decodedToken.sub;
       default:
@@ -130,36 +111,5 @@ export class AuthService {
   private headerDecode(token: string): { [key: string]: string } {
     const header = token.split('.')[0];
     return JSON.parse(Buffer.from(header, 'base64').toString());
-  }
-
-  private findKey(
-    keys: Array<AppleKey>,
-    kid: string,
-    alg: string,
-  ): AppleKey | undefined {
-    return keys.find((key) => key.kid === kid && key.alg === alg);
-  }
-
-  private decodeBase64(base64: string): Buffer {
-    return Buffer.from(base64, 'base64url');
-  }
-
-  private generatePublicKey(m: number, e: number): Promise<KeyObject> {
-    return new Promise((resolve, reject) => {
-      generateKeyPair(
-        'rsa',
-        {
-          modulusLength: m,
-          publicExponent: e,
-        },
-        (err, publicKey, privateKey) => {
-          if (err !== null) {
-            reject(err.message);
-          } else {
-            resolve(publicKey);
-          }
-        },
-      );
-    });
   }
 }
