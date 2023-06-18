@@ -12,6 +12,7 @@ import { NaverResponseDto } from './dto/naver-response.dto';
 import { AppleInfo, AppleKey, AppleKeyResponseDto } from './dto/apple.dto';
 import { createPublicKey, generateKeyPair, KeyObject } from 'crypto';
 import { verify } from 'jsonwebtoken';
+import { JwksClient } from 'jwks-rsa';
 
 export interface JwtPayload {
   id: string;
@@ -21,6 +22,7 @@ export interface JwtPayload {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private readonly googleClient: OAuth2Client;
+  private readonly jwksClient: JwksClient;
 
   constructor(
     private readonly jwtService: JwtService,
@@ -29,6 +31,9 @@ export class AuthService {
   ) {
     this.googleClient = new OAuth2Client({
       clientId: process.env.OAUTH_GOOGLE_ID,
+    });
+    this.jwksClient = new JwksClient({
+      jwksUri: 'https://appleid.apple.com/auth/keys',
     });
   }
 
@@ -85,33 +90,25 @@ export class AuthService {
         );
         return result.data.response.id;
       case 'apple':
-        const publicKeys =
-          await this.httpService.axiosRef.get<AppleKeyResponseDto>(
-            'https://appleid.apple.com/auth/keys',
-          );
+        // const publicKeys =
+        //   await this.httpService.axiosRef.get<AppleKeyResponseDto>(
+        //     'https://appleid.apple.com/auth/keys',
+        //   );
         // const key = publicKeys.data.keys[1];
         const header = this.headerDecode(token);
 
-        const key = this.findKey(
-          publicKeys.data.keys,
-          header['kid'],
-          header['alg'],
-        );
+        const key = await this.jwksClient.getSigningKey(header['kid']);
         if (key === undefined) {
           throw new Error('invaild token.');
         }
-        this.logger.debug(token);
 
-        const m = this.decodeBase64(key.n).toString('hex').length * 4;
-        const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
-        this.logger.debug(m);
-        this.logger.debug(e);
+        const publicKey = key.getPublicKey();
 
-        const publicKeyObj = await this.generatePublicKey(m, e);
-        const publicKey = publicKeyObj.export({
-          format: 'pem',
-          type: 'pkcs1',
-        });
+        // const publicKeyObj = await this.generatePublicKey(m, e);
+        // const publicKey = publicKeyObj.export({
+        //   format: 'pem',
+        //   type: 'pkcs1',
+        // });
 
         this.logger.debug(createPublicKey(publicKey).type);
 
