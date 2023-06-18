@@ -89,20 +89,20 @@ export class AuthService {
           await this.httpService.axiosRef.get<AppleKeyResponseDto>(
             'https://appleid.apple.com/auth/keys',
           );
-        const key = publicKeys.data.keys[1];
-        // const header = this.headerDecode(token);
+        // const key = publicKeys.data.keys[1];
+        const header = this.headerDecode(token);
 
-        // const key = this.findKey(
-        //   publicKeys.data.keys,
-        //   header['kid'],
-        //   header['alg'],
-        // );
+        const key = this.findKey(
+          publicKeys.data.keys,
+          header['kid'],
+          header['alg'],
+        );
         if (key === undefined) {
           throw new Error('invaild token.');
         }
-        // this.logger.debug(key);
+        this.logger.debug(token);
 
-        const m = this.decodeBase64(key.n).toString('hex').length;
+        const m = this.decodeBase64(key.n).toString('hex').length * 4;
         const e = parseInt(this.decodeBase64(key.e).toString('hex'), 16);
         this.logger.debug(m);
         this.logger.debug(e);
