@@ -10,8 +10,8 @@ import { getError } from 'src/utils/error.utils';
 import { BadRequestException } from '@nestjs/common';
 import { NaverResponseDto } from './dto/naver-response.dto';
 import { AppleInfo, AppleKey, AppleKeyResponseDto } from './dto/apple.dto';
-import { generateKeyPair, KeyObject } from 'crypto';
-import { rsaPublicKeyPem } from 'src/utils/rsa.utils';
+import { createPublicKey, generateKeyPair, KeyObject } from 'crypto';
+import { verify } from 'jsonwebtoken';
 
 export interface JwtPayload {
   id: string;
@@ -89,14 +89,14 @@ export class AuthService {
           await this.httpService.axiosRef.get<AppleKeyResponseDto>(
             'https://appleid.apple.com/auth/keys',
           );
-        // const key = publicKeys.data.keys[1];
-        const header = this.headerDecode(token);
+        const key = publicKeys.data.keys[1];
+        // const header = this.headerDecode(token);
 
-        const key = this.findKey(
-          publicKeys.data.keys,
-          header['kid'],
-          header['alg'],
-        );
+        // const key = this.findKey(
+        //   publicKeys.data.keys,
+        //   header['kid'],
+        //   header['alg'],
+        // );
         if (key === undefined) {
           throw new Error('invaild token.');
         }
@@ -113,10 +113,16 @@ export class AuthService {
           type: 'pkcs1',
         });
 
-        const decodedToken = this.jwtService.verify<AppleInfo>(token, {
-          publicKey: publicKey,
+        this.logger.debug(createPublicKey(publicKey).type);
+
+        const decodedToken = verify(token, publicKey, {
           algorithms: ['RS256'],
-        });
+        }) as AppleInfo;
+
+        // const decodedToken = this.jwtService.verify<AppleInfo>(token, {
+        //   publicKey: publicKey,
+        //   algorithms: ['RS256'],
+        // });
 
         return decodedToken.sub;
       default:
