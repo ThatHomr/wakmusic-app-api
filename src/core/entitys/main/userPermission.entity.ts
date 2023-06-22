@@ -17,14 +17,6 @@ export class UserPermissionEntity extends BaseEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ApiProperty({ type: () => UserEntity })
-  @OneToOne(() => UserEntity, (user) => user.permission, {
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
-  user: UserEntity;
-
   @ApiProperty({ type: String, maxLength: 255 })
   @Column({ type: 'varchar', length: 255 })
   type: string;
