@@ -31,6 +31,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor';
 import { VersionEntity } from './core/entitys/app/version.entity';
 import { EventEntity } from './core/entitys/app/event.entity';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { EventEntity } from './core/entitys/app/event.entity';
     QnaModule,
     NoticeModule,
     CategoriesModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [
