@@ -33,7 +33,7 @@ export class UserPlaylistPlaylistEntity extends BaseEntity {
 
   @Exclude()
   @ApiProperty({ type: Number })
-  @Column({ name: 'user_playlists_id', type: 'bigint' })
+  @Column({ name: 'user_playlist_id', type: 'bigint' })
   userPlaylistId: number;
 
   @ApiProperty({ type: () => PlaylistEntity })
