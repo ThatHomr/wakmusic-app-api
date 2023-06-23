@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.350.0",
+    "@nestjs/axios": "^2.0.0",
     "@nestjs/bull": "^0.6.3",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
@@ -37,6 +38,7 @@
     "@nestjs/serve-static": "^3.0.0",
     "@nestjs/swagger": "^6.1.4",
     "@nestjs/typeorm": "^9.0.1",
+    "axios": "^1.4.0",
     "bull": "^4.10.4",
     "cache-manager": "^5.1.7",
     "cache-manager-ioredis": "^2.1.0",
@@ -45,6 +47,7 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.3",
     "express-session": "^1.17.3",
+    "google-auth-library": "^8.8.0",
     "joi": "^17.7.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.40",

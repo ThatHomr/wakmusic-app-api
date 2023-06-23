@@ -62,7 +62,11 @@ export class UserEntity extends BaseEntity {
   likes: UserLikeEntity;
 
   @ApiProperty({ type: () => UserPermissionEntity })
-  @OneToOne(() => UserPermissionEntity, (permission) => permission.user)
+  @ManyToOne(() => UserPermissionEntity, (permission) => permission.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'permission_id' })
   permission: UserPermissionEntity;
 
   @Exclude()

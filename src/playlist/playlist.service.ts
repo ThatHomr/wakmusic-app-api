@@ -224,6 +224,17 @@ export class PlaylistService {
     });
   }
 
+  async isOwner(userId: string, playlistKey: string): Promise<boolean> {
+    return await this.playlistRepository.exist({
+      where: {
+        user: {
+          userId,
+        },
+        key: playlistKey,
+      },
+    });
+  }
+
   async create(
     id: string,
     body: PlaylistCreateBodyDto,

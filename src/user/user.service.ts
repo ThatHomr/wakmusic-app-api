@@ -98,12 +98,22 @@ export class UserService {
       this.logger.error('failed to find profile entity.');
       throw new InternalServerErrorException('unexpected error occurred.');
     }
+    const permission = await this.userPermissionRepository.findOne({
+      where: {
+        type: 'default',
+      },
+    });
+    if (!permission) {
+      this.logger.error('failed to find user_permission entity.');
+      throw new InternalServerErrorException('unexpected error occurred.');
+    }
 
     const newUser = this.userRepository.create();
     newUser.userId = OAuthUser.id;
     newUser.displayName = process.env.DEFAULT_NAME;
     newUser.platform = OAuthUser.provider;
     newUser.profile = profile;
+    newUser.permission = permission;
     newUser.firstLoginTime = moment().valueOf();
     newUser.createAt = moment().valueOf();
 
@@ -125,11 +135,6 @@ export class UserService {
         this.logger.error('failed to create new user.');
         throw new InternalServerErrorException('failed to create new user.');
       }
-
-      const userPermissions = this.userPermissionRepository.create({
-        user: user,
-        type: 'default',
-      });
       const userPlaylists = this.userPlaylistRepository.create({
         user: user,
         playlists: [],
@@ -138,7 +143,6 @@ export class UserService {
         user: user,
         likes: [],
       });
-      await queryRunner.manager.insert(UserPermissionEntity, userPermissions);
       await queryRunner.manager.insert(UserPlaylistEntity, userPlaylists);
       await queryRunner.manager.insert(UserLikeEntity, userLikes);
       await queryRunner.commitTransaction();

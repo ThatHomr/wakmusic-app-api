@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ArtistEntity } from '../core/entitys/main/artistEntity';
+import { ArtistEntity } from '../core/entitys/main/artist.entity';
 import { NewsEntity } from '../core/entitys/main/news.entity';
 import { TeamEntity } from '../core/entitys/main/team.entity';
 import { QnaEntity } from '../core/entitys/main/qna.entity';
