@@ -9,7 +9,7 @@ import { AppleStrategy } from './strategy/apple.strategy';
 import { NaverStrategy } from './strategy/naver.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { ImageModule } from 'src/image/image.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { ImageModule } from 'src/image/image.module';
     }),
     PassportModule.register({}),
     UserModule,
-    ImageModule,
+    HttpModule,
   ],
   controllers: [AuthController],
   providers: [

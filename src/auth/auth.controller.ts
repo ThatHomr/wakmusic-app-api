@@ -28,7 +28,6 @@ import { LoginMobileBodyDto } from './dto/body/login-mobile.body.dto';
 import { LoginMobileResponseDto } from './dto/response/login-mobile.response.dto';
 import { SuccessDto } from '../core/dto/success.dto';
 import { CacheDeactivate } from 'src/core/decorator/cache-deactivate.decorator';
-import { ImageService } from 'src/image/image.service';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -37,7 +36,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly imageService: ImageService,
   ) {}
 
   @Get('/login/google')
@@ -103,10 +101,7 @@ export class AuthController {
   async loginMobile(
     @Body() body: LoginMobileBodyDto,
   ): Promise<LoginMobileResponseDto> {
-    const { accessToken } = await this.authService.login({
-      id: body.id,
-      provider: body.provider,
-    });
+    const { accessToken } = await this.authService.loginMobile(body);
 
     return {
       token: accessToken,
@@ -126,15 +121,13 @@ export class AuthController {
   async auth(@Req() req: Request): Promise<AuthResponseDto> {
     const userId = (req.user as JwtPayload).id;
     const user = await this.userService.findOneById(userId);
-    const first = this.userService.checkFirstLogin(user.first_login_time);
-    const profileVersion = await this.imageService.getProfileImageVersion(
-      user.profile,
-    );
+    const first = this.userService.checkFirstLogin(user.firstLoginTime);
 
+    delete user.id;
+    delete user.profileId;
     return {
       ...user,
       first,
-      profile_version: profileVersion.version,
     };
   }
 

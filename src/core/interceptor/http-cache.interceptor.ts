@@ -7,10 +7,7 @@ import {
 import { Observable, tap } from 'rxjs';
 import { Request } from 'express';
 import { Cluster } from 'ioredis';
-import {
-  CACHE_DEACTIVATE_METADATA,
-  CACHE_EVICT_METADATA,
-} from '../constants/cache.constants';
+import { CACHE_DEACTIVATE_METADATA, CACHE_EVICT_METADATA } from '../constants';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'src/auth/auth.service';
 

@@ -1,18 +1,23 @@
-import { IsBoolean, IsNumber, IsString } from 'class-validator';
+import { IsBoolean, IsInstance, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
 
 export class AuthResponseDto {
   @ApiProperty()
+  @IsNumber()
+  id: number;
+
+  @ApiProperty()
   @IsString()
-  id: string;
+  userId: string;
 
   @ApiProperty()
   @IsString()
   platform: string;
 
   @ApiProperty()
-  @IsString()
-  profile: string;
+  @IsInstance(ProfileEntity)
+  profile: ProfileEntity;
 
   @ApiProperty()
   @IsString()
@@ -20,13 +25,9 @@ export class AuthResponseDto {
 
   @ApiProperty()
   @IsNumber()
-  first_login_time: number;
+  firstLoginTime: number;
 
   @ApiProperty()
   @IsBoolean()
   first: boolean;
-
-  @ApiProperty()
-  @IsNumber()
-  profile_version: number;
 }

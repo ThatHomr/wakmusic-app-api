@@ -1,101 +1,80 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MainArtistsEntity } from '../entitys/main/artists.entity';
 import { Repository } from 'typeorm';
 import { FindQueryDto } from './dto/query/find.query.dto';
-import { ArtistsEntity } from '../entitys/chart/artists.entity';
-import { TotalEntity } from '../entitys/chart/total.entity';
-import { FindAllResponseDto } from './dto/response/find-all.response.dto';
-import { ImageService } from '../image/image.service';
+import { ArtistEntity } from 'src/core/entitys/main/artist.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
 
 @Injectable()
 export class ArtistService {
   constructor(
-    private readonly imageService: ImageService,
+    @InjectRepository(ArtistEntity)
+    private readonly artistRepository: Repository<ArtistEntity>,
 
-    @InjectRepository(MainArtistsEntity)
-    private readonly mainArtistsRepository: Repository<MainArtistsEntity>,
-
-    @InjectRepository(ArtistsEntity, 'chart')
-    private readonly artistsRepository: Repository<ArtistsEntity>,
-    @InjectRepository(TotalEntity, 'chart')
-    private readonly totalRepository: Repository<TotalEntity>,
+    @InjectRepository(SongEntity)
+    private readonly songRepository: Repository<SongEntity>,
   ) {}
-  async findAll(): Promise<Array<FindAllResponseDto>> {
-    const artists = await this.mainArtistsRepository.find({
-      where: {},
+
+  async findAll(): Promise<Array<ArtistEntity>> {
+    return await this.artistRepository.find({
       order: {
         order: 'ASC',
       },
+      relations: {
+        group: true,
+        image: true,
+      },
     });
-
-    const unsortedAritstsImageVersion =
-      await this.imageService.getAllArtistImageVersion();
-
-    const sortedArtists: Map<number, FindAllResponseDto> = new Map();
-
-    for (const image_version of unsortedAritstsImageVersion) {
-      const artistIdx = artists.findIndex(
-        (artist) => artist.id === image_version.artist,
-      );
-      if (artistIdx < 0) throw new InternalServerErrorException();
-
-      delete artists[artistIdx].order;
-      sortedArtists.set(artistIdx, {
-        ...artists[artistIdx],
-        color: artists[artistIdx].color
-          .split(',')
-          .map((data) => data.split('|')),
-        image_round_version: image_version.round,
-        image_square_version: image_version.square,
-      });
-    }
-
-    return Array.from(
-      new Map([...sortedArtists].sort((a, b) => a[0] - b[0])).values(),
-    );
   }
 
-  async findByGroup(group: string): Promise<Array<MainArtistsEntity>> {
-    return await this.mainArtistsRepository.find({
+  async findByGroup(group: string): Promise<Array<ArtistEntity>> {
+    return await this.artistRepository.find({
       where: {
-        group: group,
+        group: {
+          en: group,
+        },
       },
       order: {
         order: 'ASC',
+        songs: {
+          date: 'desc',
+        },
+      },
+      relations: {
+        group: true,
+        image: true,
+        songs: {
+          total: true,
+        },
       },
     });
   }
 
-  async find(query: FindQueryDto): Promise<Array<TotalEntity>> {
+  async find(query: FindQueryDto): Promise<Array<SongEntity>> {
     const start = query.start || 0;
 
     let sort: string;
-    let order: boolean;
+    let desc: boolean;
 
     if (query.sort == 'new') {
-      sort = 'total.date';
-      order = true;
+      sort = 'song.date';
+      desc = true;
     } else if (query.sort == 'old') {
-      sort = 'total.date';
-      order = false;
+      sort = 'song.date';
+      desc = false;
     } else if (query.sort == 'popular') {
       sort = 'total.views';
-      order = true;
+      desc = true;
     }
 
-    const songs = await this.artistsRepository.findOne({
-      where: {
-        artist: query.id,
-      },
-    });
-
-    const finalSongs = await this.totalRepository
-      .createQueryBuilder('total')
-      .where('total.id IN (:...ids)', { ids: songs.ids.split(',') })
-      .orderBy(sort, order ? 'DESC' : 'ASC')
+    const songs = await this.songRepository
+      .createQueryBuilder('song')
+      .leftJoin('song.artists', 'artists')
+      .leftJoinAndSelect('song.total', 'total')
+      .where('artists.artistId = :artistId', { artistId: query.id })
+      .orderBy(sort, desc ? 'DESC' : 'ASC')
       .getMany();
 
-    return finalSongs.slice(start, start + 30);
+    return songs.slice(start, start + 30);
   }
 }

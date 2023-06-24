@@ -1,6 +1,7 @@
 import {
   OnQueueActive,
   OnQueueCompleted,
+  OnQueueFailed,
   Process,
   Processor,
 } from '@nestjs/bull';
@@ -9,19 +10,25 @@ import { Job } from 'bull';
 import { PlaylistJobDto } from './dto/playlist-job.dto';
 import { moment } from '../utils/moment.utils';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PlaylistCopyEntity } from '../entitys/data/playlist_copy.entity';
 import { Repository } from 'typeorm';
-import { PlaylistCopyLogEntity } from '../entitys/data/playlist_copy_log.entity';
+import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
+import { PlaylistCopyLogEntity } from 'src/core/entitys/main/playlistCopyLog.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
 
 @Processor('playlist')
 export class PlaylistProcessor {
   private readonly logger = new Logger(PlaylistProcessor.name);
 
   constructor(
-    @InjectRepository(PlaylistCopyEntity, 'data')
-    private readonly playlistCopyRepository: Repository<PlaylistCopyEntity>,
+    @InjectRepository(PlaylistEntity)
+    private readonly playlistRepository: Repository<PlaylistEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
 
-    @InjectRepository(PlaylistCopyLogEntity, 'data')
+    @InjectRepository(PlaylistCopyEntity)
+    private readonly playlistCopyRepository: Repository<PlaylistCopyEntity>,
+    @InjectRepository(PlaylistCopyLogEntity)
     private readonly playlistCopyLogRepository: Repository<PlaylistCopyLogEntity>,
   ) {}
 
@@ -42,19 +49,22 @@ export class PlaylistProcessor {
       date,
       job.data.playlist_key,
       job.data.playlist_owner_id,
+      job.data.datetime,
     );
-    playlistData.count += 1;
-    await this.playlistCopyRepository.save(playlistData);
+    await this.playlistCopyRepository.update(
+      { id: playlistData.id },
+      { count: () => 'count + 1' },
+    );
 
     const playlistDataLog = this.playlistCopyLogRepository.create({
       date: date,
-      playlist_key: job.data.playlist_key,
-      new_playlist_key: job.data.new_playlist_key,
-      playlist_owner_id: job.data.playlist_owner_id,
-      new_playlist_owner_id: job.data.new_playlist_owner_id,
-      created_at: job.data.datetime,
+      playlistKey: job.data.playlist_key,
+      newPlaylistKey: job.data.new_playlist_key,
+      playlistOwnerId: job.data.playlist_owner_id,
+      newPlaylistOwnerId: job.data.new_playlist_owner_id,
+      createAt: job.data.datetime,
     });
-    await this.playlistCopyLogRepository.save(playlistDataLog);
+    await this.playlistCopyLogRepository.insert(playlistDataLog);
   }
 
   private async checkIfUsersPlaylistAlreadyExist(
@@ -64,8 +74,8 @@ export class PlaylistProcessor {
   ): Promise<boolean> {
     const playlistDataLog = await this.playlistCopyLogRepository.findOne({
       where: {
-        playlist_key: playlistKey,
-        new_playlist_owner_id: newPlaylistOwnerId,
+        playlistKey: playlistKey,
+        newPlaylistOwnerId: newPlaylistOwnerId,
         date: date,
       },
     });
@@ -77,16 +87,30 @@ export class PlaylistProcessor {
     date: number,
     key: string,
     ownerId: string,
+    createAt: number,
   ): Promise<PlaylistCopyEntity> {
     let playlistData = await this.playlistCopyRepository.findOne({
       where: {
         date: date,
-        playlist_key: key,
-        owner_id: ownerId,
+        playlist: {
+          key: key,
+        },
+        owner: {
+          userId: ownerId,
+        },
+      },
+      relations: {
+        playlist: true,
+        owner: true,
       },
     });
     if (!playlistData)
-      playlistData = await this.createPlaylistData(date, key, ownerId);
+      playlistData = await this.createPlaylistData(
+        date,
+        key,
+        ownerId,
+        createAt,
+      );
 
     return playlistData;
   }
@@ -95,14 +119,29 @@ export class PlaylistProcessor {
     date: number,
     key: string,
     ownerId: string,
+    createAt: number,
   ): Promise<PlaylistCopyEntity> {
     const playlistData = this.playlistCopyRepository.create();
     playlistData.date = date;
-    playlistData.playlist_key = key;
-    playlistData.owner_id = ownerId;
+    playlistData.playlist = await this.playlistRepository.findOne({
+      where: {
+        key: key,
+      },
+    });
+    playlistData.owner = await this.userRepository.findOne({
+      where: {
+        userId: ownerId,
+      },
+    });
     playlistData.count = 0;
+    playlistData.createAt = createAt;
 
-    return await this.playlistCopyRepository.save(playlistData);
+    await this.playlistCopyRepository.insert(playlistData);
+    return await this.playlistCopyRepository.findOne({
+      where: {
+        createAt: createAt,
+      },
+    });
   }
 
   @OnQueueActive()
@@ -110,6 +149,11 @@ export class PlaylistProcessor {
     this.logger.log(
       `Processing job ${job.id} of type ${job.name} with key ${job.data.playlist_key}`,
     );
+  }
+
+  @OnQueueFailed()
+  onError(job: Job<PlaylistJobDto>, error: Error) {
+    this.logger.log(`Error job ${job.id} of type ${job.name} error: ${error}`);
   }
 
   @OnQueueCompleted()

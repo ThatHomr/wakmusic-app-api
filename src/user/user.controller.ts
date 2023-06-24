@@ -23,8 +23,7 @@ import { LikeDto } from '../like/dto/like.dto';
 import { SuccessDto } from '../core/dto/success.dto';
 import { EditUserLikesBodyDto } from './dto/body/edit-user-likes.body.dto';
 import { EditUserPlaylistsBodyDto } from './dto/body/edit-user-playlists.body.dto';
-import { PlaylistEntity } from '../entitys/user/playlist.entity';
-import { GetUserPlaylistsResponseDto } from './dto/response/get-user-playlists.response.dto';
+import { PlaylistEntity } from '../core/entitys/main/playlist.entity';
 import { GetProfileImagesResponseDto } from './dto/response/get-profile-images.response.dto';
 import { DeleteUserPlaylistsBodyDto } from './dto/body/delete-user-playlists.body.dto';
 import { DeleteUserLikesBodyDto } from './dto/body/delete-user-likes.body.dto';
@@ -103,7 +102,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   async getUserPlaylists(
     @Req() { user }: { user: JwtPayload },
-  ): Promise<Array<GetUserPlaylistsResponseDto>> {
+  ): Promise<Array<PlaylistEntity>> {
     return await this.userService.getUserPlaylists(user.id);
   }
 

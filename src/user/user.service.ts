@@ -1,51 +1,71 @@
 import {
-  BadRequestException,
   CACHE_MANAGER,
   Inject,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from '../entitys/user/user.entity';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, FindOptionsRelations, Repository } from 'typeorm';
 import { OauthDto } from '../auth/dto/oauth.dto';
 import { JwtPayload } from '../auth/auth.service';
 import * as process from 'process';
 import { PlaylistService } from '../playlist/playlist.service';
-import { SongsService } from '../songs/songs.service';
-import { LikeDto } from '../like/dto/like.dto';
 import { LikeService } from '../like/like.service';
 import { EditUserLikesBodyDto } from './dto/body/edit-user-likes.body.dto';
 import { EditUserPlaylistsBodyDto } from './dto/body/edit-user-playlists.body.dto';
 import { Cache } from 'cache-manager';
-import { ImageService } from 'src/image/image.service';
-import { GetUserPlaylistsResponseDto } from './dto/response/get-user-playlists.response.dto';
-import { CategoriesService } from 'src/categories/categories.service';
-import { GetProfileImagesResponseDto } from './dto/response/get-profile-images.response.dto';
 import { DeleteUserPlaylistsBodyDto } from './dto/body/delete-user-playlists.body.dto';
 import { DeleteUserLikesBodyDto } from './dto/body/delete-user-likes.body.dto';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
+import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
+import { moment } from '../utils/moment.utils';
+import { LikeEntity } from 'src/core/entitys/main/like.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
+import { UserPermissionEntity } from 'src/core/entitys/main/userPermission.entity';
+import { UserAccessLogEntity } from 'src/core/entitys/main/userAccessLog.entity';
+import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
 
 @Injectable()
 export class UserService {
+  private logger = new Logger(UserService.name);
+
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
 
     private readonly playlistService: PlaylistService,
     private readonly likeService: LikeService,
-    private readonly songsService: SongsService,
-    private readonly imageService: ImageService,
-    private readonly categoriesService: CategoriesService,
 
-    @InjectRepository(UserEntity, 'user')
+    @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserAccessLogEntity)
+    private readonly userAccessLogRepository: Repository<UserAccessLogEntity>,
+    @InjectRepository(UserPlaylistEntity)
+    private readonly userPlaylistRepository: Repository<UserPlaylistEntity>,
+    @InjectRepository(UserLikeEntity)
+    private readonly userLikeRepository: Repository<UserLikeEntity>,
+    @InjectRepository(UserPermissionEntity)
+    private readonly userPermissionRepository: Repository<UserPermissionEntity>,
+    @InjectRepository(ProfileEntity)
+    private readonly profileRepository: Repository<ProfileEntity>,
+
+    @InjectDataSource()
+    private readonly dataSource: DataSource,
   ) {}
 
-  async findOneById(id: string): Promise<UserEntity> {
+  async findOneById(
+    id: string,
+    relations?: FindOptionsRelations<UserEntity>,
+  ): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where: {
-        id: id,
+        userId: id,
+      },
+      relations: relations || {
+        profile: true,
       },
     });
     if (!user) throw new NotFoundException('유저를 찾을 수 없습니다.');
@@ -55,8 +75,11 @@ export class UserService {
   async findByProviderIdOrSave(OAuthUser: OauthDto): Promise<UserEntity> {
     let user = await this.userRepository.findOne({
       where: {
-        id: OAuthUser.id,
+        userId: OAuthUser.id,
         platform: OAuthUser.provider,
+      },
+      relations: {
+        profile: true,
       },
     });
 
@@ -66,116 +89,176 @@ export class UserService {
   }
 
   async create(OAuthUser: OauthDto): Promise<UserEntity> {
+    const profile = await this.profileRepository.findOne({
+      where: {
+        type: 'panchi',
+      },
+    });
+    if (!profile) {
+      this.logger.error('failed to find profile entity.');
+      throw new InternalServerErrorException('unexpected error occurred.');
+    }
+    const permission = await this.userPermissionRepository.findOne({
+      where: {
+        type: 'default',
+      },
+    });
+    if (!permission) {
+      this.logger.error('failed to find user_permission entity.');
+      throw new InternalServerErrorException('unexpected error occurred.');
+    }
+
     const newUser = this.userRepository.create();
-    newUser.id = OAuthUser.id;
+    newUser.userId = OAuthUser.id;
     newUser.displayName = process.env.DEFAULT_NAME;
     newUser.platform = OAuthUser.provider;
-    newUser.profile = 'panchi';
-    newUser.first_login_time = Date.now();
+    newUser.profile = profile;
+    newUser.permission = permission;
+    newUser.firstLoginTime = moment().valueOf();
+    newUser.createAt = moment().valueOf();
 
-    const user = await this.userRepository.save(newUser);
-    if (!user) throw new InternalServerErrorException();
+    let user: UserEntity;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.insert(UserEntity, newUser);
+      user = await queryRunner.manager.findOne(UserEntity, {
+        relations: { profile: true },
+        where: {
+          userId: newUser.userId,
+        },
+      });
+      if (!user) {
+        this.logger.error('failed to create new user.');
+        throw new InternalServerErrorException('failed to create new user.');
+      }
+      const userPlaylists = this.userPlaylistRepository.create({
+        user: user,
+        playlists: [],
+      });
+      const userLikes = this.userLikeRepository.create({
+        user: user,
+        likes: [],
+      });
+      await queryRunner.manager.insert(UserPlaylistEntity, userPlaylists);
+      await queryRunner.manager.insert(UserLikeEntity, userLikes);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+
+    if (!user) {
+      this.logger.error('failed to create new user.');
+      throw new InternalServerErrorException('failed to create new user.');
+    }
 
     return user;
   }
 
-  async getProfileImages(): Promise<Array<GetProfileImagesResponseDto>> {
-    const categories = await this.categoriesService.findCategoriesByType(
-      'profile',
-    );
-    const unsortedProfileVersions =
-      await this.imageService.getAllProfileImageVersion();
+  async createAccessLog(user: UserEntity): Promise<void> {
+    const log = this.userAccessLogRepository.create({
+      user: user,
+      createdAt: moment().valueOf(),
+    });
 
-    const sortedProfileImage: Map<number, GetProfileImagesResponseDto> =
-      new Map();
+    await this.userAccessLogRepository.insert(log);
+  }
 
-    for (const profile of unsortedProfileVersions) {
-      const idx = categories.indexOf(profile.type);
-      if (idx < 0) throw new InternalServerErrorException();
-
-      sortedProfileImage.set(idx, {
-        type: profile.type,
-        version: profile.version,
-      });
-    }
-
-    return Array.from(
-      new Map([...sortedProfileImage].sort((a, b) => a[0] - b[0])).values(),
-    );
+  async getProfileImages(): Promise<Array<ProfileEntity>> {
+    return this.profileRepository.find({
+      order: {
+        order: 'ASC',
+      },
+    });
   }
 
   async setProfile(id: string, image: string): Promise<void> {
     const user = await this.findOneById(id);
+    const newProfile = await this.profileRepository.findOne({
+      where: {
+        type: image,
+      },
+    });
 
-    user.profile = image;
-
-    await this.userRepository.save(user);
-    this.cacheManager.del(`(${id}) /api/auth`);
+    await this.userRepository.update(
+      { id: user.id },
+      { profileId: newProfile.id },
+    );
+    await this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   async setUsername(id: string, username: string): Promise<void> {
     const user = await this.findOneById(id);
-    user.displayName = username;
 
-    await this.userRepository.save(user);
-    this.cacheManager.del(`(${id}) /api/auth`);
+    await this.userRepository.update(
+      { id: user.id },
+      { displayName: username },
+    );
+    await this.cacheManager.del(`(${id}) /api/auth`);
   }
 
   checkFirstLogin(firstLoginTime: number): boolean {
-    const now = new Date();
-    const firstLogin = new Date(firstLoginTime);
+    const now = moment().format('YYYY MM DD');
+    const firstLogin = moment.unix(firstLoginTime).format('YYYY MM DD');
 
-    return now.toDateString() == firstLogin.toDateString();
+    return now == firstLogin;
   }
 
   async remove(user: JwtPayload): Promise<boolean> {
     const targetUser = await this.userRepository.findOne({
       where: {
-        id: user.id,
+        userId: user.id,
+      },
+      relations: {
+        playlists: {
+          playlists: true,
+        },
+        likes: true,
+        permission: true,
       },
     });
     if (!targetUser) throw new NotFoundException('유저가 없습니다.');
 
-    await this.userRepository.remove(targetUser);
+    await this.userRepository.delete({
+      id: targetUser.id,
+    });
 
     return true;
   }
 
-  async getUserPlaylists(
-    id: string,
-  ): Promise<Array<GetUserPlaylistsResponseDto>> {
-    const playlists = await this.playlistService.findUserPlaylistsByUserId(id);
-    const unsortedPlaylistsDetail =
-      await this.playlistService.findByKeysAndClientId(playlists.playlists, id);
-    const playlistImageVersions = await (
-      await this.imageService.getAllPlaylistImageVersion()
-    )
-      .map((image) => [parseInt(image.type), image.default])
-      .sort((a, b) => a[0] - b[0]);
+  async getUserPlaylists(id: string): Promise<Array<PlaylistEntity>> {
+    const playlistKeys = (
+      await this.playlistService.findUserPlaylistsByUserId(id)
+    ).playlists.map((playlist) => playlist.playlist.key);
 
-    const sortedPlaylistsDetail: Map<number, GetUserPlaylistsResponseDto> =
-      new Map();
+    const unsortedPlaylistsDetail =
+      await this.playlistService.findByKeysAndClientId(playlistKeys, id);
+
+    const sortedPlaylists: Map<number, PlaylistEntity> = new Map();
 
     for (const playlist of unsortedPlaylistsDetail) {
-      const idx = playlists.playlists.indexOf(playlist.key);
-      if (idx < 0) throw new InternalServerErrorException();
+      const idx = playlistKeys.indexOf(playlist.key);
+      if (idx < 0) {
+        this.logger.error('error while sorting songs.');
+        throw new InternalServerErrorException('unexpected error occurred.');
+      }
 
-      sortedPlaylistsDetail.set(idx, {
-        ...playlist,
-        image_version: playlistImageVersions[parseInt(playlist.image) - 1][1],
-      });
+      sortedPlaylists.set(idx, playlist);
     }
 
     return Array.from(
-      new Map(
-        [...sortedPlaylistsDetail].sort(this.handleUserPlaylistsSort),
-      ).values(),
+      new Map([...sortedPlaylists].sort(this.handleUserPlaylistsSort)).values(),
     );
   }
 
   private handleUserPlaylistsSort(
-    a: [number, GetUserPlaylistsResponseDto],
-    b: [number, GetUserPlaylistsResponseDto],
+    a: [number, PlaylistEntity],
+    b: [number, PlaylistEntity],
   ): number {
     return a[0] - b[0];
   }
@@ -191,50 +274,22 @@ export class UserService {
     id: string,
     body: DeleteUserPlaylistsBodyDto,
   ): Promise<void> {
-    await this.playlistService.validateUserPlaylists(id, body.playlists);
-    await this.playlistService.deleteMany(body.playlists);
-
-    await this.cacheManager.del(`(${id}) /api/user/playlists`);
+    await this.playlistService.deleteUserPlaylists(id, body.playlists);
   }
 
-  async getUserLikes(id: string): Promise<Array<LikeDto>> {
-    const manager = await this.likeService.getManager(id);
-    return await this.likeService.findByIds(manager.songs);
+  async getUserLikes(id: string): Promise<Array<LikeEntity>> {
+    const userLikes = await this.likeService.getUserLikes(id);
+    return userLikes.likes.map((likes) => likes.like);
   }
 
   async editUserLikes(id: string, body: EditUserLikesBodyDto): Promise<void> {
-    await this.likeService.editManager(id, body);
+    await this.likeService.editUserLikes(id, body.songs);
   }
 
   async deleteUserLikes(
     userId: string,
     body: DeleteUserLikesBodyDto,
   ): Promise<void> {
-    const likeManager = await this.likeService.getManager(userId);
-    await this.validateUserLikes(likeManager.songs, body.songs);
-
-    await this.likeService.deleteByIds(body.songs);
-
-    for (const song of body.songs) {
-      const songIdx = likeManager.songs.indexOf(song);
-      if (songIdx < 0) throw new InternalServerErrorException();
-
-      likeManager.songs.splice(songIdx, 1);
-    }
-
-    await this.likeService.editManager(likeManager);
-    await Promise.all(
-      body.songs.map((song) => this.cacheManager.del(`/api/like/${song}`)),
-    );
-  }
-
-  async validateUserLikes(
-    currentSongs: Array<string>,
-    deleteSongs: Array<string>,
-  ): Promise<void> {
-    for (const song of deleteSongs) {
-      if (!currentSongs.includes(song))
-        throw new BadRequestException('invaild song included');
-    }
+    await this.likeService.deleteUserLikes(userId, body.songs);
   }
 }

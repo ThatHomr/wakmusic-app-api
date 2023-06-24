@@ -10,9 +10,9 @@ import {
   Req,
   Patch,
   Delete,
+  Logger,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
-import { PlaylistEntity } from '../entitys/user/playlist.entity';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { PlaylistCreateBodyDto } from './dto/body/playlist-create.body.dto';
 import { PlaylistCreateResponseDto } from './dto/response/playlist-create.response.dto';
@@ -27,19 +27,20 @@ import {
   ApiTags,
   OmitType,
 } from '@nestjs/swagger';
-import { RecommendPlaylistEntity } from '../entitys/like/playlist.entity';
-import { FindPlaylistRecommendedResponseDto } from './dto/response/find-playlist-recommended.response.dto';
-import { PlaylistGetDetailResponseDto } from './dto/response/playlist-get-detail.response.dto';
 import { SuccessDto } from '../core/dto/success.dto';
 import { PlaylistEditTitleBodyDto } from './dto/body/playlist-edit-title.body.dto';
 import { PlaylistEditTitleResponseDto } from './dto/response/playlist-edit-title.response.dto';
-import { FindAllPlaylistRecommendedResponseDto } from './dto/response/find-all-playlist-recommended.response.dto';
 import { PlaylistAddSongsBodyDto } from './dto/body/playlist-add-songs.body.dto';
 import { PlaylistAddSongsResponseDto } from './dto/response/playlist-add-songs.response.dto';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
+import { getError } from 'src/utils/error.utils';
+import { PlaylistOwnerResDto } from './dto/response/playlist-owner.response.dto';
 
 @ApiTags('playlist')
 @Controller('playlist')
 export class PlaylistController {
+  private logger = new Logger(PlaylistController.name);
   constructor(private readonly playlistService: PlaylistService) {}
 
   @ApiOperation({
@@ -62,12 +63,12 @@ export class PlaylistController {
   })
   @ApiOkResponse({
     description: '추천 플레이리스트 목록',
-    type: () => OmitType(RecommendPlaylistEntity, ['song_ids'] as const),
+    type: () => OmitType(RecommendedPlaylistEntity, ['songs'] as const),
     isArray: true,
   })
   @Get('/recommended')
   async findAllPlaylistRecommended(): Promise<
-    Array<FindAllPlaylistRecommendedResponseDto>
+    Array<RecommendedPlaylistEntity>
   > {
     return await this.playlistService.findAllPlaylistRecommended();
   }
@@ -78,12 +79,12 @@ export class PlaylistController {
   })
   @ApiOkResponse({
     description: '추천 플레이리스트',
-    type: () => FindPlaylistRecommendedResponseDto,
+    type: () => RecommendedPlaylistEntity,
   })
   @Get('/recommended/:key')
   async findPlaylistRecommended(
     @Param('key') key: string,
-  ): Promise<FindPlaylistRecommendedResponseDto> {
+  ): Promise<RecommendedPlaylistEntity> {
     const playlist = await this.playlistService.findPlaylistRecommended(key);
     if (!playlist) throw new NotFoundException('플레이리스트가 없습니다.');
 
@@ -122,10 +123,12 @@ export class PlaylistController {
     @Body() body: PlaylistCreateBodyDto,
   ): Promise<PlaylistCreateResponseDto> {
     const playlist = await this.playlistService.create(user.id, body);
-    if (!playlist)
+    if (!playlist) {
+      this.logger.error(getError('failed to generate playlist key.'));
       throw new InternalServerErrorException(
         '플레이리스트를 생성하는데 실패하였습니다.',
       );
+    }
 
     return {
       status: 200,
@@ -139,16 +142,35 @@ export class PlaylistController {
   })
   @ApiOkResponse({
     description: '플레이리스트 세부정보',
-    type: () => PlaylistGetDetailResponseDto,
+    type: () => PlaylistEntity,
   })
   @Get('/:key/detail')
-  async getDetail(
-    @Param('key') key: string,
-  ): Promise<PlaylistGetDetailResponseDto> {
+  async getDetail(@Param('key') key: string): Promise<PlaylistEntity> {
     const playlist = await this.playlistService.getDetail(key);
     if (!playlist) throw new NotFoundException();
 
     return playlist;
+  }
+
+  @ApiOperation({
+    summary: '플레이리스트 소유 여부',
+    description: '플레이리스트의 소유자인지 확인합니다.',
+  })
+  @ApiCreatedResponse({
+    description: '소유자 여부',
+    type: () => PlaylistAddSongsResponseDto,
+  })
+  @Get('/:key/isOwner')
+  @UseGuards(JwtAuthGuard)
+  async isOwner(
+    @Req() { user }: { user: JwtPayload },
+    @Param('key') key: string,
+  ): Promise<PlaylistOwnerResDto> {
+    const isOwner = await this.playlistService.isOwner(user.id, key);
+
+    return {
+      owner: isOwner,
+    };
   }
 
   @ApiOperation({
@@ -257,7 +279,10 @@ export class PlaylistController {
       key,
       (req.user as JwtPayload).id,
     );
-    if (!playlist) throw new InternalServerErrorException();
+    if (!playlist) {
+      this.logger.error(getError('failed to delete playlist.'));
+      throw new InternalServerErrorException('failed to delete playlist.');
+    }
 
     return {
       status: 200,
@@ -281,7 +306,12 @@ export class PlaylistController {
   ): Promise<PlaylistCreateResponseDto> {
     const playlist = await this.playlistService.addToMyPlaylist(key, user.id);
 
-    if (!playlist) throw new InternalServerErrorException();
+    if (!playlist) {
+      this.logger.error('failed to copy playlist to my playlists.');
+      throw new InternalServerErrorException(
+        'failed to copy playlist to my playlists.',
+      );
+    }
 
     return {
       status: 200,

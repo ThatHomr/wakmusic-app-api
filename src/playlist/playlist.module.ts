@@ -1,30 +1,43 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { PlaylistController } from './playlist.controller';
 import { PlaylistService } from './playlist.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PlaylistEntity } from '../entitys/user/playlist.entity';
-import { RecommendPlaylistEntity } from '../entitys/like/playlist.entity';
 import { SongsModule } from '../songs/songs.module';
-import { UserPlaylistsEntity } from '../entitys/user/user-playlists.entity';
 import { BullModule } from '@nestjs/bull';
 import { PlaylistProcessor } from './playlist.processor';
-import { PlaylistCopyLogEntity } from '../entitys/data/playlist_copy_log.entity';
-import { PlaylistCopyEntity } from '../entitys/data/playlist_copy.entity';
-import { ImageModule } from 'src/image/image.module';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
+import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
+import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
+import { PlaylistCopyLogEntity } from 'src/core/entitys/main/playlistCopyLog.entity';
+import { PlaylistSongEntity } from 'src/core/entitys/main/playlistSong.entity';
+import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
+import { RecommendedPlaylistSongEntity } from 'src/core/entitys/main/recommendedPlaylistSong.entity';
+import { RecommendedPlaylistImageEntity } from 'src/core/entitys/main/recommendedPlaylistImage.entity';
+import { UserModule } from 'src/user/user.module';
+import { PlaylistImageEntity } from 'src/core/entitys/main/playlistImage.entity';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
 
 @Module({
   imports: [
     BullModule.registerQueue({
       name: 'playlist',
     }),
-    TypeOrmModule.forFeature([PlaylistEntity, UserPlaylistsEntity], 'user'),
-    TypeOrmModule.forFeature([RecommendPlaylistEntity], 'like'),
-    TypeOrmModule.forFeature(
-      [PlaylistCopyEntity, PlaylistCopyLogEntity],
-      'data',
-    ),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      PlaylistEntity,
+      PlaylistSongEntity,
+      PlaylistImageEntity,
+      UserPlaylistEntity,
+      UserPlaylistPlaylistEntity,
+      RecommendedPlaylistEntity,
+      RecommendedPlaylistSongEntity,
+      RecommendedPlaylistImageEntity,
+      PlaylistCopyEntity,
+      PlaylistCopyLogEntity,
+    ]),
     SongsModule,
-    ImageModule,
+    forwardRef(() => UserModule),
   ],
   controllers: [PlaylistController],
   providers: [PlaylistService, PlaylistProcessor],

@@ -1,29 +1,39 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ArtistsEntity } from '../entitys/chart/artists.entity';
-import { MainArtistsEntity } from '../entitys/main/artists.entity';
-import { UpdatedEntity } from '../entitys/chart/updated.entity';
-import { TotalEntity } from '../entitys/chart/total.entity';
-import { MonthlyEntity } from '../entitys/chart/monthly.entity';
-import { WeeklyEntity } from '../entitys/chart/weekly.entity';
-import { DailyEntity } from '../entitys/chart/daily.entity';
-import { HourlyEntity } from '../entitys/chart/hourly.entity';
-import { NewsEntity } from '../entitys/main/news.entity';
-import { TeamsEntity } from '../entitys/main/teams.entity';
-import { PlaylistEntity } from '../entitys/user/playlist.entity';
-import { UserEntity } from '../entitys/user/user.entity';
-import { LikeEntity } from '../entitys/like/like.entity';
-import { LikeManagerEntity } from '../entitys/like/manager.entity';
-import { RecommendPlaylistEntity } from '../entitys/like/playlist.entity';
-import { QnaEntity } from '../entitys/main/qna.entity';
-import { NoticeEntity } from '../entitys/main/notice.entity';
-import { CategoriesEntity } from '../entitys/main/categories.entity';
-import { UserPlaylistsEntity } from '../entitys/user/user-playlists.entity';
-import { PlaylistCopyEntity } from '../entitys/data/playlist_copy.entity';
-import { PlaylistCopyLogEntity } from '../entitys/data/playlist_copy_log.entity';
-import { ArtistVersionEntity } from '../entitys/version/artist.entity';
-import { PlaylistVersionEntity } from '../entitys/version/playlist.entity';
-import { RecommendedPlaylistVersionEntity } from '../entitys/version/recommended-playlist.entitiy';
-import { ProfileVersionEntity } from 'src/entitys/version/profile.entity';
+import { ArtistEntity } from '../core/entitys/main/artist.entity';
+import { NewsEntity } from '../core/entitys/main/news.entity';
+import { TeamEntity } from '../core/entitys/main/team.entity';
+import { QnaEntity } from '../core/entitys/main/qna.entity';
+import { NoticeEntity } from '../core/entitys/main/notice.entity';
+import { CategoryEntity } from '../core/entitys/main/category.entity';
+import { ArtistImageVersionEntity } from 'src/core/entitys/main/artistImageVersion.entity';
+import { ChartDailyEntity } from 'src/core/entitys/main/chartDaily.entity';
+import { ChartHourlyEntity } from 'src/core/entitys/main/chartHourly.entity';
+import { ChartMonthlyEntity } from 'src/core/entitys/main/chartMonthly.entity';
+import { ChartTotalEntity } from 'src/core/entitys/main/chartTotal.entity';
+import { ChartUpdatedEntity } from 'src/core/entitys/main/chartUpdated.entity';
+import { ChartWeeklyEntity } from 'src/core/entitys/main/chartWeekly.entity';
+import { GroupEntity } from 'src/core/entitys/main/group.entity';
+import { LikeEntity } from 'src/core/entitys/main/like.entity';
+import { PlaylistEntity } from 'src/core/entitys/main/playlist.entity';
+import { PlaylistCopyEntity } from 'src/core/entitys/main/playlistCopy.entity';
+import { PlaylistCopyLogEntity } from 'src/core/entitys/main/playlistCopyLog.entity';
+import { PlaylistImageEntity } from 'src/core/entitys/main/playlistImage.entity';
+import { PlaylistSongEntity } from 'src/core/entitys/main/playlistSong.entity';
+import { ProfileEntity } from 'src/core/entitys/main/profile.entity';
+import { RecommendedPlaylistEntity } from 'src/core/entitys/main/recommendedPlaylist.entity';
+import { RecommendedPlaylistImageEntity } from 'src/core/entitys/main/recommendedPlaylistImage.entity';
+import { RecommendedPlaylistSongEntity } from 'src/core/entitys/main/recommendedPlaylistSong.entity';
+import { SongEntity } from 'src/core/entitys/main/song.entity';
+import { UserEntity } from 'src/core/entitys/main/user.entity';
+import { UserAccessLogEntity } from 'src/core/entitys/main/userAccessLog.entity';
+import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
+import { UserLikeSongEntity } from 'src/core/entitys/main/userLikeSong.entity';
+import { UserPermissionEntity } from 'src/core/entitys/main/userPermission.entity';
+import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
+import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
+import { EventEntity } from 'src/core/entitys/app/event.entity';
+import { VersionEntity } from 'src/core/entitys/app/version.entity';
+import { LyricsEntity } from 'src/core/entitys/main/lyrics.entity';
 
 export const mainDataSource: TypeOrmModuleOptions = {
   type: 'mariadb',
@@ -31,93 +41,56 @@ export const mainDataSource: TypeOrmModuleOptions = {
   port: parseInt(process.env.DB_PORT),
   username: process.env.DB_USER_NAME,
   password: process.env.DB_USER_PASSWORD,
-  database: 'static',
+  database: 'main',
   entities: [
+    ArtistImageVersionEntity,
+    ArtistEntity,
+    CategoryEntity,
+    ChartDailyEntity,
+    ChartHourlyEntity,
+    ChartMonthlyEntity,
+    ChartTotalEntity,
+    ChartUpdatedEntity,
+    ChartWeeklyEntity,
+    GroupEntity,
+    LikeEntity,
     NewsEntity,
-    TeamsEntity,
-    MainArtistsEntity,
-    QnaEntity,
     NoticeEntity,
-    CategoriesEntity,
+    PlaylistEntity,
+    PlaylistCopyEntity,
+    PlaylistCopyLogEntity,
+    PlaylistImageEntity,
+    PlaylistSongEntity,
+    ProfileEntity,
+    QnaEntity,
+    RecommendedPlaylistEntity,
+    RecommendedPlaylistImageEntity,
+    RecommendedPlaylistSongEntity,
+    SongEntity,
+    TeamEntity,
+    UserEntity,
+    UserAccessLogEntity,
+    UserLikeEntity,
+    UserLikeSongEntity,
+    UserPermissionEntity,
+    UserPlaylistEntity,
+    UserPlaylistPlaylistEntity,
+    LyricsEntity,
   ],
   bigNumberStrings: false,
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
 
-export const chartDataSource: TypeOrmModuleOptions = {
-  name: 'chart',
+export const appDataSource: TypeOrmModuleOptions = {
+  name: 'app',
   type: 'mariadb',
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT),
   username: process.env.DB_USER_NAME,
   password: process.env.DB_USER_PASSWORD,
-  database: 'charts',
-  entities: [
-    ArtistsEntity,
-    UpdatedEntity,
-    TotalEntity,
-    MonthlyEntity,
-    WeeklyEntity,
-    DailyEntity,
-    HourlyEntity,
-  ],
+  database: 'app',
+  entities: [EventEntity, VersionEntity],
   bigNumberStrings: false,
-  synchronize: process.env.DB_SYNC === 'true' ? true : false,
-};
-
-export const userDataSource: TypeOrmModuleOptions = {
-  name: 'user',
-  type: 'mariadb',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USER_NAME,
-  password: process.env.DB_USER_PASSWORD,
-  database: 'user',
-  entities: [PlaylistEntity, UserEntity, UserPlaylistsEntity],
-  bigNumberStrings: false,
-  synchronize: process.env.DB_SYNC === 'true' ? true : false,
-};
-
-export const likeDataSource: TypeOrmModuleOptions = {
-  name: 'like',
-  type: 'mariadb',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USER_NAME,
-  password: process.env.DB_USER_PASSWORD,
-  database: 'like',
-  entities: [LikeEntity, LikeManagerEntity, RecommendPlaylistEntity],
-  bigNumberStrings: false,
-  synchronize: process.env.DB_SYNC === 'true' ? true : false,
-};
-
-export const dataDataSource: TypeOrmModuleOptions = {
-  name: 'data',
-  type: 'mariadb',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USER_NAME,
-  password: process.env.DB_USER_PASSWORD,
-  database: 'data',
-  entities: [PlaylistCopyEntity, PlaylistCopyLogEntity],
-  bigNumberStrings: false,
-  synchronize: process.env.DB_SYNC === 'true' ? true : false,
-};
-
-export const versionDataSource: TypeOrmModuleOptions = {
-  name: 'version',
-  type: 'mariadb',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USER_NAME,
-  password: process.env.DB_USER_PASSWORD,
-  database: 'version',
-  entities: [
-    ArtistVersionEntity,
-    PlaylistVersionEntity,
-    RecommendedPlaylistVersionEntity,
-    ProfileVersionEntity,
-  ],
-  bigNumberStrings: false,
+  timezone: process.env.TZ || 'Asia/Seoul',
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };

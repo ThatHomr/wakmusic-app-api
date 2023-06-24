@@ -8,17 +8,10 @@ import {
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  chartDataSource,
-  dataDataSource,
-  likeDataSource,
-  mainDataSource,
-  userDataSource,
-  versionDataSource,
-} from './configs/typeorm.config';
+import { appDataSource, mainDataSource } from './configs/typeorm.config';
 import { AuthModule } from './auth/auth.module';
-import { NewsEntity } from './entitys/main/news.entity';
-import { TeamsEntity } from './entitys/main/teams.entity';
+import { NewsEntity } from './core/entitys/main/news.entity';
+import { TeamEntity } from './core/entitys/main/team.entity';
 import { DataSource } from 'typeorm';
 import { ChartsModule } from './charts/charts.module';
 import { SongsModule } from './songs/songs.module';
@@ -36,7 +29,9 @@ import { BullModule } from '@nestjs/bull';
 import * as redisStore from 'cache-manager-ioredis';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor';
-import { ImageModule } from './image/image.module';
+import { VersionEntity } from './core/entitys/app/version.entity';
+import { EventEntity } from './core/entitys/app/event.entity';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -68,7 +63,7 @@ import { ImageModule } from './image/image.module';
           },
         ],
         options: {
-          ttl: 5 * 60,
+          ttl: (parseInt(process.env.CACHE_TTL) || 1) * 60,
         },
       },
       // host: 'localhost',
@@ -76,12 +71,9 @@ import { ImageModule } from './image/image.module';
       // ttl: 5 * 60,
     }),
     TypeOrmModule.forRoot(mainDataSource),
-    TypeOrmModule.forRoot(chartDataSource),
-    TypeOrmModule.forRoot(userDataSource),
-    TypeOrmModule.forRoot(likeDataSource),
-    TypeOrmModule.forRoot(dataDataSource),
-    TypeOrmModule.forRoot(versionDataSource),
-    TypeOrmModule.forFeature([NewsEntity, TeamsEntity]),
+    TypeOrmModule.forRoot(appDataSource),
+    TypeOrmModule.forFeature([NewsEntity, TeamEntity]),
+    TypeOrmModule.forFeature([VersionEntity, EventEntity], 'app'),
     ChartsModule,
     SongsModule,
     ArtistModule,
@@ -93,7 +85,7 @@ import { ImageModule } from './image/image.module';
     QnaModule,
     NoticeModule,
     CategoriesModule,
-    ImageModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [
