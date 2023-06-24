@@ -47,6 +47,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       redis: {
         host: process.env.CACHE_BULL_HOST,
         port: parseInt(process.env.CACHE_BULL_PORT) || 6379,
+        password: process.env.CACHE_BULL_PASSWORD,
       },
     }),
     CacheModule.register<RedisOptions>({
