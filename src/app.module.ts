@@ -32,6 +32,7 @@ import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor'
 import { VersionEntity } from './core/entitys/app/version.entity';
 import { EventEntity } from './core/entitys/app/event.entity';
 import { FileModule } from './file/file.module';
+import { RedisOptions } from 'ioredis';
 
 @Module({
   imports: [
@@ -40,35 +41,17 @@ import { FileModule } from './file/file.module';
     }),
     BullModule.forRoot({
       redis: {
-        host: 'redis-queue',
-        port: 6379,
+        host: process.env.CACHE_BULL_HOST,
+        port: parseInt(process.env.CACHE_BULL_PORT) || 6379,
       },
     }),
-    CacheModule.register({
+    CacheModule.register<RedisOptions>({
       isGlobal: true,
       store: redisStore,
-      clusterConfig: {
-        nodes: [
-          {
-            host: 'redis-cluster',
-            port: 6300,
-          },
-          {
-            host: 'redis-node-1',
-            port: 6301,
-          },
-          {
-            host: 'redis-node-2',
-            port: 6302,
-          },
-        ],
-        options: {
-          ttl: (parseInt(process.env.CACHE_TTL) || 1) * 60,
-        },
-      },
-      // host: 'localhost',
-      // port: 8002,
-      // ttl: 5 * 60,
+      host: process.env.CACHE_MAIN_HOST,
+      port: parseInt(process.env.CACHE_MAIN_PORT) || 6379,
+      password: process.env.CACHE_MAIN_PASSWORD,
+      ttl: (parseInt(process.env.CACHE_TTL) || 1) * 60,
     }),
     TypeOrmModule.forRoot(mainDataSource),
     TypeOrmModule.forRoot(appDataSource),

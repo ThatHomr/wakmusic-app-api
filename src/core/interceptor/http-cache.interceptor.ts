@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import { Request } from 'express';
-import { Cluster } from 'ioredis';
+import { Redis } from 'ioredis';
 import { CACHE_DEACTIVATE_METADATA, CACHE_EVICT_METADATA } from '../constants';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'src/auth/auth.service';
@@ -59,18 +59,15 @@ export class HttpCacheInterceptor extends CacheInterceptor {
    * @param cacheKeys 삭제할 캐시 키 목록
    */
   private async _clearCaches(cacheKeys: string[]): Promise<boolean> {
-    const client: Cluster = await this.cacheManager.store.getClient();
-    const redisNodes = client.nodes();
+    const client: Redis = await this.cacheManager.store.getClient();
 
-    const result2 = await Promise.all(
-      redisNodes.map(async (redis) => {
-        const _keys = await Promise.all(
-          cacheKeys.map((cacheKey) => redis.keys(`*${cacheKey}*`)),
-        );
-        const keys = _keys.flat();
-        return Promise.all(keys.map((key) => !!this.cacheManager.del(key)));
-      }),
+    const _keys = await Promise.all(
+      cacheKeys.map((cacheKey) => client.keys(`*${cacheKey}*`)),
     );
-    return result2.flat().every((r) => !!r);
+    const keys = _keys.flat();
+    const result = await Promise.all(
+      keys.map((key) => !!this.cacheManager.del(key)),
+    );
+    return result.flat().every((r) => !!r);
   }
 }
