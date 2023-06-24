@@ -34,6 +34,8 @@ declare namespace NodeJS {
     CACHE_LIMIT_HOST: string;
     CACHE_LIMIT_PORT: string;
     CACHE_LIMIT_PASSWORD: string;
+    LIMIT_TTL: string;
+    LIMIT_LIMIT: string;
     R2_CLIENT_ID: string;
     R2_ACCESS_KEY_ID: string;
     R2_SECRET_ACCESS_KEY: string;

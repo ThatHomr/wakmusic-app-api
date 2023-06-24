@@ -27,12 +27,16 @@ import { LoggerMiddleware } from './core/middleware/logger.middleware';
 import { CategoriesModule } from './categories/categories.module';
 import { BullModule } from '@nestjs/bull';
 import * as redisStore from 'cache-manager-ioredis';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor';
 import { VersionEntity } from './core/entitys/app/version.entity';
 import { EventEntity } from './core/entitys/app/event.entity';
 import { FileModule } from './file/file.module';
 import { RedisOptions } from 'ioredis';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
+import Redis from 'ioredis';
+import { ThrottlerBehindProxyGuard } from './core/guard/throttler-proxy.guard';
 
 @Module({
   imports: [
@@ -52,6 +56,17 @@ import { RedisOptions } from 'ioredis';
       port: parseInt(process.env.CACHE_MAIN_PORT) || 6379,
       password: process.env.CACHE_MAIN_PASSWORD,
       ttl: (parseInt(process.env.CACHE_TTL) || 1) * 60,
+    }),
+    ThrottlerModule.forRoot({
+      ttl: parseInt(process.env.LIMIT_TTL) || 1,
+      limit: parseInt(process.env.LIMIT_LIMIT) || 10,
+      storage: new ThrottlerStorageRedisService(
+        new Redis({
+          host: process.env.CACHE_LIMIT_HOST,
+          port: parseInt(process.env.CACHE_LIMIT_PORT) || 6379,
+          password: process.env.CACHE_LIMIT_PASSWORD,
+        }),
+      ),
     }),
     TypeOrmModule.forRoot(mainDataSource),
     TypeOrmModule.forRoot(appDataSource),
@@ -80,6 +95,10 @@ import { RedisOptions } from 'ioredis';
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerBehindProxyGuard,
     },
   ],
 })
