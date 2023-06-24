@@ -25,6 +25,15 @@ declare namespace NodeJS {
     DB_USER_PASSWORD: string;
     DB_SYNC: string;
     CACHE_TTL: string;
+    CACHE_MAIN_HOST: string;
+    CACHE_MAIN_PORT: string;
+    CACHE_MAIN_PASSWORD: string;
+    CACHE_BULL_HOST: string;
+    CACHE_BULL_PORT: string;
+    CACHE_BULL_PASSWORD: string;
+    CACHE_LIMIT_HOST: string;
+    CACHE_LIMIT_PORT: string;
+    CACHE_LIMIT_PASSWORD: string;
     R2_CLIENT_ID: string;
     R2_ACCESS_KEY_ID: string;
     R2_SECRET_ACCESS_KEY: string;
