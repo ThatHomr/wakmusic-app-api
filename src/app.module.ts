@@ -1,5 +1,4 @@
 import {
-  CacheModule,
   ClassSerializerInterceptor,
   MiddlewareConsumer,
   Module,
@@ -37,6 +36,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import Redis from 'ioredis';
 import { ThrottlerBehindProxyGuard } from './core/guard/throttler-proxy.guard';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
