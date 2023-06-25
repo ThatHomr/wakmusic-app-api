@@ -2,8 +2,10 @@ import {
   BaseEntity,
   Column,
   Entity,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -42,7 +44,11 @@ export class ArtistEntity extends BaseEntity {
   graduated: boolean;
 
   @ApiProperty({ type: () => GroupEntity })
-  @OneToOne(() => GroupEntity, (group) => group.artist)
+  @ManyToOne(() => GroupEntity, (group) => group.id, {
+    onUpdate: 'CASCADE',
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'group_id', referencedColumnName: 'id' })
   group: GroupEntity;
 
   @ApiProperty({ type: () => SongEntity, isArray: true })
