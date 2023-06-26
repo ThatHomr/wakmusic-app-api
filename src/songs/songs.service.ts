@@ -198,7 +198,7 @@ export class SongsService {
       lyricsMap.set(lyrics.key, lyrics.key);
     }
 
-    return songs.filter((song) => lyricsMap.get(song.songId) !== undefined);
+    return songs.filter((song) => lyricsMap.get(song.songId) === undefined);
   }
 
   async checkLyrics(query: CheckLyricsQueryDto): Promise<boolean> {
