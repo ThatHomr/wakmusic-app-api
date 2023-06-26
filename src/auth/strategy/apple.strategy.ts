@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy } from 'passport-apple';
+import { Strategy, DecodedIdToken } from 'passport-apple';
 import * as process from 'process';
 import { JwtService } from '@nestjs/jwt';
 import { OauthDto } from '../dto/oauth.dto';
@@ -22,13 +22,11 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
   async validate(
     accessToken: string,
     refreshToken: string,
-    idToken: string,
+    decodedIdToken: DecodedIdToken,
   ): Promise<OauthDto> {
-    const decodedObj = this.jwtService.decode(idToken);
-    if (!decodedObj.sub) throw new UnauthorizedException();
-
+    if (!decodedIdToken) throw new UnauthorizedException();
     return {
-      id: decodedObj.sub,
+      id: decodedIdToken.sub,
       provider: 'apple',
     };
   }
