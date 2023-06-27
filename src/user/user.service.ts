@@ -216,7 +216,9 @@ export class UserService {
       },
       relations: {
         playlists: {
-          playlists: true,
+          playlists: {
+            playlist: true,
+          },
         },
         likes: {
           likes: {
