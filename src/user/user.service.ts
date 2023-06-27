@@ -218,7 +218,13 @@ export class UserService {
         playlists: {
           playlists: true,
         },
-        likes: true,
+        likes: {
+          likes: {
+            like: {
+              song: true,
+            },
+          },
+        },
         permission: true,
       },
     });
@@ -227,6 +233,9 @@ export class UserService {
     await this.userRepository.delete({
       id: targetUser.id,
     });
+    await this.likeService.deleteByIds(
+      targetUser.likes.likes.map((like) => like.like.song.songId),
+    );
 
     return true;
   }
