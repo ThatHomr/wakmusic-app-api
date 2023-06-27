@@ -4,7 +4,7 @@ services:
     networks:
       - wakmusic-api
     container_name: server
-    image: eatcocoa/wakmusic-server:0.0.9
+    image: eatcocoa/wakmusic-server:0.0.10
     restart: always
     env_file:
       - .env
