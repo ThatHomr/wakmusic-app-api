@@ -237,6 +237,20 @@ export class UserService {
       targetUser.likes.likes.map((like) => like.like.song.songId),
     );
 
+    const userCacheList: Array<string> = [
+      `(${targetUser.userId}) /api/auth`,
+      `(${targetUser.userId}) /api/user/likes`,
+      `(${targetUser.userId}) /api/user/playlists`,
+      ...targetUser.playlists.playlists.map(
+        (playlist) => `/api/playlist/${playlist.playlist.key}/detail`,
+      ),
+      ...targetUser.likes.likes.map(
+        (like) => `/api/like/${like.like.song.songId}`,
+      ),
+    ];
+
+    await Promise.all(userCacheList.map((key) => this.cacheManager.del(key)));
+
     return true;
   }
 
