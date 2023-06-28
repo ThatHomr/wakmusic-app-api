@@ -7,6 +7,7 @@ import {
   Logger,
   NotFoundException,
   forwardRef,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, In, Repository } from 'typeorm';
@@ -386,7 +387,7 @@ export class PlaylistService {
       playlistEntity,
       validSongIds,
     );
-    if (addedSongsCount == 0) throw new BadRequestException('no songs added');
+    if (addedSongsCount == 0) throw new ConflictException('no songs added');
 
     await this.cacheManager.del(`/api/playlist/${key}/detail`);
     await this.cacheManager.del(`(${userId}) /api/user/playlists`);
