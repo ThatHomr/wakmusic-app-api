@@ -26,6 +26,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@arendajaelu/nestjs-passport-apple": "^1.0.4",
     "@aws-sdk/client-s3": "^3.350.0",
     "@nestjs/axios": "^2.0.0",
     "@nestjs/bull": "^0.6.3",
@@ -59,7 +60,6 @@
     "nestjs-throttler-storage-redis": "^0.3.3",
     "node-webvtt": "^1.9.4",
     "passport": "^0.6.0",
-    "passport-apple": "^2.0.1",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
     "passport-naver": "^1.0.6",
