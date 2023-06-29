@@ -1,14 +1,12 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, DecodedIdToken } from 'passport-apple';
+import { Strategy } from '@arendajaelu/nestjs-passport-apple';
 import * as process from 'process';
 import { JwtService } from '@nestjs/jwt';
 import { OauthDto } from '../dto/oauth.dto';
 
 @Injectable()
 export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
-  private logger = new Logger(AppleStrategy.name);
-
   constructor(private readonly jwtService: JwtService) {
     super({
       clientID: process.env.APPLE_CLIENT_ID,
@@ -16,7 +14,7 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
       callbackURL: process.env.APPLE_CALLBACK_URL,
       failureRedirect: process.env.DOMAIN,
       keyID: process.env.APPLE_KEY_ID,
-      privateKeyString: process.env.APPLE_KEY.replace(/\\n/g, '\n'),
+      keyFilePath: process.env.APPLE_KEY.replace(/\\n/g, '\n'),
       passReqToCallback: false,
     });
   }
@@ -24,13 +22,12 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
   async validate(
     accessToken: string,
     refreshToken: string,
-    decodedIdToken: DecodedIdToken,
+    decodedIdToken: { id: string; provider: string },
   ): Promise<OauthDto> {
     if (!decodedIdToken) throw new UnauthorizedException();
 
-    this.logger.log(JSON.stringify(decodedIdToken));
     return {
-      id: decodedIdToken.sub,
+      id: decodedIdToken.id,
       provider: 'apple',
     };
   }
