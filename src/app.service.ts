@@ -47,9 +47,16 @@ export class AppService {
 
   async appCheck(query: AppCheckQueryDto): Promise<AppCheckResDto> {
     const latestEvent = await this.eventRepository.findOne({
-      where: {
-        active: true,
-      },
+      where: [
+        {
+          os: query.os,
+          active: true,
+        },
+        {
+          os: 'all',
+          active: true,
+        },
+      ],
       order: {
         createAt: 'desc',
       },

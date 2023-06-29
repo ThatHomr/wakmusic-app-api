@@ -9,6 +9,10 @@ export class EventEntity extends BaseEntity {
 
   @Column({ type: 'varchar', length: 255 })
   @ApiProperty({ type: String })
+  os: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  @ApiProperty({ type: String })
   name: string;
 
   @Column({ type: 'text' })
