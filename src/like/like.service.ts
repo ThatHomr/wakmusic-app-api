@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  CACHE_MANAGER,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -19,6 +18,7 @@ import { UserLikeSongEntity } from 'src/core/entitys/main/userLikeSong.entity';
 import { UserService } from 'src/user/user.service';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
 import { getError } from 'src/utils/error.utils';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class LikeService {

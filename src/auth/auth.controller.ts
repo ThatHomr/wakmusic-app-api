@@ -31,7 +31,6 @@ import { CacheDeactivate } from 'src/core/decorator/cache-deactivate.decorator';
 
 @ApiTags('auth')
 @Controller('auth')
-@CacheDeactivate()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -40,12 +39,14 @@ export class AuthController {
 
   @Get('/login/google')
   @UseGuards(GoogleAuthGuard)
+  @CacheDeactivate()
   async googleAuth(): Promise<void> {
     // redirect to google auth page
   }
 
   @Get('/callback/google')
   @UseGuards(GoogleAuthGuard)
+  @CacheDeactivate()
   async googleAuthCallback(
     @Req() req: Request,
     @Res() res: Response,
@@ -59,12 +60,14 @@ export class AuthController {
 
   @Get('/login/apple')
   @UseGuards(AppleAuthGuard)
+  @CacheDeactivate()
   async appleAuth(): Promise<void> {
     // redirect to apple auth page
   }
 
   @Post('/callback/apple')
   @UseGuards(AppleAuthGuard)
+  @CacheDeactivate()
   async appleAuthCallback(@Req() req: Request, @Res() res: Response) {
     const { accessToken } = await this.authService.login(req.user as OauthDto);
 
@@ -75,12 +78,14 @@ export class AuthController {
 
   @Get('/login/naver')
   @UseGuards(NaverAuthGuard)
+  @CacheDeactivate()
   async naverAuth() {
     // redirect to naver auth page
   }
 
   @Get('/callback/naver')
   @UseGuards(NaverAuthGuard)
+  @CacheDeactivate()
   async naverAuthCallback(@Req() req: Request, @Res() res: Response) {
     const { accessToken } = await this.authService.login(req.user as OauthDto);
 
@@ -134,6 +139,7 @@ export class AuthController {
   @ApiCookieAuth('token')
   @Get('/logout')
   @UseGuards(JwtAuthGuard)
+  @CacheDeactivate()
   async logout(@Res() res: Response) {
     res.cookie('token', '', { maxAge: 0 });
     res.redirect(process.env.DOMAIN);

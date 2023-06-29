@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  CACHE_MANAGER,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -29,6 +28,7 @@ import { PlaylistSongEntity } from 'src/core/entitys/main/playlistSong.entity';
 import { UserPlaylistPlaylistEntity } from 'src/core/entitys/main/userPlaylistPlaylist.entity';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
 import { getError } from 'src/utils/error.utils';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class PlaylistService {

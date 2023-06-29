@@ -1,5 +1,4 @@
 import {
-  CACHE_MANAGER,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -27,6 +26,7 @@ import { UserPlaylistEntity } from 'src/core/entitys/main/userPlaylist.entity';
 import { UserPermissionEntity } from 'src/core/entitys/main/userPermission.entity';
 import { UserAccessLogEntity } from 'src/core/entitys/main/userAccessLog.entity';
 import { UserLikeEntity } from 'src/core/entitys/main/userLike.entity';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UserService {

@@ -1,15 +1,11 @@
-import {
-  CacheInterceptor,
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import { Request } from 'express';
 import { Redis } from 'ioredis';
 import { CACHE_DEACTIVATE_METADATA, CACHE_EVICT_METADATA } from '../constants';
 import { Reflector } from '@nestjs/core';
 import { JwtPayload } from 'src/auth/auth.service';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Injectable()
 export class HttpCacheInterceptor extends CacheInterceptor {

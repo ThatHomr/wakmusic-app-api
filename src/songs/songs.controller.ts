@@ -1,5 +1,4 @@
 import {
-  CacheTTL,
   Controller,
   Get,
   NotFoundException,
@@ -16,6 +15,7 @@ import { FindNewSongsParamDto } from './dto/param/find-new-songs.param.dto';
 import { FindLyricsResponseDto } from './dto/response/find-lyrics.response.dto';
 import { SongEntity } from 'src/core/entitys/main/song.entity';
 import { Cue } from 'node-webvtt';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @ApiTags('songs')
 @Controller('songs')

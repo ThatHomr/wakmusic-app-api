@@ -1,4 +1,4 @@
-import { CacheTTL, Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AppService } from './app.service';
 import {
   ApiCreatedResponse,
@@ -11,6 +11,7 @@ import { TeamEntity } from './core/entitys/main/team.entity';
 import { SuccessDto } from './core/dto/success.dto';
 import { AppCheckQueryDto } from './core/dto/query/appCheck.query.dto';
 import { AppCheckResDto } from './core/dto/response/appCheck.res';
+import { CacheTTL } from '@nestjs/cache-manager';
 
 @ApiTags('main')
 @Controller()
