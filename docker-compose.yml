@@ -6,6 +6,8 @@ services:
     container_name: server
     image: eatcocoa/wakmusic-server:0.0.11
     restart: always
+    volumes:
+      - ./logs:/usr/src/app/logs
     env_file:
       - .env
     ports:
