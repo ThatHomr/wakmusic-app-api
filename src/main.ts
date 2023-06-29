@@ -6,9 +6,61 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { setupSwagger } from './utils/swagger.utils';
 import * as process from 'process';
 import { GlobalPrefixOptions } from '@nestjs/common/interfaces';
+import { WinstonModule, utilities } from 'nest-winston';
+import { format, transports } from 'winston';
+import * as WinstonDaily from 'winston-daily-rotate-file';
+import * as path from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: WinstonModule.createLogger({
+      transports: [
+        new transports.Console({
+          level: process.env.NODE_ENV === 'production' ? 'info' : 'silly',
+          format: format.combine(
+            format.timestamp(),
+            utilities.format.nestLike('Wakmusic', {
+              prettyPrint: true,
+            }),
+          ),
+        }),
+        new WinstonDaily({
+          level: 'error',
+          datePattern: 'YYYY-MM-DD',
+          dirname: path.join(__dirname, process.env.LOG_DIR, '/error'),
+          filename: '%DATE%.error.log',
+          maxFiles: 30,
+          zippedArchive: true,
+          format: format.combine(
+            format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+            format.printf((info) => {
+              if (info.stack) {
+                return `${info.timestamp} ${info.level}: ${info.message} \n Error Stack: ${info.stack}`;
+              }
+              return `${info.timestamp} ${info.level}: ${info.message}`;
+            }),
+          ),
+        }),
+        new WinstonDaily({
+          level: 'info',
+          datePattern: 'YYYY-MM-DD',
+          dirname: path.join(__dirname, process.env.LOG_DIR, '/info'),
+          filename: '%DATE%.info.log',
+          maxFiles: 30,
+          zippedArchive: true,
+          format: format.combine(
+            format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
+            format.printf((info) => {
+              if (info.stack) {
+                return `${info.timestamp} ${info.level}: ${info.message} \n Error Stack: ${info.stack}`;
+              }
+              return `${info.timestamp} ${info.level}: ${info.message}`;
+            }),
+          ),
+        }),
+      ],
+    }),
+  });
 
   app.enableCors();
 
