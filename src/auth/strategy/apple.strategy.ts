@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy, DecodedIdToken } from 'passport-apple';
 import * as process from 'process';
@@ -7,6 +7,8 @@ import { OauthDto } from '../dto/oauth.dto';
 
 @Injectable()
 export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
+  private logger = new Logger(AppleStrategy.name);
+
   constructor(private readonly jwtService: JwtService) {
     super({
       clientID: process.env.APPLE_CLIENT_ID,
@@ -25,6 +27,8 @@ export class AppleStrategy extends PassportStrategy(Strategy, 'apple') {
     decodedIdToken: DecodedIdToken,
   ): Promise<OauthDto> {
     if (!decodedIdToken) throw new UnauthorizedException();
+
+    this.logger.log(JSON.stringify(decodedIdToken));
     return {
       id: decodedIdToken.sub,
       provider: 'apple',
