@@ -47,3 +47,5 @@ static/*
 
 # nginx, redis conf files
 conf/*
+
+docker-compose-dev.yml
