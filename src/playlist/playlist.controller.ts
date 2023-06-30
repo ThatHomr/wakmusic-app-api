@@ -43,19 +43,19 @@ export class PlaylistController {
   private logger = new Logger(PlaylistController.name);
   constructor(private readonly playlistService: PlaylistService) {}
 
-  @ApiOperation({
-    summary: '모든 플레이리스트 목록',
-    description: '모든 플레이리스트 목록을 가져옵니다.',
-  })
-  @ApiOkResponse({
-    description: '플레이리스트 목록',
-    type: () => PlaylistEntity,
-    isArray: true,
-  })
-  @Get('/')
-  async fineAll(): Promise<Array<PlaylistEntity>> {
-    return await this.playlistService.findAll();
-  }
+  // @ApiOperation({
+  //   summary: '모든 플레이리스트 목록',
+  //   description: '모든 플레이리스트 목록을 가져옵니다.',
+  // })
+  // @ApiOkResponse({
+  //   description: '플레이리스트 목록',
+  //   type: () => PlaylistEntity,
+  //   isArray: true,
+  // })
+  // @Get('/')
+  // async fineAll(): Promise<Array<PlaylistEntity>> {
+  //   return await this.playlistService.findAll();
+  // }
 
   @ApiOperation({
     summary: '추천 플레이리스트 목록',
@@ -91,21 +91,21 @@ export class PlaylistController {
     return playlist;
   }
 
-  @ApiOperation({
-    summary: 'key를 통해 플레이리스트 조회',
-    description: 'key를 통해 플레이리스트를 가져옵니다.',
-  })
-  @ApiOkResponse({
-    description: '플레이리스트',
-    type: () => PlaylistEntity,
-  })
-  @Get('/:key')
-  async findOne(@Param('key') key: string): Promise<PlaylistEntity> {
-    const playlist = await this.playlistService.findOne(key);
-    if (!playlist) throw new NotFoundException();
+  // @ApiOperation({
+  //   summary: 'key를 통해 플레이리스트 조회',
+  //   description: 'key를 통해 플레이리스트를 가져옵니다.',
+  // })
+  // @ApiOkResponse({
+  //   description: '플레이리스트',
+  //   type: () => PlaylistEntity,
+  // })
+  // @Get('/:key')
+  // async findOne(@Param('key') key: string): Promise<PlaylistEntity> {
+  //   const playlist = await this.playlistService.findOne(key);
+  //   if (!playlist) throw new NotFoundException();
 
-    return playlist;
-  }
+  //   return playlist;
+  // }
 
   @ApiOperation({
     summary: '플레이리스트 생성.',
