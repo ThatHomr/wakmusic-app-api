@@ -91,6 +91,5 @@ export const appDataSource: TypeOrmModuleOptions = {
   database: 'app',
   entities: [EventEntity, VersionEntity],
   bigNumberStrings: false,
-  timezone: process.env.TZ || 'Asia/Seoul',
   synchronize: process.env.DB_SYNC === 'true' ? true : false,
 };
