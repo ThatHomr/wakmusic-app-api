@@ -88,7 +88,9 @@ export class AppService {
     );
 
     if (versions.length === 0) {
-      throw new BadRequestException('invalid app version.');
+      return {
+        flag: AppCheckFlagTypes.SUCCESS,
+      };
     }
     versions.splice(0, 1);
 
