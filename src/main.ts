@@ -66,6 +66,7 @@ async function bootstrap() {
   app.enableCors();
 
   app.use(cookieParser());
+  app.set('trust proxy', true);
 
   app.useGlobalPipes(
     new ValidationPipe({
