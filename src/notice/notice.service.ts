@@ -20,6 +20,9 @@ export class NoticeService {
       relations: {
         category: true,
       },
+      order: {
+        startAt: 'DESC',
+      },
     });
   }
 
@@ -27,7 +30,7 @@ export class NoticeService {
     return await this.noticeRepository.findOne({
       where: {},
       order: {
-        createAt: 'DESC',
+        startAt: 'DESC',
       },
       relations: {
         category: true,
@@ -44,6 +47,9 @@ export class NoticeService {
       },
       relations: {
         category: true,
+      },
+      order: {
+        startAt: 'DESC',
       },
     });
   }
