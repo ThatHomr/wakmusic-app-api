@@ -5,12 +5,13 @@ import { NextFunction, Request, Response } from 'express';
 export class LoggerMiddleware implements NestMiddleware {
   private logger = new Logger('HTTP');
   use(req: Request, res: Response, next: NextFunction) {
-    const { ip, method, originalUrl } = req;
+    const { method, originalUrl } = req;
+    const realIp = req.ips.length ? req.ips[0] : req.ip;
     const userAgent = req.get('user-agent') || '';
     res.on('finish', () => {
       const { statusCode } = res;
       this.logger.log(
-        `${method} ${statusCode} - ${originalUrl} - ${ip} - ${userAgent}`,
+        `${method} ${statusCode} - ${originalUrl} - ${realIp} - ${userAgent}`,
       );
     });
     next();

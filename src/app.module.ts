@@ -26,7 +26,7 @@ import { LoggerMiddleware } from './core/middleware/logger.middleware';
 import { CategoriesModule } from './categories/categories.module';
 import { BullModule } from '@nestjs/bull';
 import * as redisStore from 'cache-manager-ioredis';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpCacheInterceptor } from './core/interceptor/http-cache.interceptor';
 import { VersionEntity } from './core/entitys/app/version.entity';
 import { EventEntity } from './core/entitys/app/event.entity';
@@ -37,6 +37,7 @@ import { ThrottlerStorageRedisService } from 'nestjs-throttler-storage-redis';
 import Redis from 'ioredis';
 import { ThrottlerBehindProxyGuard } from './core/guard/throttler-proxy.guard';
 import { CacheModule } from '@nestjs/cache-manager';
+import { AllExceptionFilter } from './core/filter/all-exception.filter';
 
 @Module({
   imports: [
@@ -100,6 +101,10 @@ import { CacheModule } from '@nestjs/cache-manager';
     {
       provide: APP_GUARD,
       useClass: ThrottlerBehindProxyGuard,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionFilter,
     },
   ],
 })

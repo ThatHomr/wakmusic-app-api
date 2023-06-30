@@ -13,6 +13,7 @@ import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
     logger: WinstonModule.createLogger({
       transports: [
         new transports.Console({
