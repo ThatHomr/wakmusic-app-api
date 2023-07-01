@@ -93,7 +93,8 @@ export class SongsService {
       .leftJoinAndSelect('song.total', 'total')
       .where('song.date <= :dateNow', { dateNow })
       .andWhere('song.date >= :dateStart', { dateStart })
-      .orderBy('song.date', 'DESC');
+      .orderBy('song.date', 'DESC')
+      .addOrderBy('song.id', 'DESC');
 
     return await newSongs.getMany();
   }
@@ -108,6 +109,7 @@ export class SongsService {
       .leftJoin('artists.group', 'group')
       .where('group.en = :groupId', { groupId: group })
       .orderBy('song.date', 'DESC')
+      .addOrderBy('song.id', 'DESC')
       .take(10)
       .getMany();
 
