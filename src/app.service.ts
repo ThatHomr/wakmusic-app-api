@@ -83,15 +83,8 @@ export class AppService {
     }
 
     versions = versions.filter((value: VersionEntity) =>
-      this.isHigherOrEqualVersion(query.version, value.version),
+      this.isHigherVersion(query.version, value.version),
     );
-
-    if (versions.length === 0) {
-      return {
-        flag: AppCheckFlagTypes.SUCCESS,
-      };
-    }
-    versions.splice(0, 1);
 
     const forceVersion = versions.find((version) => version.force);
 
@@ -114,7 +107,7 @@ export class AppService {
     };
   }
 
-  isHigherOrEqualVersion(current: string, compare: string): boolean {
+  isHigherVersion(current: string, compare: string): boolean {
     const currArray = current.split('.');
     const compareArray = compare.split('.');
 
@@ -127,6 +120,6 @@ export class AppService {
       if (currInt < compareInt) return true;
     }
 
-    return true;
+    return false;
   }
 }
