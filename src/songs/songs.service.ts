@@ -76,6 +76,7 @@ export class SongsService {
       },
       order: {
         date: 'desc',
+        id: 'desc',
       },
       take: limit,
       relations: {
