@@ -61,9 +61,10 @@ async function bootstrap() {
         }),
       ],
     }),
+    cors: {
+      origin: ['https://wakmusic.xyz', 'https://lyrics.wakmusic.xyz'],
+    },
   });
-
-  app.enableCors();
 
   app.use(cookieParser());
   app.set('trust proxy', true);
