@@ -1,0 +1,18 @@
+version: "3.3"
+services:
+  wakmusic-server:
+    networks:
+      - wakmusic-api
+    container_name: server
+    image: eatcocoa/wakmusic-server-dev:latest
+    restart: always
+    volumes:
+      - ./logs:/usr/src/app/logs
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+
+networks:
+  wakmusic-api:
+    driver: bridge
