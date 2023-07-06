@@ -1,10 +1,113 @@
 version: "3.3"
 services:
-  wakmusic-server:
+  nginx:
+    container_name: nginx
     networks:
       - wakmusic-api
-    container_name: server
+    image: nginx:latest
+    restart: always
+    volumes:
+      - ./conf/nginx/conf.d:/etc/nginx/conf.d
+      - ./conf/nginx/settings:/etc/nginx/settings
+      - ./conf/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "443:443"
+      - "80:80"
+    depends_on:
+      wakmusic-server:
+        condition: service_healthy
+
+  cache-main:
+    container_name: cache-main
+    networks:
+      - wakmusic-api
+    image: redis:latest
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-p", "6300", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - ./conf/redis/redis-main.conf:/usr/local/conf/redis.conf
+    command: redis-server /usr/local/conf/redis.conf
+    expose:
+      - 6300
+
+  cache-limit:
+    container_name: cache-limit
+    networks:
+      - wakmusic-api
+    image: redis:latest
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-p", "6301", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - ./conf/redis/redis-limit.conf:/usr/local/conf/redis.conf
+    command: redis-server /usr/local/conf/redis.conf
+    expose:
+      - 6301
+
+  cache-bull:
+    container_name: cache-bull
+    networks:
+      - wakmusic-api
+    image: redis:latest
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-p", "6302", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - ./conf/redis/redis-bull.conf:/usr/local/conf/redis.conf
+    command: redis-server /usr/local/conf/redis.conf
+    expose:
+      - 6302
+
+  mysql:
+    container_name: mysql
+    networks:
+      - wakmusic-api
+    image: mariadb:latest
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "healthcheck.sh",
+          "--connect",
+          "--innodb_initialized"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - "./conf/mariadb/conf.d:/etc/mysql/conf.d"
+      - "./conf/mariadb/data:/var/lib/mysql"
+      - "./conf/mariadb/sql:/usr/local/wakmusic/sql"
+    environment:
+      MARIADB_USER: ${DB_USER_NAME}
+      MARIADB_PASSWORD: ${DB_USER_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    expose:
+      - 3306
+
+  wakmusic-server:
+    container_name: wakmusic-server
+    networks:
+      - wakmusic-api
     image: eatcocoa/wakmusic-server-dev:latest
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--spider",
+          "http://localhost:8080/api/heartbeat"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
     restart: always
     volumes:
       - ./logs:/usr/src/app/logs
@@ -12,6 +115,15 @@ services:
       - .env
     ports:
       - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      cache-main:
+        condition: service_healthy
+      cache-limit:
+        condition: service_healthy
+      cache-bull:
+        condition: service_healthy
 
 networks:
   wakmusic-api:
