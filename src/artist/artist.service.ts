@@ -73,6 +73,7 @@ export class ArtistService {
       .leftJoinAndSelect('song.total', 'total')
       .where('artists.artistId = :artistId', { artistId: query.id })
       .orderBy(sort, desc ? 'DESC' : 'ASC')
+      .addOrderBy('song.id', 'ASC')
       .getMany();
 
     return songs.slice(start, start + 30);
