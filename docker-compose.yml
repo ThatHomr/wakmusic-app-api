@@ -4,7 +4,7 @@ services:
     networks:
       - wakmusic-api
     container_name: server
-    image: eatcocoa/wakmusic-server:1.0.1
+    image: eatcocoa/wakmusic-server:1.0.2
     restart: always
     volumes:
       - ./logs:/usr/src/app/logs
